@@ -1,5 +1,5 @@
-`ifndef __BUS__
-    `define __BUS__
+`ifndef __BUS_HEADER__
+    `define __BUS_HEADER__
     
     `define BUS_MASTER_CH       4
     `define BUS_MASTER_INDEX_W  2

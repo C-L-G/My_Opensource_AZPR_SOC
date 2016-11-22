@@ -34,34 +34,34 @@
 `include "stddef.h"
 module bus_master_mux(
     //master 0
-    input   wire    [`WordAddrBus]  m0_addr     ,//30   address
-    input   wire                    m0_as_n     ,//01
-    input   wire                    m0_rw       ,//01
-    input   wire    [`WordDataBus]  m0_wr_data  ,//32   write data   
-    input   wire                    m0_grant_n  ,//01
+    input   wire    [`WordAddrBus]  m0_addr         ,//30   address
+    input   wire                    m0_as_n         ,//01
+    input   wire                    m0_rw           ,//01
+    input   wire    [`WordDataBus]  m0_wr_data      ,//32   write data   
+    input   wire                    m0_grant_n      ,//01
     //master 1
-    input   wire    [`WordAddrBus]  m1_addr     ,//30   address
-    input   wire                    m1_as_n     ,//01
-    input   wire                    m1_rw       ,//01
-    input   wire    [`WordDataBus]  m1_wr_data  ,//32   write data   
-    input   wire                    m1_grant_n  ,//01
+    input   wire    [`WordAddrBus]  m1_addr         ,//30   address
+    input   wire                    m1_as_n         ,//01
+    input   wire                    m1_rw           ,//01
+    input   wire    [`WordDataBus]  m1_wr_data      ,//32   write data   
+    input   wire                    m1_grant_n      ,//01
     //master 2
-    input   wire    [`WordAddrBus]  m2_addr     ,//30   address
-    input   wire                    m2_as_n     ,//01
-    input   wire                    m2_rw       ,//01
-    input   wire    [`WordDataBus]  m2_wr_data  ,//32   write data   
-    input   wire                    m2_grant_n  ,//01
+    input   wire    [`WordAddrBus]  m2_addr         ,//30   address
+    input   wire                    m2_as_n         ,//01
+    input   wire                    m2_rw           ,//01
+    input   wire    [`WordDataBus]  m2_wr_data      ,//32   write data   
+    input   wire                    m2_grant_n      ,//01
     //master 3
-    input   wire    [`WordAddrBus]  m3_addr     ,//30   address
-    input   wire                    m3_as_n     ,//01
-    input   wire                    m3_rw       ,//01
-    input   wire    [`WordDataBus]  m3_wr_data  ,//32   write data   
-    input   wire                    m3_grant_n  ,//01
+    input   wire    [`WordAddrBus]  m3_addr         ,//30   address
+    input   wire                    m3_as_n         ,//01
+    input   wire                    m3_rw           ,//01
+    input   wire    [`WordDataBus]  m3_wr_data      ,//32   write data   
+    input   wire                    m3_grant_n      ,//01
     //share
-    output  wire    [`WordAddrBus]  s_addr      ,//30
-    output  wire                    s_as_n      ,//01
-    output  wire                    s_rw        ,//01
-    output  wire    [`WordDataBus]  s_wr_data    //32
+    output  wire    [`WordAddrBus]  s_addr          ,//30
+    output  wire                    s_as_n          ,//01
+    output  wire                    s_rw            ,//01
+    output  wire    [`WordDataBus]  s_wr_data        //32
 
 );
 

@@ -26,31 +26,102 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
-//2016.11.21 - lichangbeiju - Add grant and master owner logic.
+//2016.11.22 - lichangbeiju - Add the instance and io port.
 //*---------------------------------------------------------------------------------------------------
 `timescale 1ns/1ps
 `include "bus.h"
 `include "global_config.h"
 `include "stddef.h"
-module bus_arbiter(
-    input   wire            clk             ,//01   the system clock 
-    input   wire            reset           ,//01   
-    input   wire            m0_req_n        ,//01   
-    output  wire            m0_grant_n      ,//01   
-    input   wire            m1_req_n        ,//01   
-    output  wire            m1_grant_n      ,//01   
-    input   wire            m2_req_n        ,//01   
-    output  wire            m2_grant_n      ,//01   
-    input   wire            m3_req_n        ,//01   
-    output  wire            m3_grant_n       //01   
+module bus(
+    input   wire                    clk             ,//01   the system clock 
+    input   wire                    reset           ,//01   
+    input   wire                    m0_req_n        ,//01   
+    output  wire                    m0_grant_n      ,//01   
+    input   wire                    m1_req_n        ,//01   
+    output  wire                    m1_grant_n      ,//01   
+    input   wire                    m2_req_n        ,//01   
+    output  wire                    m2_grant_n      ,//01   
+    input   wire                    m3_req_n        ,//01   
+    output  wire                    m3_grant_n      ,//01   
+    //master 0
+    input   wire    [`WordAddrBus]  m0_addr         ,//30   address
+    input   wire                    m0_as_n         ,//01
+    input   wire                    m0_rw           ,//01
+    input   wire    [`WordDataBus]  m0_wr_data      ,//32   write data   
+    input   wire                    m0_grant_n      ,//01
+    //master 1
+    input   wire    [`WordAddrBus]  m1_addr         ,//30   address
+    input   wire                    m1_as_n         ,//01
+    input   wire                    m1_rw           ,//01
+    input   wire    [`WordDataBus]  m1_wr_data      ,//32   write data   
+    input   wire                    m1_grant_n      ,//01
+    //master 2
+    input   wire    [`WordAddrBus]  m2_addr         ,//30   address
+    input   wire                    m2_as_n         ,//01
+    input   wire                    m2_rw           ,//01
+    input   wire    [`WordDataBus]  m2_wr_data      ,//32   write data   
+    input   wire                    m2_grant_n      ,//01
+    //master 3
+    input   wire    [`WordAddrBus]  m3_addr         ,//30   address
+    input   wire                    m3_as_n         ,//01
+    input   wire                    m3_rw           ,//01
+    input   wire    [`WordDataBus]  m3_wr_data      ,//32   write data   
+    input   wire                    m3_grant_n      ,//01
+    //share
+    output  wire    [`WordAddrBus]  s_addr          ,//30
+    output  wire                    s_as_n          ,//01
+    output  wire                    s_rw            ,//01
+    output  wire    [`WordDataBus]  s_wr_data       ,//3
+    input   wire    [`WordAddrBus]  s_addr          ,//30   address
+    output  wire                    s0_cs_n         ,//01   slave 0 chip select
+    output  wire                    s1_cs_n         ,//01   slave 1 chip select
+    output  wire                    s2_cs_n         ,//01   slave 2 chip select
+    output  wire                    s3_cs_n         ,//01   slave 3 chip select
+    output  wire                    s4_cs_n         ,//01   slave 4 chip select
+    output  wire                    s5_cs_n         ,//01   slave 5 chip select
+    output  wire                    s6_cs_n         ,//01   slave 6 chip select
+    output  wire                    s7_cs_n         ,//01   slave 7 chip selec
+    //slave 0
+    input   wire                    s0_cs_n         ,//01   chip select
+    input   wire    [`WordDataBus]  s0_rd_data      ,//32   write data   
+    input   wire                    s0_rdy_n        ,//01
+    //slave 1
+    input   wire                    s1_cs_n         ,//01   chip select
+    input   wire    [`WordDataBus]  s1_rd_data      ,//32   write data   
+    input   wire                    s1_rdy_n        ,//01
+    //slave 2
+    input   wire                    s2_cs_n         ,//01   chip select
+    input   wire    [`WordDataBus]  s2_rd_data      ,//32   write data   
+    input   wire                    s2_rdy_n        ,//01
+    //slave 3
+    input   wire                    s3_cs_n         ,//01   chip select
+    input   wire    [`WordDataBus]  s3_rd_data      ,//32   write data   
+    input   wire                    s3_rdy_n        ,//01
+    //slave 4
+    input   wire                    s4_cs_n         ,//01   chip select
+    input   wire    [`WordDataBus]  s4_rd_data      ,//32   write data   
+    input   wire                    s4_rdy_n        ,//01
+    //slave 5
+    input   wire                    s5_cs_n         ,//01   chip select
+    input   wire    [`WordDataBus]  s5_rd_data      ,//32   write data   
+    input   wire                    s5_rdy_n        ,//01
+    //slave 6
+    input   wire                    s6_cs_n         ,//01   chip select
+    input   wire    [`WordDataBus]  s6_rd_data      ,//32   write data   
+    input   wire                    s6_rdy_n        ,//01
+    //slave 7
+    input   wire                    s7_cs_n         ,//01   chip select
+    input   wire    [`WordDataBus]  s7_rd_data      ,//32   write data   
+    input   wire                    s7_rdy_n        ,//01
+    //share
+    output  wire    [`WordDataBus]  m_rd_data       ,//32
+    output  wire                    m_rdy_n          //01   Read
 );
 
     //************************************************************************************************
     // 1.Parameter and constant define
     //************************************************************************************************
     
-//    `define UDP
-//    `define CLK_TEST_EN
     
     //************************************************************************************************
     // 2.Register and wire declaration
@@ -58,14 +129,9 @@ module bus_arbiter(
     //------------------------------------------------------------------------------------------------
     // 2.1 the output reg
     //------------------------------------------------------------------------------------------------   
-    reg                 m0_grant_n      ;
-    reg                 m1_grant_n      ;
-    reg                 m2_grant_n      ;
-    reg                 m3_grant_n      ;
-    //------------------------------------------------------------------------------------------------
+
     // 2.2 the internal reg
     //------------------------------------------------------------------------------------------------  
-    reg     [01:00]     owner           ;//aux data input and output
     
     
     
@@ -74,269 +140,23 @@ module bus_arbiter(
     //------------------------------------------------------------------------------------------------
 
     //************************************************************************************************
-    // 4.Main code
+    // 3.Main code
     //************************************************************************************************
 
     //------------------------------------------------------------------------------------------------
-    // 4.1 the master grant logic
+    // 3.1 the master grant logic
     //------------------------------------------------------------------------------------------------
     
-    always @(*) begin : MASTER_GRANT
-        m0_grant_n  = `DISABLE_N;
-        m1_grant_n  = `DISABLE_N;
-        m2_grant_n  = `DISABLE_N;
-        m3_grant_n  = `DISABLE_N;
-        case(owner)
-            `BUS_OWNER_MASTER_0 :   begin
-                m0_grant_n  = `ENABLE_N;
-            end
-            `BUS_OWNER_MASTER_1 :   begin
-                m1_grant_n  = `ENABLE_N;
-            end
-            `BUS_OWNER_MASTER_2 :   begin
-                m2_grant_n  = `ENABLE_N;
-            end
-            `BUS_OWNER_MASTER_3 :   begin
-                m3_grant_n  = `ENABLE_N;
-            end
-    end
     
      
     //------------------------------------------------------------------------------------------------
-    // 4.1 the master owner control logic
+    // 3.1 the master owner control logic
     //------------------------------------------------------------------------------------------------
     
-    always @(posedge clk or `RESET_EDGE reset) begin : OWNER_CTRL 
-        if(reset == `RESET_ENABLE)
-            begin
-                owner   <= `BUS_OWNER_MASTER_0;
-            end
-        else begin
-            case(owner)
-                `BUS_OWNER_MASTER_0 :   begin
-                    if(m0_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_0;
-                        end
-                    else if(m1_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_1;
-                        end
-                    else if(m2_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_2;
-                        end
-                    else if(m3_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_3;
-                        end
-                    else
-                        begin
-                            owner   <= owner;
-                        end
-                end
-                `BUS_OWNER_MASTER_1 :   begin
-                    if(m1_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_1;
-                        end
-                    else if(m2_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_2;
-                        end
-                    else if(m3_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_3;
-                        end
-                    else if(m0_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_0;
-                        end
-                    else
-                        begin
-                            owner   <= owner;
-                        end
-                end
-                `BUS_OWNER_MASTER_2 :   begin
-                    if(m2_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_2;
-                        end
-                    else if(m3_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_3;
-                        end
-                    else if(m0_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_0;
-                        end
-                    else if(m1_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_1;
-                        end
-                    else
-                        begin
-                            owner   <= owner;
-                        end
-                end
-                `BUS_OWNER_MASTER_3 :   begin
-                    if(m3_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_3;
-                        end
-                    else if(m0_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_0;
-                        end
-                    else if(m1_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_1;
-                        end
-                    else if(m2_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_2;
-                        end
-                    else
-                        begin
-                            owner   <= owner;
-                        end
-                end
-            endcase
-        end
-    end
-
-
-
-
-
-
-
-
-
-    assign  led         = led_sel ? aux_data_o[15:08] : aux_data_o[07:00]   ;//
-    assign  clk_en      = en                ;//
-//  assign  aux_data_i  = 8'b10101010       ;//
-    always @(posedge clk or negedge rst_n) begin : AUX_DATA_IN
-        if(!rst_n)
-            begin
-                aux_data_i     <= 'd0;
-            end
-        else
-            begin
-                aux_data_i      <= aux_data_i + 1'b1;
-            end   
-    end
     //------------------------------------------------------------------------------------------------
-    // 4.x the Test Logic
+    // 3.x the Test Logic
     //------------------------------------------------------------------------------------------------    
-    `ifdef CLK_TEST_EN
-    always @(posedge div_2_clk or negedge rst_n) begin : TEST_LOGIC_1
-        if(!rst_n)
-            begin
-                test_cnt_1     <= 'd0;
-            end
-        else
-            begin
-                test_cnt_1     <= test_cnt_1 + 1'b1;
-            end   
-    end
-    always @(posedge div_4_clk or negedge rst_n) begin : TEST_LOGIC_2
-        if(!rst_n)
-            begin
-                test_cnt_2     <= 'd0;
-            end
-        else
-            begin
-                test_cnt_2     <= test_cnt_2 + 1'b1;
-            end   
-    end
-    always @(posedge gated_clk or negedge rst_n) begin : TEST_LOGIC_3
-        if(!rst_n)
-            begin
-                test_cnt_3     <= 'd0;
-            end
-        else
-            begin
-                test_cnt_3     <= test_cnt_3 + 1'b1;
-            end   
-    end
 
-    reg     ccd_log_test_1;
-    reg     ccd_log_test_2;
-    reg     ccd_log_test_3;
-    reg     ccd_log_test_4;
-    reg     ccd_log_test_5;
-
-    always @(posedge clk or negedge rst_n) begin : CCD_LOG_1
-        if(!rst_n)
-            begin
-                ccd_log_test_1  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_1  <= ~test_cnt_3[0];
-            end   
-    end
-
-    always @(posedge div_4_clk or negedge rst_n) begin : CCD_LOG_2
-        if(!rst_n)
-            begin
-                ccd_log_test_2  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_2  <= ~test_cnt_1[1];
-            end   
-    end
-    always @(posedge clk or negedge rst_n) begin : CCD_LOG_3
-        if(!rst_n)
-            begin
-                ccd_log_test_3  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_3  <= ~test_cnt_2[1];
-            end   
-    end
-    always @(posedge clk or negedge rst_n) begin : CCD_LOG_4
-        if(!rst_n)
-            begin
-                ccd_log_test_4  <= 'd0;
-            end
-        else if(ccd_log_test_3)
-            begin
-                ccd_log_test_4  <= ((test_cnt_1 == 'd3) | (test_cnt_1 == 'd2) | (test_cnt_1 == 'd1)) | (test_cnt_1 & 'b101 == 'b010);
-            end
-        else
-            begin
-                ccd_log_test_4  <= ccd_log_test_4;
-            end 
-    end
-
-    always @(posedge sw_clk or negedge rst_n) begin : CCD_LOG_5
-        if(!rst_n)
-            begin
-                ccd_log_test_5  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_5  <= ccd_log_test_4;
-            end 
-    end
-
-    
-    assign  test_o[0]   = test_cnt_1[03]        ;
-    assign  test_o[1]   = test_cnt_2[03]        ;
-    assign  test_o[2]   = test_cnt_3[03]        ;
-//  assign  test_o[7:3] = {5{test_cnt_2[00]}}   ;
-    assign  test_o[3]   = ccd_log_test_1        ;   
-    assign  test_o[4]   = ccd_log_test_2        ;   
-    assign  test_o[5]   = ccd_log_test_3        ;   
-    assign  test_o[6]   = ccd_log_test_4        ;   
-    assign  test_o[7]   = ccd_log_test_5        ;   
-    `else
-    assign  test_o      = 8'b00000000           ;
-    `endif
     
     //************************************************************************************************
     // 5.Sub module instantiation
@@ -344,48 +164,100 @@ module bus_arbiter(
     //------------------------------------------------------------------------------------------------
     // 5.1 the clk generate module
     //------------------------------------------------------------------------------------------------    
-    clk_gen_top clk_gen_inst(
-        .clk                (clk                ),//01  In
-        .rst_n              (rst_n              ),//01  In
-        .div_2_clk          (div_2_clk          ),//01  Out
-        .div_4_clk          (div_4_clk          ),//01  Out
-        .clk_en             (clk_en             ),//01  In
-        .clk_sel            (clk_sel            ),//01  In
-        .sw_clk             (sw_clk             ),//01  In
-        .gated_clk          (gated_clk          ) //01  Out
+    bus_arbiter bus_arbiter(
+        .clk                (clk                ),//01  In 
+        .reset              (reset              ),//01  In 
+        .m0_req_n           (m0_req_n           ),//01  In 
+        .m0_grant_n         (m0_grant_n         ),//01  Out 
+        .m1_req_n           (m1_req_n           ),//01  In 
+        .m1_grant_n         (m1_grant_n         ),//01  Out 
+        .m2_req_n           (m2_req_n           ),//01  In 
+        .m2_grant_n         (m2_grant_n         ),//01  Out 
+        .m3_req_n           (m3_req_n           ),//01  In 
+        .m3_grant_n         (m3_grant_n         ) //01  Out 
     );
     
     //------------------------------------------------------------------------------------------------
     // 5.2 the system auxiliary module
     //------------------------------------------------------------------------------------------------   
-    sys_aux_module sys_aux_inst(
-        .aux_clk            (clk                ),//01  In
-        .aux_rst_n          (rst_n              ),//01  In
-        .aux_data_i         (aux_data_i         ),//08  In
-        .aux_data_o         (aux_data_o         ) //15  Out     
+    bus_master_mux bus_master_mux(
+        .m0_addr            (m0_addr            ),//30   address
+        .m0_as_n            (m0_as_n            ),//01
+        .m0_rw              (m0_rw              ),//01
+        .m0_wr_data         (m0_wr_data         ),//32   write data   
+        .m0_grant_n         (m0_grant_n         ),//01
+        .m1_addr            (m1_addr            ),//30   address
+        .m1_as_n            (m1_as_n            ),//01
+        .m1_rw              (m1_rw              ),//01
+        .m1_wr_data         (m1_wr_data         ),//32   write data   
+        .m1_grant_n         (m1_grant_n         ),//01
+        .m2_addr            (m2_addr            ),//30   address
+        .m2_as_n            (m2_as_n            ),//01
+        .m2_rw              (m2_rw              ),//01
+        .m2_wr_data         (m2_wr_data         ),//32   write data   
+        .m2_grant_n         (m2_grant_n         ),//01
+        .m3_addr            (m3_addr            ),//30   address
+        .m3_as_n            (m3_as_n            ),//01
+        .m3_rw              (m3_rw              ),//01
+        .m3_wr_data         (m3_wr_data         ),//32   write data   
+        .m3_grant_n         (m3_grant_n         ),//01
+        .s_addr             (s_addr             ),//30
+        .s_as_n             (s_as_n             ),//01
+        .s_rw               (s_rw               ),//01
+        .s_wr_data          (s_wr_data          ) //3
     );
-    
     //------------------------------------------------------------------------------------------------
-    // 5.3 the udp/ip stack module
+    // 4.3 the address dec
     //------------------------------------------------------------------------------------------------
-    
-    `ifdef UDP
-    udpip_stack_module udpip_stack_inst(
-        .udp_clk            (sys_clk            ),//xx  I/O
-        .clk_200mhz         (adc_refclk_s       ),//xx  I/O
-        .clk_in_p           (clk_in_p           ),//xx  I/O
-        .clk_in_p           (clk_in_p           ),//xx  I/O
-        .udp_reset          (udp_reset          ),//xx  I/O
-        .mgtclk_p           (mgtclk_p           ),//xx  I/O
-        .phy_disable        (                   ) //xx  I/O 
+    bus_addr_dec bus_addr_dec(
+        .s_addr             (s_addr             ),//30   address
+        .s0_cs_n            (s0_cs_n            ),//01   slave 0 chip select
+        .s1_cs_n            (s1_cs_n            ),//01   slave 1 chip select
+        .s2_cs_n            (s2_cs_n            ),//01   slave 2 chip select
+        .s3_cs_n            (s3_cs_n            ),//01   slave 3 chip select
+        .s4_cs_n            (s4_cs_n            ),//01   slave 4 chip select
+        .s5_cs_n            (s5_cs_n            ),//01   slave 5 chip select
+        .s6_cs_n            (s6_cs_n            ),//01   slave 6 chip select
+        .s7_cs_n            (s7_cs_n            ) //01   slave 7 chip selec
     );  
-    `endif
+    
+    //------------------------------------------------------------------------------------------------
+    // 4.4 the udp/ip stack module
+    //------------------------------------------------------------------------------------------------
+    bus_slave_mux bus_slave_mux(
+        .s0_cs_n            (s0_cs_n            ),//01   chip select
+        .s0_rd_data         (s0_rd_data         ),//32   write data   
+        .s0_rdy_n           (s0_rdy_n           ),//01
+        .s1_cs_n            (s1_cs_n            ),//01   chip select
+        .s1_rd_data         (s1_rd_data         ),//32   write data   
+        .s1_rdy_n           (s1_rdy_n           ),//01
+        .s2_cs_n            (s2_cs_n            ),//01   chip select
+        .s2_rd_data         (s2_rd_data         ),//32   write data   
+        .s2_rdy_n           (s2_rdy_n           ),//01
+        .s3_cs_n            (s3_cs_n            ),//01   chip select
+        .s3_rd_data         (s3_rd_data         ),//32   write data   
+        .s3_rdy_n           (s3_rdy_n           ),//01
+        .s4_cs_n            (s4_cs_n            ),//01   chip select
+        .s4_rd_data         (s4_rd_data         ),//32   write data   
+        .s4_rdy_n           (s4_rdy_n           ),//01
+        .s5_cs_n            (s5_cs_n            ),//01   chip select
+        .s5_rd_data         (s5_rd_data         ),//32   write data   
+        .s5_rdy_n           (s5_rdy_n           ),//01
+        .s6_cs_n            (s6_cs_n            ),//01   chip select
+        .s6_rd_data         (s6_rd_data         ),//32   write data   
+        .s6_rdy_n           (s6_rdy_n           ),//01
+        .s7_cs_n            (s7_cs_n            ),//01   chip select
+        .s7_rd_data         (s7_rd_data         ),//32   write data   
+        .s7_rdy_n           (s7_rdy_n           ),//01
+        .m_rd_data          (m_rd_data          ),//32
+        .m_rdy_n            (m_rdy_n            ) //01   Read
+    );  
+
+
+  
+
     
 endmodule    
 //****************************************************************************************************
 //End of Mopdule
 //****************************************************************************************************
-    
-    
-    
-   
