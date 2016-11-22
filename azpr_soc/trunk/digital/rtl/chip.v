@@ -1,268 +1,358 @@
-//****************************************************************************************************  
-//*----------------Copyright (c) 2016 C-L-G.FPGA1988.Roger Wang. All rights reserved------------------
-//
-//                   --              It to be define                --
-//                   --                    ...                      --
-//                   --                    ...                      --
-//                   --                    ...                      --
-//**************************************************************************************************** 
-//File Information
-//**************************************************************************************************** 
-//File Name      : gt0000_digital_top.v 
-//Project Name   : gt0000
-//Description    : the top module of gt0000
-//Github Address : https://github.com/C-L-G/gt0000/trunk/ic/digital/rtl/gt0000_digital_top.v
-//License        : CPL
-//**************************************************************************************************** 
-//Version Information
-//**************************************************************************************************** 
-//Create Date    : 01-07-2016 17:00(1th Fri,July,2016)
-//First Author   : Roger Wang
-//Modify Date    : 02-09-2016 14:20(1th Sun,July,2016)
-//Last Author    : Roger Wang
-//Version Number : 002   
-//Last Commit    : 03-09-2016 14:30(1th Sun,July,2016)
-//**************************************************************************************************** 
-//Change History(latest change first)
-//dd.mm.yyyy - Author - Your log of change
-//**************************************************************************************************** 
-//02.09.2016 - Roger Wang - Add the clock switch test logic,rename the clk gen module to clk gen top.
-//29.08.2016 - Roger Wang - Add the system auxiliary module,add the test logic.
-//29.08.2016 - Roger Wang - The initial version.
-//*---------------------------------------------------------------------------------------------------
-`timescale 1ns/1ps
-module gt0000_digital_top(
-    clk             ,//01   In
-    rst_n           ,//01   In
-    en              ,//01   In
-    clk_sel         ,//01   In
-    led_sel         ,//01   In
-    led             ,//08   Out
-    test_o           //08   Out    
+/* 
+ -- ============================================================================
+ -- FILE NAME	: chip.v
+ -- DESCRIPTION : チップ
+ -- ----------------------------------------------------------------------------
+ -- Revision  Date		  Coding_by	 Comment
+ -- 1.0.0	  2011/06/27  suito		 新規作成
+ -- ============================================================================
+*/
+
+/********** 共通ヘッダファイル **********/
+`include "nettype.h"
+`include "stddef.h"
+`include "global_config.h"
+
+/********** 個別ヘッダファイル **********/
+`include "cpu.h"
+`include "bus.h"
+`include "rom.h"
+`include "timer.h"
+`include "uart.h"
+`include "gpio.h"
+
+/********** モジュール **********/
+module chip (
+	/********** クロック & リセット **********/
+	input  wire						 clk,		  // クロック
+	input  wire						 clk_,		  // 反転クロック
+	input  wire						 reset		  // リセット
+	/********** UART  **********/
+`ifdef IMPLEMENT_UART // UART実装
+	, input	 wire					 uart_rx	  // UART受信信号
+	, output wire					 uart_tx	  // UART送信信号
+`endif
+	/********** 汎用入出力ポート **********/
+`ifdef IMPLEMENT_GPIO // GPIO実装
+`ifdef GPIO_IN_CH	 // 入力ポートの実装
+	, input wire [`GPIO_IN_CH-1:0]	 gpio_in	  // 入力ポート
+`endif
+`ifdef GPIO_OUT_CH	 // 出力ポートの実装
+	, output wire [`GPIO_OUT_CH-1:0] gpio_out	  // 出力ポート
+`endif
+`ifdef GPIO_IO_CH	 // 入出力ポートの実装
+	, inout wire [`GPIO_IO_CH-1:0]	 gpio_io	  // 入出力ポート
+`endif
+`endif
 );
 
-    //************************************************************************************************
-    // 1.Parameter and constant define
-    //************************************************************************************************
-    
-//    `define UDP
-    `define CLK_TEST_EN
-    
-    
-    //************************************************************************************************
-    // 2.input and output declaration
-    //************************************************************************************************
-    input               clk             ;//the system clk = 20MHz
-    input               rst_n           ;//the system reset,low active
-    input               en              ;//enable signal
-    input               clk_sel         ;//clock select signal
-    input               led_sel         ;//led function select
-    output  [07:00]     led             ;//8 bits led
-    output  [07:00]     test_o          ;//8 bits test output
-    
-    //************************************************************************************************
-    // 3.Register and wire declaration
-    //************************************************************************************************
-    //------------------------------------------------------------------------------------------------
-    // 3.1 the clk wire signal
-    //------------------------------------------------------------------------------------------------   
-    wire                div_2_clk       ;//the divide 2 clock
-    wire                div_4_clk       ;//the divide 4 clock
-    wire                clk_en          ;//the clock enable signal
-    wire                gated_clk       ;//the clock gating signal
-    wire                sw_clk          ;//the selected clock by clk_sel
-    //------------------------------------------------------------------------------------------------
-    // 3.2 the clk wire signal
-    //------------------------------------------------------------------------------------------------  
-    reg     [07:00]     aux_data_i      ;//aux data input and output
-    wire    [15:00]     aux_data_o      ;//aux data input and output
-    
-    
-    
-    //------------------------------------------------------------------------------------------------
-    // 3.x the test logic
-    //------------------------------------------------------------------------------------------------
-    `ifdef CLK_TEST_EN
-    reg     [03:00]     test_cnt_1      ;//
-    reg     [03:00]     test_cnt_2      ;//
-    reg     [03:00]     test_cnt_3      ;//
-    `endif
-    //************************************************************************************************
-    // 4.Main code
-    //************************************************************************************************
-    assign  led         = led_sel ? aux_data_o[15:08] : aux_data_o[07:00]   ;//
-    assign  clk_en      = en                ;//
-//  assign  aux_data_i  = 8'b10101010       ;//
-    always @(posedge clk or negedge rst_n) begin : AUX_DATA_IN
-        if(!rst_n)
-            begin
-                aux_data_i     <= 'd0;
-            end
-        else
-            begin
-                aux_data_i      <= aux_data_i + 1'b1;
-            end   
-    end
-    //------------------------------------------------------------------------------------------------
-    // 4.x the Test Logic
-    //------------------------------------------------------------------------------------------------    
-    `ifdef CLK_TEST_EN
-    always @(posedge div_2_clk or negedge rst_n) begin : TEST_LOGIC_1
-        if(!rst_n)
-            begin
-                test_cnt_1     <= 'd0;
-            end
-        else
-            begin
-                test_cnt_1     <= test_cnt_1 + 1'b1;
-            end   
-    end
-    always @(posedge div_4_clk or negedge rst_n) begin : TEST_LOGIC_2
-        if(!rst_n)
-            begin
-                test_cnt_2     <= 'd0;
-            end
-        else
-            begin
-                test_cnt_2     <= test_cnt_2 + 1'b1;
-            end   
-    end
-    always @(posedge gated_clk or negedge rst_n) begin : TEST_LOGIC_3
-        if(!rst_n)
-            begin
-                test_cnt_3     <= 'd0;
-            end
-        else
-            begin
-                test_cnt_3     <= test_cnt_3 + 1'b1;
-            end   
-    end
+	/********** バスマスタ信号 **********/
+	// 全マスタ共通信号~
+	wire [`WordDataBus] m_rd_data;				  // 読み出しデータ
+	wire				m_rdy_;					  // レディ
+	// バスマスタ0
+	wire				m0_req_;				  // バスリクエスト
+	wire [`WordAddrBus] m0_addr;				  // アドレス
+	wire				m0_as_;					  // アドレスストローブ
+	wire				m0_rw;					  // 読み／書き
+	wire [`WordDataBus] m0_wr_data;				  // 書き込みデータ
+	wire				m0_grnt_;				  // バスグラント
+	// バスマスタ1
+	wire				m1_req_;				  // バスリクエスト
+	wire [`WordAddrBus] m1_addr;				  // アドレス
+	wire				m1_as_;					  // アドレスストローブ
+	wire				m1_rw;					  // 読み／書き
+	wire [`WordDataBus] m1_wr_data;				  // 書き込みデータ
+	wire				m1_grnt_;				  // バスグラント
+	// バスマスタ2
+	wire				m2_req_;				  // バスリクエスト
+	wire [`WordAddrBus] m2_addr;				  // アドレス
+	wire				m2_as_;					  // アドレスストローブ
+	wire				m2_rw;					  // 読み／書き
+	wire [`WordDataBus] m2_wr_data;				  // 書き込みデータ
+	wire				m2_grnt_;				  // バスグラント
+	// バスマスタ3
+	wire				m3_req_;				  // バスリクエスト
+	wire [`WordAddrBus] m3_addr;				  // アドレス
+	wire				m3_as_;					  // アドレスストローブ
+	wire				m3_rw;					  // 読み／書き
+	wire [`WordDataBus] m3_wr_data;				  // 書き込みデータ
+	wire				m3_grnt_;				  // バスグラント
+	/********** バススレーブ信号 **********/
+	// 全スレーブ共通信号
+	wire [`WordAddrBus] s_addr;					  // アドレス
+	wire				s_as_;					  // アドレスストローブ
+	wire				s_rw;					  // 読み／書き
+	wire [`WordDataBus] s_wr_data;				  // 書き込みデータ
+	// バススレーブ0番
+	wire [`WordDataBus] s0_rd_data;				  // 読み出しデータ
+	wire				s0_rdy_;				  // レディ
+	wire				s0_cs_;					  // チップセレクト
+	// バススレーブ1番
+	wire [`WordDataBus] s1_rd_data;				  // 読み出しデータ
+	wire				s1_rdy_;				  // レディ
+	wire				s1_cs_;					  // チップセレクト
+	// バススレーブ2番
+	wire [`WordDataBus] s2_rd_data;				  // 読み出しデータ
+	wire				s2_rdy_;				  // レディ
+	wire				s2_cs_;					  // チップセレクト
+	// バススレーブ3番
+	wire [`WordDataBus] s3_rd_data;				  // 読み出しデータ
+	wire				s3_rdy_;				  // レディ
+	wire				s3_cs_;					  // チップセレクト
+	// バススレーブ4番
+	wire [`WordDataBus] s4_rd_data;				  // 読み出しデータ
+	wire				s4_rdy_;				  // レディ
+	wire				s4_cs_;					  // チップセレクト
+	// バススレーブ5番
+	wire [`WordDataBus] s5_rd_data;				  // 読み出しデータ
+	wire				s5_rdy_;				  // レディ
+	wire				s5_cs_;					  // チップセレクト
+	// バススレーブ6番
+	wire [`WordDataBus] s6_rd_data;				  // 読み出しデータ
+	wire				s6_rdy_;				  // レディ
+	wire				s6_cs_;					  // チップセレクト
+	// バススレーブ7番
+	wire [`WordDataBus] s7_rd_data;				  // 読み出しデータ
+	wire				s7_rdy_;				  // レディ
+	wire				s7_cs_;					  // チップセレクト
+	/********** 割り込み要求信号 **********/
+	wire				   irq_timer;			  // タイマIRQ
+	wire				   irq_uart_rx;			  // UART IRQ（受信）
+	wire				   irq_uart_tx;			  // UART IRQ（送信）
+	wire [`CPU_IRQ_CH-1:0] cpu_irq;				  // CPU IRQ
 
-    reg     ccd_log_test_1;
-    reg     ccd_log_test_2;
-    reg     ccd_log_test_3;
-    reg     ccd_log_test_4;
-    reg     ccd_log_test_5;
+	assign cpu_irq = {{`CPU_IRQ_CH-3{`LOW}}, 
+					  irq_uart_rx, irq_uart_tx, irq_timer};
 
-    always @(posedge clk or negedge rst_n) begin : CCD_LOG_1
-        if(!rst_n)
-            begin
-                ccd_log_test_1  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_1  <= ~test_cnt_3[0];
-            end   
-    end
+	/********** CPU **********/
+	cpu cpu (
+		/********** クロック & リセット **********/
+		.clk			 (clk),					  // クロック
+		.clk_			 (clk_),				  // 反転クロック
+		.reset			 (reset),				  // 非同期リセット
+		/********** バスインタフェース **********/
+		// IF Stage
+		.if_bus_rd_data	 (m_rd_data),			  // 読み出しデータ
+		.if_bus_rdy_	 (m_rdy_),				  // レディ
+		.if_bus_grnt_	 (m0_grnt_),			  // バスグラント
+		.if_bus_req_	 (m0_req_),				  // バスリクエスト
+		.if_bus_addr	 (m0_addr),				  // アドレス
+		.if_bus_as_		 (m0_as_),				  // アドレスストローブ
+		.if_bus_rw		 (m0_rw),				  // 読み／書き
+		.if_bus_wr_data	 (m0_wr_data),			  // 書き込みデータ
+		// MEM Stage
+		.mem_bus_rd_data (m_rd_data),			  // 読み出しデータ
+		.mem_bus_rdy_	 (m_rdy_),				  // レディ
+		.mem_bus_grnt_	 (m1_grnt_),			  // バスグラント
+		.mem_bus_req_	 (m1_req_),				  // バスリクエスト
+		.mem_bus_addr	 (m1_addr),				  // アドレス
+		.mem_bus_as_	 (m1_as_),				  // アドレスストローブ
+		.mem_bus_rw		 (m1_rw),				  // 読み／書き
+		.mem_bus_wr_data (m1_wr_data),			  // 書き込みデータ
+		/********** 割り込み **********/
+		.cpu_irq		 (cpu_irq)				  // 割り込み要求
+	);
 
-    always @(posedge div_4_clk or negedge rst_n) begin : CCD_LOG_2
-        if(!rst_n)
-            begin
-                ccd_log_test_2  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_2  <= ~test_cnt_1[1];
-            end   
-    end
-    always @(posedge clk or negedge rst_n) begin : CCD_LOG_3
-        if(!rst_n)
-            begin
-                ccd_log_test_3  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_3  <= ~test_cnt_2[1];
-            end   
-    end
-    always @(posedge clk or negedge rst_n) begin : CCD_LOG_4
-        if(!rst_n)
-            begin
-                ccd_log_test_4  <= 'd0;
-            end
-        else if(ccd_log_test_3)
-            begin
-                ccd_log_test_4  <= ((test_cnt_1 == 'd3) | (test_cnt_1 == 'd2) | (test_cnt_1 == 'd1)) | (test_cnt_1 & 'b101 == 'b010);
-            end
-        else
-            begin
-                ccd_log_test_4  <= ccd_log_test_4;
-            end 
-    end
+	/********** バスマスタ 2 : 未実装 **********/
+	assign m2_addr	  = `WORD_ADDR_W'h0;
+	assign m2_as_	  = `DISABLE_;
+	assign m2_rw	  = `READ;
+	assign m2_wr_data = `WORD_DATA_W'h0;
+	assign m2_req_	  = `DISABLE_;
 
-    always @(posedge sw_clk or negedge rst_n) begin : CCD_LOG_5
-        if(!rst_n)
-            begin
-                ccd_log_test_5  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_5  <= ccd_log_test_4;
-            end 
-    end
-
-    
-    assign  test_o[0]   = test_cnt_1[03]        ;
-    assign  test_o[1]   = test_cnt_2[03]        ;
-    assign  test_o[2]   = test_cnt_3[03]        ;
-//  assign  test_o[7:3] = {5{test_cnt_2[00]}}   ;
-    assign  test_o[3]   = ccd_log_test_1        ;   
-    assign  test_o[4]   = ccd_log_test_2        ;   
-    assign  test_o[5]   = ccd_log_test_3        ;   
-    assign  test_o[6]   = ccd_log_test_4        ;   
-    assign  test_o[7]   = ccd_log_test_5        ;   
-    `else
-    assign  test_o      = 8'b00000000           ;
-    `endif
-    
-    //************************************************************************************************
-    // 5.Sub module instantiation
-    //************************************************************************************************
-    //------------------------------------------------------------------------------------------------
-    // 5.1 the clk generate module
-    //------------------------------------------------------------------------------------------------    
-    clk_gen_top clk_gen_inst(
-        .clk                (clk                ),//01  In
-        .rst_n              (rst_n              ),//01  In
-        .div_2_clk          (div_2_clk          ),//01  Out
-        .div_4_clk          (div_4_clk          ),//01  Out
-        .clk_en             (clk_en             ),//01  In
-        .clk_sel            (clk_sel            ),//01  In
-        .sw_clk             (sw_clk             ),//01  In
-        .gated_clk          (gated_clk          ) //01  Out
-    );
-    
-    //------------------------------------------------------------------------------------------------
-    // 5.2 the system auxiliary module
-    //------------------------------------------------------------------------------------------------   
-    sys_aux_module sys_aux_inst(
-        .aux_clk            (clk                ),//01  In
-        .aux_rst_n          (rst_n              ),//01  In
-        .aux_data_i         (aux_data_i         ),//08  In
-        .aux_data_o         (aux_data_o         ) //15  Out     
-    );
-    
-    //------------------------------------------------------------------------------------------------
-    // 5.3 the udp/ip stack module
-    //------------------------------------------------------------------------------------------------
-    
-    `ifdef UDP
-    udpip_stack_module udpip_stack_inst(
-        .udp_clk            (sys_clk            ),//xx  I/O
-        .clk_200mhz         (adc_refclk_s       ),//xx  I/O
-        .clk_in_p           (clk_in_p           ),//xx  I/O
-        .clk_in_p           (clk_in_p           ),//xx  I/O
-        .udp_reset          (udp_reset          ),//xx  I/O
-        .mgtclk_p           (mgtclk_p           ),//xx  I/O
-        .phy_disable        (                   ) //xx  I/O 
-    );  
-    `endif
-    
-endmodule    
-//****************************************************************************************************
-//End of Mopdule
-//****************************************************************************************************
-    
-    
-    
+	/********** バスマスタ 3 : 未実装 **********/
+	assign m3_addr	  = `WORD_ADDR_W'h0;
+	assign m3_as_	  = `DISABLE_;
+	assign m3_rw	  = `READ;
+	assign m3_wr_data = `WORD_DATA_W'h0;
+	assign m3_req_	  = `DISABLE_;
    
+	/********** バススレーブ 0 : ROM **********/
+	rom rom (
+		/********** Clock & Reset **********/
+		.clk			 (clk),					  // クロック
+		.reset			 (reset),				  // 非同期リセット
+		/********** Bus Interface **********/
+		.cs_			 (s0_cs_),				  // チップセレクト
+		.as_			 (s_as_),				  // アドレスストローブ
+		.addr			 (s_addr[`RomAddrLoc]),	  // アドレス
+		.rd_data		 (s0_rd_data),			  // 読み出しデータ
+		.rdy_			 (s0_rdy_)				  // レディ
+	);
+
+	/********** バススレーブ 1 : Scratch Pad Memory **********/
+	assign s1_rd_data = `WORD_DATA_W'h0;
+	assign s1_rdy_	  = `DISABLE_;
+
+	/********** バススレーブ 2 : タイマ **********/
+`ifdef IMPLEMENT_TIMER // タイマ実装
+	timer timer (
+		/********** クロック & リセット **********/
+		.clk			 (clk),					  // クロック
+		.reset			 (reset),				  // リセット
+		/********** バスインタフェース **********/
+		.cs_			 (s2_cs_),				  // チップセレクト
+		.as_			 (s_as_),				  // アドレスストローブ
+		.addr			 (s_addr[`TimerAddrLoc]), // アドレス
+		.rw				 (s_rw),				  // Read / Write
+		.wr_data		 (s_wr_data),			  // 書き込みデータ
+		.rd_data		 (s2_rd_data),			  // 読み出しデータ
+		.rdy_			 (s2_rdy_),				  // レディ
+		/********** 割り込み **********/
+		.irq			 (irq_timer)			  // 割り込み要求
+	 );
+`else				   // タイマ未実
+	assign s2_rd_data = `WORD_DATA_W'h0;
+	assign s2_rdy_	  = `DISABLE_;
+	assign irq_timer  = `DISABLE;
+`endif
+
+	/********** バススレーブ 3 : UART **********/
+`ifdef IMPLEMENT_UART // UART実装
+	uart uart (
+		/********** クロック & リセット **********/
+		.clk			 (clk),					  // クロック
+		.reset			 (reset),				  // 非同期リセット
+		/********** バスインタフェース **********/
+		.cs_			 (s3_cs_),				  // チップセレクト
+		.as_			 (s_as_),				  // アドレスストローブ
+		.rw				 (s_rw),				  // Read / Write
+		.addr			 (s_addr[`UartAddrLoc]),  // アドレス
+		.wr_data		 (s_wr_data),			  // 書き込みデータ
+		.rd_data		 (s3_rd_data),			  // 読み出しデータ
+		.rdy_			 (s3_rdy_),				  // レディ
+		/********** 割り込み **********/
+		.irq_rx			 (irq_uart_rx),			  // 受信完了割り込み
+		.irq_tx			 (irq_uart_tx),			  // 送信完了割り込み
+		/********** UART送受信信号	**********/
+		.rx				 (uart_rx),				  // UART受信信号
+		.tx				 (uart_tx)				  // UART送信信号
+	);
+`else				  // UART未実装
+	assign s3_rd_data  = `WORD_DATA_W'h0;
+	assign s3_rdy_	   = `DISABLE_;
+	assign irq_uart_rx = `DISABLE;
+	assign irq_uart_tx = `DISABLE;
+`endif
+
+	/********** バススレーブ 4 : GPIO **********/
+`ifdef IMPLEMENT_GPIO // GPIO実装
+	gpio gpio (
+		/********** クロック & リセット **********/
+		.clk			 (clk),					 // クロック
+		.reset			 (reset),				 // リセット
+		/********** バスインタフェース **********/
+		.cs_			 (s4_cs_),				 // チップセレクト
+		.as_			 (s_as_),				 // アドレスストローブ
+		.rw				 (s_rw),				 // Read / Write
+		.addr			 (s_addr[`GpioAddrLoc]), // アドレス
+		.wr_data		 (s_wr_data),			 // 書き込みデータ
+		.rd_data		 (s4_rd_data),			 // 読み出しデータ
+		.rdy_			 (s4_rdy_)				 // レディ
+		/********** 汎用入出力ポート **********/
+`ifdef GPIO_IN_CH	 // 入力ポートの実装
+		, .gpio_in		 (gpio_in)				 // 入力ポート
+`endif
+`ifdef GPIO_OUT_CH	 // 出力ポートの実装
+		, .gpio_out		 (gpio_out)				 // 出力ポート
+`endif
+`ifdef GPIO_IO_CH	 // 入出力ポートの実装
+		, .gpio_io		 (gpio_io)				 // 入出力ポート
+`endif
+	);
+`else				  // GPIO未実装
+	assign s4_rd_data = `WORD_DATA_W'h0;
+	assign s4_rdy_	  = `DISABLE_;
+`endif
+
+	/********** バススレーブ 5 : 未実装 **********/
+	assign s5_rd_data = `WORD_DATA_W'h0;
+	assign s5_rdy_	  = `DISABLE_;
+  
+	/********** バススレーブ 6 : 未実装 **********/
+	assign s6_rd_data = `WORD_DATA_W'h0;
+	assign s6_rdy_	  = `DISABLE_;
+  
+	/********** バススレーブ 7 : 未実装 **********/
+	assign s7_rd_data = `WORD_DATA_W'h0;
+	assign s7_rdy_	  = `DISABLE_;
+
+	/********** バス **********/
+	bus bus (
+		/********** クロック & リセット **********/
+		.clk			 (clk),					 // クロック
+		.reset			 (reset),				 // 非同期リセット
+		/********** バスマスタ信号 **********/
+		// 全マスタ共通信号
+		.m_rd_data		 (m_rd_data),			 // 読み出しデータ
+		.m_rdy_			 (m_rdy_),				 // レディ
+		// バスマスタ0
+		.m0_req_		 (m0_req_),				 // バスリクエスト
+		.m0_addr		 (m0_addr),				 // アドレス
+		.m0_as_			 (m0_as_),				 // アドレスストローブ
+		.m0_rw			 (m0_rw),				 // 読み／書き
+		.m0_wr_data		 (m0_wr_data),			 // 書き込みデータ
+		.m0_grnt_		 (m0_grnt_),			 // バスグラント
+		// バスマスタ1
+		.m1_req_		 (m1_req_),				 // バスリクエスト
+		.m1_addr		 (m1_addr),				 // アドレス
+		.m1_as_			 (m1_as_),				 // アドレスストローブ
+		.m1_rw			 (m1_rw),				 // 読み／書き
+		.m1_wr_data		 (m1_wr_data),			 // 書き込みデータ
+		.m1_grnt_		 (m1_grnt_),			 // バスグラント
+		// バスマスタ2
+		.m2_req_		 (m2_req_),				 // バスリクエスト
+		.m2_addr		 (m2_addr),				 // アドレス
+		.m2_as_			 (m2_as_),				 // アドレスストローブ
+		.m2_rw			 (m2_rw),				 // 読み／書き
+		.m2_wr_data		 (m2_wr_data),			 // 書き込みデータ
+		.m2_grnt_		 (m2_grnt_),			 // バスグラント
+		// バスマスタ3
+		.m3_req_		 (m3_req_),				 // バスリクエスト
+		.m3_addr		 (m3_addr),				 // アドレス
+		.m3_as_			 (m3_as_),				 // アドレスストローブ
+		.m3_rw			 (m3_rw),				 // 読み／書き
+		.m3_wr_data		 (m3_wr_data),			 // 書き込みデータ
+		.m3_grnt_		 (m3_grnt_),			 // バスグラント
+		/********** バススレーブ信号 **********/
+		// 全スレーブ共通信号
+		.s_addr			 (s_addr),				 // アドレス
+		.s_as_			 (s_as_),				 // アドレスストローブ
+		.s_rw			 (s_rw),				 // 読み／書き
+		.s_wr_data		 (s_wr_data),			 // 書き込みデータ
+		// バススレーブ0番
+		.s0_rd_data		 (s0_rd_data),			 // 読み出しデータ
+		.s0_rdy_		 (s0_rdy_),				 // レディ
+		.s0_cs_			 (s0_cs_),				 // チップセレクト
+		// バススレーブ1番
+		.s1_rd_data		 (s1_rd_data),			 // 読み出しデータ
+		.s1_rdy_		 (s1_rdy_),				 // レディ
+		.s1_cs_			 (s1_cs_),				 // チップセレクト
+		// バススレーブ2番
+		.s2_rd_data		 (s2_rd_data),			 // 読み出しデータ
+		.s2_rdy_		 (s2_rdy_),				 // レディ
+		.s2_cs_			 (s2_cs_),				 // チップセレクト
+		// バススレーブ3番
+		.s3_rd_data		 (s3_rd_data),			 // 読み出しデータ
+		.s3_rdy_		 (s3_rdy_),				 // レディ
+		.s3_cs_			 (s3_cs_),				 // チップセレクト
+		// バススレーブ4番
+		.s4_rd_data		 (s4_rd_data),			 // 読み出しデータ
+		.s4_rdy_		 (s4_rdy_),				 // レディ
+		.s4_cs_			 (s4_cs_),				 // チップセレクト
+		// バススレーブ5番
+		.s5_rd_data		 (s5_rd_data),			 // 読み出しデータ
+		.s5_rdy_		 (s5_rdy_),				 // レディ
+		.s5_cs_			 (s5_cs_),				 // チップセレクト
+		// バススレーブ6番
+		.s6_rd_data		 (s6_rd_data),			 // 読み出しデータ
+		.s6_rdy_		 (s6_rdy_),				 // レディ
+		.s6_cs_			 (s6_cs_),				 // チップセレクト
+		// バススレーブ7番
+		.s7_rd_data		 (s7_rd_data),			 // 読み出しデータ
+		.s7_rdy_		 (s7_rdy_),				 // レディ
+		.s7_cs_			 (s7_cs_)				 // チップセレクト
+	);
+
+endmodule

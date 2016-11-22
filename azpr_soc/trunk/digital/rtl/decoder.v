@@ -1,268 +1,305 @@
-//****************************************************************************************************  
-//*----------------Copyright (c) 2016 C-L-G.FPGA1988.Roger Wang. All rights reserved------------------
-//
-//                   --              It to be define                --
-//                   --                    ...                      --
-//                   --                    ...                      --
-//                   --                    ...                      --
-//**************************************************************************************************** 
-//File Information
-//**************************************************************************************************** 
-//File Name      : gt0000_digital_top.v 
-//Project Name   : gt0000
-//Description    : the top module of gt0000
-//Github Address : https://github.com/C-L-G/gt0000/trunk/ic/digital/rtl/gt0000_digital_top.v
-//License        : CPL
-//**************************************************************************************************** 
-//Version Information
-//**************************************************************************************************** 
-//Create Date    : 01-07-2016 17:00(1th Fri,July,2016)
-//First Author   : Roger Wang
-//Modify Date    : 02-09-2016 14:20(1th Sun,July,2016)
-//Last Author    : Roger Wang
-//Version Number : 002   
-//Last Commit    : 03-09-2016 14:30(1th Sun,July,2016)
-//**************************************************************************************************** 
-//Change History(latest change first)
-//dd.mm.yyyy - Author - Your log of change
-//**************************************************************************************************** 
-//02.09.2016 - Roger Wang - Add the clock switch test logic,rename the clk gen module to clk gen top.
-//29.08.2016 - Roger Wang - Add the system auxiliary module,add the test logic.
-//29.08.2016 - Roger Wang - The initial version.
-//*---------------------------------------------------------------------------------------------------
-`timescale 1ns/1ps
-module gt0000_digital_top(
-    clk             ,//01   In
-    rst_n           ,//01   In
-    en              ,//01   In
-    clk_sel         ,//01   In
-    led_sel         ,//01   In
-    led             ,//08   Out
-    test_o           //08   Out    
+/*
+ -- ============================================================================
+ -- FILE NAME	: decoder.v
+ -- DESCRIPTION : 命令デコーダ
+ -- ----------------------------------------------------------------------------
+ -- Revision  Date		  Coding_by	 Comment
+ -- 1.0.0	  2011/06/27  suito		 新規作成
+ -- ============================================================================
+*/
+
+/********** 共通ヘッダファイル **********/
+`include "nettype.h"
+`include "global_config.h"
+`include "stddef.h"
+
+/********** 個別ヘッダファイル **********/
+`include "isa.h"
+`include "cpu.h"
+
+/********** モジュール **********/
+module decoder (
+	/********** IF/IDパイプラインレジスタ **********/
+	input  wire [`WordAddrBus]	 if_pc,			 // プログラムカウンタ
+	input  wire [`WordDataBus]	 if_insn,		 // 命令
+	input  wire					 if_en,			 // パイプラインデータの有効
+	/********** GPRインタフェース **********/
+	input  wire [`WordDataBus]	 gpr_rd_data_0, // 読み出しデータ 0
+	input  wire [`WordDataBus]	 gpr_rd_data_1, // 読み出しデータ 1
+	output wire [`RegAddrBus]	 gpr_rd_addr_0, // 読み出しアドレス 0
+	output wire [`RegAddrBus]	 gpr_rd_addr_1, // 読み出しアドレス 1
+	/********** フォワーディング **********/
+	// IDステージからのフォワーディング
+	input  wire					 id_en,			// パイプラインデータの有効
+	input  wire [`RegAddrBus]	 id_dst_addr,	// 書き込みアドレス
+	input  wire					 id_gpr_we_,	// 書き込み有効
+	input  wire [`MemOpBus]		 id_mem_op,		// メモリオペレーション
+	// EXステージからのフォワーディング
+	input  wire					 ex_en,			// パイプラインデータの有効
+	input  wire [`RegAddrBus]	 ex_dst_addr,	// 書き込みアドレス
+	input  wire					 ex_gpr_we_,	// 書き込み有効
+	input  wire [`WordDataBus]	 ex_fwd_data,	// フォワーディングデータ
+	// MEMステージからのフォワーディング
+	input  wire [`WordDataBus]	 mem_fwd_data,	// フォワーディングデータ
+	/********** 制御レジスタインタフェース **********/
+	input  wire [`CpuExeModeBus] exe_mode,		// 実行モード
+	input  wire [`WordDataBus]	 creg_rd_data,	// 読み出しデータ
+	output wire [`RegAddrBus]	 creg_rd_addr,	// 読み出しアドレス
+	/********** デコード結果 **********/
+	output reg	[`AluOpBus]		 alu_op,		// ALUオペレーション
+	output reg	[`WordDataBus]	 alu_in_0,		// ALU入力 0
+	output reg	[`WordDataBus]	 alu_in_1,		// ALU入力 1
+	output reg	[`WordAddrBus]	 br_addr,		// 分岐アドレス
+	output reg					 br_taken,		// 分岐の成立
+	output reg					 br_flag,		// 分岐フラグ
+	output reg	[`MemOpBus]		 mem_op,		// メモリオペレーション
+	output wire [`WordDataBus]	 mem_wr_data,	// メモリ書き込みデータ
+	output reg	[`CtrlOpBus]	 ctrl_op,		// 制御オペレーション
+	output reg	[`RegAddrBus]	 dst_addr,		// 汎用レジスタ書き込みアドレス
+	output reg					 gpr_we_,		// 汎用レジスタ書き込み有効
+	output reg	[`IsaExpBus]	 exp_code,		// 例外コード
+	output reg					 ld_hazard		// ロードハザード
 );
 
-    //************************************************************************************************
-    // 1.Parameter and constant define
-    //************************************************************************************************
-    
-//    `define UDP
-    `define CLK_TEST_EN
-    
-    
-    //************************************************************************************************
-    // 2.input and output declaration
-    //************************************************************************************************
-    input               clk             ;//the system clk = 20MHz
-    input               rst_n           ;//the system reset,low active
-    input               en              ;//enable signal
-    input               clk_sel         ;//clock select signal
-    input               led_sel         ;//led function select
-    output  [07:00]     led             ;//8 bits led
-    output  [07:00]     test_o          ;//8 bits test output
-    
-    //************************************************************************************************
-    // 3.Register and wire declaration
-    //************************************************************************************************
-    //------------------------------------------------------------------------------------------------
-    // 3.1 the clk wire signal
-    //------------------------------------------------------------------------------------------------   
-    wire                div_2_clk       ;//the divide 2 clock
-    wire                div_4_clk       ;//the divide 4 clock
-    wire                clk_en          ;//the clock enable signal
-    wire                gated_clk       ;//the clock gating signal
-    wire                sw_clk          ;//the selected clock by clk_sel
-    //------------------------------------------------------------------------------------------------
-    // 3.2 the clk wire signal
-    //------------------------------------------------------------------------------------------------  
-    reg     [07:00]     aux_data_i      ;//aux data input and output
-    wire    [15:00]     aux_data_o      ;//aux data input and output
-    
-    
-    
-    //------------------------------------------------------------------------------------------------
-    // 3.x the test logic
-    //------------------------------------------------------------------------------------------------
-    `ifdef CLK_TEST_EN
-    reg     [03:00]     test_cnt_1      ;//
-    reg     [03:00]     test_cnt_2      ;//
-    reg     [03:00]     test_cnt_3      ;//
-    `endif
-    //************************************************************************************************
-    // 4.Main code
-    //************************************************************************************************
-    assign  led         = led_sel ? aux_data_o[15:08] : aux_data_o[07:00]   ;//
-    assign  clk_en      = en                ;//
-//  assign  aux_data_i  = 8'b10101010       ;//
-    always @(posedge clk or negedge rst_n) begin : AUX_DATA_IN
-        if(!rst_n)
-            begin
-                aux_data_i     <= 'd0;
-            end
-        else
-            begin
-                aux_data_i      <= aux_data_i + 1'b1;
-            end   
-    end
-    //------------------------------------------------------------------------------------------------
-    // 4.x the Test Logic
-    //------------------------------------------------------------------------------------------------    
-    `ifdef CLK_TEST_EN
-    always @(posedge div_2_clk or negedge rst_n) begin : TEST_LOGIC_1
-        if(!rst_n)
-            begin
-                test_cnt_1     <= 'd0;
-            end
-        else
-            begin
-                test_cnt_1     <= test_cnt_1 + 1'b1;
-            end   
-    end
-    always @(posedge div_4_clk or negedge rst_n) begin : TEST_LOGIC_2
-        if(!rst_n)
-            begin
-                test_cnt_2     <= 'd0;
-            end
-        else
-            begin
-                test_cnt_2     <= test_cnt_2 + 1'b1;
-            end   
-    end
-    always @(posedge gated_clk or negedge rst_n) begin : TEST_LOGIC_3
-        if(!rst_n)
-            begin
-                test_cnt_3     <= 'd0;
-            end
-        else
-            begin
-                test_cnt_3     <= test_cnt_3 + 1'b1;
-            end   
-    end
+	/********** 命令フィールド **********/
+	wire [`IsaOpBus]	op		= if_insn[`IsaOpLoc];	  // オペコード
+	wire [`RegAddrBus]	ra_addr = if_insn[`IsaRaAddrLoc]; // Raアドレス
+	wire [`RegAddrBus]	rb_addr = if_insn[`IsaRbAddrLoc]; // Rbアドレス
+	wire [`RegAddrBus]	rc_addr = if_insn[`IsaRcAddrLoc]; // Rcアドレス
+	wire [`IsaImmBus]	imm		= if_insn[`IsaImmLoc];	  // 即値
+	/********** 即値 **********/
+	// 符号拡張
+	wire [`WordDataBus] imm_s = {{`ISA_EXT_W{imm[`ISA_IMM_MSB]}}, imm};
+	// ゼロ拡張
+	wire [`WordDataBus] imm_u = {{`ISA_EXT_W{1'b0}}, imm};
+	/********** レジスタの読み出しアドレス **********/
+	assign gpr_rd_addr_0 = ra_addr; // 汎用レジスタ読み出しアドレス 0
+	assign gpr_rd_addr_1 = rb_addr; // 汎用レジスタ読み出しアドレス 1
+	assign creg_rd_addr	 = ra_addr; // 制御レジスタ読み出しアドレス
+	/********** 汎用レジスタの読み出しデータ **********/
+	reg			[`WordDataBus]	ra_data;						  // 符号なしRa
+	wire signed [`WordDataBus]	s_ra_data = $signed(ra_data);	  // 符号付きRa
+	reg			[`WordDataBus]	rb_data;						  // 符号なしRb
+	wire signed [`WordDataBus]	s_rb_data = $signed(rb_data);	  // 符号付きRb
+	assign mem_wr_data = rb_data; // メモリ書き込みデータ
+	/********** アドレス **********/
+	wire [`WordAddrBus] ret_addr  = if_pc + 1'b1;					 // 戻り番地
+	wire [`WordAddrBus] br_target = if_pc + imm_s[`WORD_ADDR_MSB:0]; // 分岐先
+	wire [`WordAddrBus] jr_target = ra_data[`WordAddrLoc];		   // ジャンプ先
 
-    reg     ccd_log_test_1;
-    reg     ccd_log_test_2;
-    reg     ccd_log_test_3;
-    reg     ccd_log_test_4;
-    reg     ccd_log_test_5;
+	/********** フォワーディング **********/
+	always @(*) begin
+		/* Raレジスタ */
+		if ((id_en == `ENABLE) && (id_gpr_we_ == `ENABLE_) && 
+			(id_dst_addr == ra_addr)) begin
+			ra_data = ex_fwd_data;	 // EXステージからのフォワーディング
+		end else if ((ex_en == `ENABLE) && (ex_gpr_we_ == `ENABLE_) && 
+					 (ex_dst_addr == ra_addr)) begin
+			ra_data = mem_fwd_data;	 // MEMステージからのフォワーディング
+		end else begin
+			ra_data = gpr_rd_data_0; // レジスタファイルからの読み出し
+		end
+		/* Rbレジスタ */
+		if ((id_en == `ENABLE) && (id_gpr_we_ == `ENABLE_) && 
+			(id_dst_addr == rb_addr)) begin
+			rb_data = ex_fwd_data;	 // EXステージからのフォワーディング
+		end else if ((ex_en == `ENABLE) && (ex_gpr_we_ == `ENABLE_) && 
+					 (ex_dst_addr == rb_addr)) begin
+			rb_data = mem_fwd_data;	 // MEMステージからのフォワーディング
+		end else begin
+			rb_data = gpr_rd_data_1; // レジスタファイルからの読み出し
+		end
+	end
 
-    always @(posedge clk or negedge rst_n) begin : CCD_LOG_1
-        if(!rst_n)
-            begin
-                ccd_log_test_1  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_1  <= ~test_cnt_3[0];
-            end   
-    end
+	/********** ロードハザードの検出 **********/
+	always @(*) begin
+		if ((id_en == `ENABLE) && (id_mem_op == `MEM_OP_LDW) &&
+			((id_dst_addr == ra_addr) || (id_dst_addr == rb_addr))) begin
+			ld_hazard = `ENABLE;  // ロードハザード
+		end else begin
+			ld_hazard = `DISABLE; // ハザードなし
+		end
+	end
 
-    always @(posedge div_4_clk or negedge rst_n) begin : CCD_LOG_2
-        if(!rst_n)
-            begin
-                ccd_log_test_2  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_2  <= ~test_cnt_1[1];
-            end   
-    end
-    always @(posedge clk or negedge rst_n) begin : CCD_LOG_3
-        if(!rst_n)
-            begin
-                ccd_log_test_3  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_3  <= ~test_cnt_2[1];
-            end   
-    end
-    always @(posedge clk or negedge rst_n) begin : CCD_LOG_4
-        if(!rst_n)
-            begin
-                ccd_log_test_4  <= 'd0;
-            end
-        else if(ccd_log_test_3)
-            begin
-                ccd_log_test_4  <= ((test_cnt_1 == 'd3) | (test_cnt_1 == 'd2) | (test_cnt_1 == 'd1)) | (test_cnt_1 & 'b101 == 'b010);
-            end
-        else
-            begin
-                ccd_log_test_4  <= ccd_log_test_4;
-            end 
-    end
+	/********** 命令のデコード **********/
+	always @(*) begin
+		/* デフォルト値 */
+		alu_op	 = `ALU_OP_NOP;
+		alu_in_0 = ra_data;
+		alu_in_1 = rb_data;
+		br_taken = `DISABLE;
+		br_flag	 = `DISABLE;
+		br_addr	 = {`WORD_ADDR_W{1'b0}};
+		mem_op	 = `MEM_OP_NOP;
+		ctrl_op	 = `CTRL_OP_NOP;
+		dst_addr = rb_addr;
+		gpr_we_	 = `DISABLE_;
+		exp_code = `ISA_EXP_NO_EXP;
+		/* オペコードの判定 */
+		if (if_en == `ENABLE) begin
+			case (op)
+				/* 論理演算命令 */
+				`ISA_OP_ANDR  : begin // レジスタ同士の論理積
+					alu_op	 = `ALU_OP_AND;
+					dst_addr = rc_addr;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_ANDI  : begin // レジスタと即値の論理積
+					alu_op	 = `ALU_OP_AND;
+					alu_in_1 = imm_u;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_ORR	  : begin // レジスタ同士の論理和
+					alu_op	 = `ALU_OP_OR;
+					dst_addr = rc_addr;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_ORI	  : begin // レジスタと即値の論理和
+					alu_op	 = `ALU_OP_OR;
+					alu_in_1 = imm_u;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_XORR  : begin // レジスタ同士の排他的論理和
+					alu_op	 = `ALU_OP_XOR;
+					dst_addr = rc_addr;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_XORI  : begin // レジスタと即値の排他的論理和
+					alu_op	 = `ALU_OP_XOR;
+					alu_in_1 = imm_u;
+					gpr_we_	 = `ENABLE_;
+				end
+				/* 算術演算命令 */
+				`ISA_OP_ADDSR : begin // レジスタ同士の符号付き加算
+					alu_op	 = `ALU_OP_ADDS;
+					dst_addr = rc_addr;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_ADDSI : begin // レジスタと即値の符号付き加算
+					alu_op	 = `ALU_OP_ADDS;
+					alu_in_1 = imm_s;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_ADDUR : begin // レジスタ同士の符号なし加算
+					alu_op	 = `ALU_OP_ADDU;
+					dst_addr = rc_addr;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_ADDUI : begin // レジスタと即値の符号なし加算
+					alu_op	 = `ALU_OP_ADDU;
+					alu_in_1 = imm_s;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_SUBSR : begin // レジスタ同士の符号付き減算
+					alu_op	 = `ALU_OP_SUBS;
+					dst_addr = rc_addr;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_SUBUR : begin // レジスタ同士の符号なし減算
+					alu_op	 = `ALU_OP_SUBU;
+					dst_addr = rc_addr;
+					gpr_we_	 = `ENABLE_;
+				end
+				/* シフト命令 */
+				`ISA_OP_SHRLR : begin // レジスタ同士の論理右シフト
+					alu_op	 = `ALU_OP_SHRL;
+					dst_addr = rc_addr;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_SHRLI : begin // レジスタと即値の論理右シフト
+					alu_op	 = `ALU_OP_SHRL;
+					alu_in_1 = imm_u;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_SHLLR : begin // レジスタ同士の論理左シフト
+					alu_op	 = `ALU_OP_SHLL;
+					dst_addr = rc_addr;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_SHLLI : begin // レジスタと即値の論理左シフト
+					alu_op	 = `ALU_OP_SHLL;
+					alu_in_1 = imm_u;
+					gpr_we_	 = `ENABLE_;
+				end
+				/* 分岐命令 */
+				`ISA_OP_BE	  : begin // レジスタ同士の符号付き比較（Ra == Rb）
+					br_addr	 = br_target;
+					br_taken = (ra_data == rb_data) ? `ENABLE : `DISABLE;
+					br_flag	 = `ENABLE;
+				end
+				`ISA_OP_BNE	  : begin // レジスタ同士の符号付き比較（Ra != Rb）
+					br_addr	 = br_target;
+					br_taken = (ra_data != rb_data) ? `ENABLE : `DISABLE;
+					br_flag	 = `ENABLE;
+				end
+				`ISA_OP_BSGT  : begin // レジスタ同士の符号付き比較（Ra < Rb）
+					br_addr	 = br_target;
+					br_taken = (s_ra_data < s_rb_data) ? `ENABLE : `DISABLE;
+					br_flag	 = `ENABLE;
+				end
+				`ISA_OP_BUGT  : begin // レジスタ同士の符号なし比較（Ra < Rb）
+					br_addr	 = br_target;
+					br_taken = (ra_data < rb_data) ? `ENABLE : `DISABLE;
+					br_flag	 = `ENABLE;
+				end
+				`ISA_OP_JMP	  : begin // 無条件分岐
+					br_addr	 = jr_target;
+					br_taken = `ENABLE;
+					br_flag	 = `ENABLE;
+				end
+				`ISA_OP_CALL  : begin // コール
+					alu_in_0 = {ret_addr, {`BYTE_OFFSET_W{1'b0}}};
+					br_addr	 = jr_target;
+					br_taken = `ENABLE;
+					br_flag	 = `ENABLE;
+					dst_addr = `REG_ADDR_W'd31;
+					gpr_we_	 = `ENABLE_;
+				end
+				/* メモリアクセス命令 */
+				`ISA_OP_LDW	  : begin // ワード読み出し
+					alu_op	 = `ALU_OP_ADDU;
+					alu_in_1 = imm_s;
+					mem_op	 = `MEM_OP_LDW;
+					gpr_we_	 = `ENABLE_;
+				end
+				`ISA_OP_STW	  : begin // ワード書き込み
+					alu_op	 = `ALU_OP_ADDU;
+					alu_in_1 = imm_s;
+					mem_op	 = `MEM_OP_STW;
+				end
+				/* システムコール命令 */
+				`ISA_OP_TRAP  : begin // トラップ
+					exp_code = `ISA_EXP_TRAP;
+				end
+				/* 特権命令 */
+				`ISA_OP_RDCR  : begin // 制御レジスタの読み出し
+					if (exe_mode == `CPU_KERNEL_MODE) begin
+						alu_in_0 = creg_rd_data;
+						gpr_we_	 = `ENABLE_;
+					end else begin
+						exp_code = `ISA_EXP_PRV_VIO;
+					end
+				end
+				`ISA_OP_WRCR  : begin // 制御レジスタへの書き込み
+					if (exe_mode == `CPU_KERNEL_MODE) begin
+						ctrl_op	 = `CTRL_OP_WRCR;
+					end else begin
+						exp_code = `ISA_EXP_PRV_VIO;
+					end
+				end
+				`ISA_OP_EXRT  : begin // 例外からの復帰
+					if (exe_mode == `CPU_KERNEL_MODE) begin
+						ctrl_op	 = `CTRL_OP_EXRT;
+					end else begin
+						exp_code = `ISA_EXP_PRV_VIO;
+					end
+				end
+				/* その他の命令 */
+				default		  : begin // 未定義命令
+					exp_code = `ISA_EXP_UNDEF_INSN;
+				end
+			endcase
+		end
+	end
 
-    always @(posedge sw_clk or negedge rst_n) begin : CCD_LOG_5
-        if(!rst_n)
-            begin
-                ccd_log_test_5  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_5  <= ccd_log_test_4;
-            end 
-    end
-
-    
-    assign  test_o[0]   = test_cnt_1[03]        ;
-    assign  test_o[1]   = test_cnt_2[03]        ;
-    assign  test_o[2]   = test_cnt_3[03]        ;
-//  assign  test_o[7:3] = {5{test_cnt_2[00]}}   ;
-    assign  test_o[3]   = ccd_log_test_1        ;   
-    assign  test_o[4]   = ccd_log_test_2        ;   
-    assign  test_o[5]   = ccd_log_test_3        ;   
-    assign  test_o[6]   = ccd_log_test_4        ;   
-    assign  test_o[7]   = ccd_log_test_5        ;   
-    `else
-    assign  test_o      = 8'b00000000           ;
-    `endif
-    
-    //************************************************************************************************
-    // 5.Sub module instantiation
-    //************************************************************************************************
-    //------------------------------------------------------------------------------------------------
-    // 5.1 the clk generate module
-    //------------------------------------------------------------------------------------------------    
-    clk_gen_top clk_gen_inst(
-        .clk                (clk                ),//01  In
-        .rst_n              (rst_n              ),//01  In
-        .div_2_clk          (div_2_clk          ),//01  Out
-        .div_4_clk          (div_4_clk          ),//01  Out
-        .clk_en             (clk_en             ),//01  In
-        .clk_sel            (clk_sel            ),//01  In
-        .sw_clk             (sw_clk             ),//01  In
-        .gated_clk          (gated_clk          ) //01  Out
-    );
-    
-    //------------------------------------------------------------------------------------------------
-    // 5.2 the system auxiliary module
-    //------------------------------------------------------------------------------------------------   
-    sys_aux_module sys_aux_inst(
-        .aux_clk            (clk                ),//01  In
-        .aux_rst_n          (rst_n              ),//01  In
-        .aux_data_i         (aux_data_i         ),//08  In
-        .aux_data_o         (aux_data_o         ) //15  Out     
-    );
-    
-    //------------------------------------------------------------------------------------------------
-    // 5.3 the udp/ip stack module
-    //------------------------------------------------------------------------------------------------
-    
-    `ifdef UDP
-    udpip_stack_module udpip_stack_inst(
-        .udp_clk            (sys_clk            ),//xx  I/O
-        .clk_200mhz         (adc_refclk_s       ),//xx  I/O
-        .clk_in_p           (clk_in_p           ),//xx  I/O
-        .clk_in_p           (clk_in_p           ),//xx  I/O
-        .udp_reset          (udp_reset          ),//xx  I/O
-        .mgtclk_p           (mgtclk_p           ),//xx  I/O
-        .phy_disable        (                   ) //xx  I/O 
-    );  
-    `endif
-    
-endmodule    
-//****************************************************************************************************
-//End of Mopdule
-//****************************************************************************************************
-    
-    
-    
-   
+endmodule

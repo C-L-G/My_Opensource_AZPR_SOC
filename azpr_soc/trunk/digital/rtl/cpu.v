@@ -1,268 +1,303 @@
-//****************************************************************************************************  
-//*----------------Copyright (c) 2016 C-L-G.FPGA1988.Roger Wang. All rights reserved------------------
-//
-//                   --              It to be define                --
-//                   --                    ...                      --
-//                   --                    ...                      --
-//                   --                    ...                      --
-//**************************************************************************************************** 
-//File Information
-//**************************************************************************************************** 
-//File Name      : gt0000_digital_top.v 
-//Project Name   : gt0000
-//Description    : the top module of gt0000
-//Github Address : https://github.com/C-L-G/gt0000/trunk/ic/digital/rtl/gt0000_digital_top.v
-//License        : CPL
-//**************************************************************************************************** 
-//Version Information
-//**************************************************************************************************** 
-//Create Date    : 01-07-2016 17:00(1th Fri,July,2016)
-//First Author   : Roger Wang
-//Modify Date    : 02-09-2016 14:20(1th Sun,July,2016)
-//Last Author    : Roger Wang
-//Version Number : 002   
-//Last Commit    : 03-09-2016 14:30(1th Sun,July,2016)
-//**************************************************************************************************** 
-//Change History(latest change first)
-//dd.mm.yyyy - Author - Your log of change
-//**************************************************************************************************** 
-//02.09.2016 - Roger Wang - Add the clock switch test logic,rename the clk gen module to clk gen top.
-//29.08.2016 - Roger Wang - Add the system auxiliary module,add the test logic.
-//29.08.2016 - Roger Wang - The initial version.
-//*---------------------------------------------------------------------------------------------------
-`timescale 1ns/1ps
-module gt0000_digital_top(
-    clk             ,//01   In
-    rst_n           ,//01   In
-    en              ,//01   In
-    clk_sel         ,//01   In
-    led_sel         ,//01   In
-    led             ,//08   Out
-    test_o           //08   Out    
+/*
+ -- ============================================================================
+ -- FILE NAME	: cpu.v
+ -- DESCRIPTION : CPUトップモジュール
+ -- ----------------------------------------------------------------------------
+ -- Revision  Date		  Coding_by	 Comment
+ -- 1.0.0	  2011/06/27  suito		 新規作成
+ -- ============================================================================
+*/
+
+`include "nettype.h"
+`include "global_config.h"
+`include "stddef.h"
+
+`include "isa.h"
+`include "cpu.h"
+`include "bus.h"
+`include "spm.h"
+
+module cpu (
+	input  wire					  clk,			   
+	input  wire					  clk_,			   
+	input  wire					  reset,		   
+	input  wire [`WordDataBus]	  if_bus_rd_data,  
+	input  wire					  if_bus_rdy_,	   
+	input  wire					  if_bus_grnt_,	   
+	output wire					  if_bus_req_,	   
+	output wire [`WordAddrBus]	  if_bus_addr,	   
+	output wire					  if_bus_as_,	   
+	output wire					  if_bus_rw,	   
+	output wire [`WordDataBus]	  if_bus_wr_data,  
+	input  wire [`WordDataBus]	  mem_bus_rd_data, 
+	input  wire					  mem_bus_rdy_,	   
+	input  wire					  mem_bus_grnt_,   
+	output wire					  mem_bus_req_,	   
+	output wire [`WordAddrBus]	  mem_bus_addr,	   
+	output wire					  mem_bus_as_,	   
+	output wire					  mem_bus_rw,	   
+	output wire [`WordDataBus]	  mem_bus_wr_data, 
+	input  wire [`CPU_IRQ_CH-1:0] cpu_irq		   
 );
 
-    //************************************************************************************************
-    // 1.Parameter and constant define
-    //************************************************************************************************
-    
-//    `define UDP
-    `define CLK_TEST_EN
-    
-    
-    //************************************************************************************************
-    // 2.input and output declaration
-    //************************************************************************************************
-    input               clk             ;//the system clk = 20MHz
-    input               rst_n           ;//the system reset,low active
-    input               en              ;//enable signal
-    input               clk_sel         ;//clock select signal
-    input               led_sel         ;//led function select
-    output  [07:00]     led             ;//8 bits led
-    output  [07:00]     test_o          ;//8 bits test output
-    
-    //************************************************************************************************
-    // 3.Register and wire declaration
-    //************************************************************************************************
-    //------------------------------------------------------------------------------------------------
-    // 3.1 the clk wire signal
-    //------------------------------------------------------------------------------------------------   
-    wire                div_2_clk       ;//the divide 2 clock
-    wire                div_4_clk       ;//the divide 4 clock
-    wire                clk_en          ;//the clock enable signal
-    wire                gated_clk       ;//the clock gating signal
-    wire                sw_clk          ;//the selected clock by clk_sel
-    //------------------------------------------------------------------------------------------------
-    // 3.2 the clk wire signal
-    //------------------------------------------------------------------------------------------------  
-    reg     [07:00]     aux_data_i      ;//aux data input and output
-    wire    [15:00]     aux_data_o      ;//aux data input and output
-    
-    
-    
-    //------------------------------------------------------------------------------------------------
-    // 3.x the test logic
-    //------------------------------------------------------------------------------------------------
-    `ifdef CLK_TEST_EN
-    reg     [03:00]     test_cnt_1      ;//
-    reg     [03:00]     test_cnt_2      ;//
-    reg     [03:00]     test_cnt_3      ;//
-    `endif
-    //************************************************************************************************
-    // 4.Main code
-    //************************************************************************************************
-    assign  led         = led_sel ? aux_data_o[15:08] : aux_data_o[07:00]   ;//
-    assign  clk_en      = en                ;//
-//  assign  aux_data_i  = 8'b10101010       ;//
-    always @(posedge clk or negedge rst_n) begin : AUX_DATA_IN
-        if(!rst_n)
-            begin
-                aux_data_i     <= 'd0;
-            end
-        else
-            begin
-                aux_data_i      <= aux_data_i + 1'b1;
-            end   
-    end
-    //------------------------------------------------------------------------------------------------
-    // 4.x the Test Logic
-    //------------------------------------------------------------------------------------------------    
-    `ifdef CLK_TEST_EN
-    always @(posedge div_2_clk or negedge rst_n) begin : TEST_LOGIC_1
-        if(!rst_n)
-            begin
-                test_cnt_1     <= 'd0;
-            end
-        else
-            begin
-                test_cnt_1     <= test_cnt_1 + 1'b1;
-            end   
-    end
-    always @(posedge div_4_clk or negedge rst_n) begin : TEST_LOGIC_2
-        if(!rst_n)
-            begin
-                test_cnt_2     <= 'd0;
-            end
-        else
-            begin
-                test_cnt_2     <= test_cnt_2 + 1'b1;
-            end   
-    end
-    always @(posedge gated_clk or negedge rst_n) begin : TEST_LOGIC_3
-        if(!rst_n)
-            begin
-                test_cnt_3     <= 'd0;
-            end
-        else
-            begin
-                test_cnt_3     <= test_cnt_3 + 1'b1;
-            end   
-    end
+	wire [`WordAddrBus]			 if_pc;			 
+	wire [`WordDataBus]			 if_insn;		 
+	wire						 if_en;			 
+	wire [`WordAddrBus]			 id_pc;			 
+	wire						 id_en;			 
+	wire [`AluOpBus]			 id_alu_op;		 
+	wire [`WordDataBus]			 id_alu_in_0;	 
+	wire [`WordDataBus]			 id_alu_in_1;	 
+	wire						 id_br_flag;	 
+	wire [`MemOpBus]			 id_mem_op;		 
+	wire [`WordDataBus]			 id_mem_wr_data; 
+	wire [`CtrlOpBus]			 id_ctrl_op;	 
+	wire [`RegAddrBus]			 id_dst_addr;	 
+	wire						 id_gpr_we_;	 
+	wire [`IsaExpBus]			 id_exp_code;	 
+	wire [`WordAddrBus]			 ex_pc;			 
+	wire						 ex_en;			 
+	wire						 ex_br_flag;	 
+	wire [`MemOpBus]			 ex_mem_op;		 
+	wire [`WordDataBus]			 ex_mem_wr_data; 
+	wire [`CtrlOpBus]			 ex_ctrl_op;	 
+	wire [`RegAddrBus]			 ex_dst_addr;	 
+	wire						 ex_gpr_we_;	 
+	wire [`IsaExpBus]			 ex_exp_code;	 
+	wire [`WordDataBus]			 ex_out;		 
+	wire [`WordAddrBus]			 mem_pc;		 
+	wire						 mem_en;		 
+	wire						 mem_br_flag;	 
+	wire [`CtrlOpBus]			 mem_ctrl_op;	 
+	wire [`RegAddrBus]			 mem_dst_addr;	 
+	wire						 mem_gpr_we_;	 
+	wire [`IsaExpBus]			 mem_exp_code;	 
+	wire [`WordDataBus]			 mem_out;		 	
+	wire						 if_stall;		 
+	wire						 id_stall;		 
+	wire						 ex_stall;		 
+	wire						 mem_stall;		 
+	wire						 if_flush;		 
+	wire						 id_flush;		 
+	wire						 ex_flush;		 
+	wire						 mem_flush;		 
+	wire						 if_busy;		 
+	wire						 mem_busy;		 
+	wire [`WordAddrBus]			 new_pc;		 
+	wire [`WordAddrBus]			 br_addr;		 
+	wire						 br_taken;		 
+	wire						 ld_hazard;		 
+	wire [`WordDataBus]			 gpr_rd_data_0;	 
+	wire [`WordDataBus]			 gpr_rd_data_1;	 
+	wire [`RegAddrBus]			 gpr_rd_addr_0;	 
+	wire [`RegAddrBus]			 gpr_rd_addr_1;	 
+	wire [`CpuExeModeBus]		 exe_mode;		 
+	wire [`WordDataBus]			 creg_rd_data;	 
+	wire [`RegAddrBus]			 creg_rd_addr;	 
+	wire						 int_detect;	  
+		
+	wire [`WordDataBus]			 if_spm_rd_data;  
+	wire [`WordAddrBus]			 if_spm_addr;	  
+	wire						 if_spm_as_;	  
+	wire						 if_spm_rw;		  
+	wire [`WordDataBus]			 if_spm_wr_data;  
+	wire [`WordDataBus]			 mem_spm_rd_data; 
+	wire [`WordAddrBus]			 mem_spm_addr;	  
+	wire						 mem_spm_as_;	  
+	wire						 mem_spm_rw;	  
+	wire [`WordDataBus]			 mem_spm_wr_data; 
+	wire [`WordDataBus]			 ex_fwd_data;	  
+	wire [`WordDataBus]			 mem_fwd_data;	  
 
-    reg     ccd_log_test_1;
-    reg     ccd_log_test_2;
-    reg     ccd_log_test_3;
-    reg     ccd_log_test_4;
-    reg     ccd_log_test_5;
+		if_stage if_stage (
+		.clk			(clk),				
+		.reset			(reset),			
+		.spm_rd_data	(if_spm_rd_data),	
+		.spm_addr		(if_spm_addr),		
+		.spm_as_		(if_spm_as_),		
+		.spm_rw			(if_spm_rw),		
+		.spm_wr_data	(if_spm_wr_data),	
+		.bus_rd_data	(if_bus_rd_data),	
+		.bus_rdy_		(if_bus_rdy_),		
+		.bus_grnt_		(if_bus_grnt_),		
+		.bus_req_		(if_bus_req_),		
+		.bus_addr		(if_bus_addr),		
+		.bus_as_		(if_bus_as_),		
+		.bus_rw			(if_bus_rw),		
+		.bus_wr_data	(if_bus_wr_data),	
+		.stall			(if_stall),			
+		.flush			(if_flush),			
+		.new_pc			(new_pc),			
+		.br_taken		(br_taken),			
+		.br_addr		(br_addr),			
+		.busy			(if_busy),			
+		.if_pc			(if_pc),			
+		.if_insn		(if_insn),			
+		.if_en			(if_en)				
+	);
 
-    always @(posedge clk or negedge rst_n) begin : CCD_LOG_1
-        if(!rst_n)
-            begin
-                ccd_log_test_1  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_1  <= ~test_cnt_3[0];
-            end   
-    end
+		id_stage id_stage (
+		.clk			(clk),				
+		.reset			(reset),			
+		.gpr_rd_data_0	(gpr_rd_data_0),	
+		.gpr_rd_data_1	(gpr_rd_data_1),	
+		.gpr_rd_addr_0	(gpr_rd_addr_0),	
+		.gpr_rd_addr_1	(gpr_rd_addr_1),					
+		.ex_en			(ex_en),			
+		.ex_fwd_data	(ex_fwd_data),		
+		.ex_dst_addr	(ex_dst_addr),		
+		.ex_gpr_we_		(ex_gpr_we_),		
+		.mem_fwd_data	(mem_fwd_data),		
+		.exe_mode		(exe_mode),			
+		.creg_rd_data	(creg_rd_data),		
+		.creg_rd_addr	(creg_rd_addr),		
+		.stall		   (id_stall),		   
+		.flush			(id_flush),			
+		.br_addr		(br_addr),			
+		.br_taken		(br_taken),			
+		.ld_hazard		(ld_hazard),		
+		.if_pc			(if_pc),			
+		.if_insn		(if_insn),			
+		.if_en			(if_en),			
+		.id_pc			(id_pc),			
+		.id_en			(id_en),			
+		.id_alu_op		(id_alu_op),		
+		.id_alu_in_0	(id_alu_in_0),		
+		.id_alu_in_1	(id_alu_in_1),		
+		.id_br_flag		(id_br_flag),		
+		.id_mem_op		(id_mem_op),		
+		.id_mem_wr_data (id_mem_wr_data),	
+		.id_ctrl_op		(id_ctrl_op),		
+		.id_dst_addr	(id_dst_addr),		
+		.id_gpr_we_		(id_gpr_we_),		
+		.id_exp_code	(id_exp_code)		
+	);
 
-    always @(posedge div_4_clk or negedge rst_n) begin : CCD_LOG_2
-        if(!rst_n)
-            begin
-                ccd_log_test_2  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_2  <= ~test_cnt_1[1];
-            end   
-    end
-    always @(posedge clk or negedge rst_n) begin : CCD_LOG_3
-        if(!rst_n)
-            begin
-                ccd_log_test_3  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_3  <= ~test_cnt_2[1];
-            end   
-    end
-    always @(posedge clk or negedge rst_n) begin : CCD_LOG_4
-        if(!rst_n)
-            begin
-                ccd_log_test_4  <= 'd0;
-            end
-        else if(ccd_log_test_3)
-            begin
-                ccd_log_test_4  <= ((test_cnt_1 == 'd3) | (test_cnt_1 == 'd2) | (test_cnt_1 == 'd1)) | (test_cnt_1 & 'b101 == 'b010);
-            end
-        else
-            begin
-                ccd_log_test_4  <= ccd_log_test_4;
-            end 
-    end
+		ex_stage ex_stage (
+		.clk			(clk),				
+		.reset			(reset),			
+		.stall			(ex_stall),			
+		.flush			(ex_flush),			
+		.int_detect		(int_detect),		
+		.fwd_data		(ex_fwd_data),		
+		.id_pc			(id_pc),			
+		.id_en			(id_en),			
+		.id_alu_op		(id_alu_op),		
+		.id_alu_in_0	(id_alu_in_0),		
+		.id_alu_in_1	(id_alu_in_1),		
+		.id_br_flag		(id_br_flag),		
+		.id_mem_op		(id_mem_op),		
+		.id_mem_wr_data (id_mem_wr_data),	
+		.id_ctrl_op		(id_ctrl_op),		
+		.id_dst_addr	(id_dst_addr),		
+		.id_gpr_we_		(id_gpr_we_),		
+		.id_exp_code	(id_exp_code),		
+		.ex_pc			(ex_pc),			
+		.ex_en			(ex_en),			
+		.ex_br_flag		(ex_br_flag),		
+		.ex_mem_op		(ex_mem_op),		
+		.ex_mem_wr_data (ex_mem_wr_data),	
+		.ex_ctrl_op		(ex_ctrl_op),		
+		.ex_dst_addr	(ex_dst_addr),		
+		.ex_gpr_we_		(ex_gpr_we_),		
+		.ex_exp_code	(ex_exp_code),		
+		.ex_out			(ex_out)			
+	);
 
-    always @(posedge sw_clk or negedge rst_n) begin : CCD_LOG_5
-        if(!rst_n)
-            begin
-                ccd_log_test_5  <= 'd0;
-            end
-        else
-            begin
-                ccd_log_test_5  <= ccd_log_test_4;
-            end 
-    end
+		mem_stage mem_stage (
+		.clk			(clk),				
+		.reset			(reset),			
+		.stall			(mem_stall),		
+		.flush			(mem_flush),		
+		.busy			(mem_busy),			
+		.fwd_data		(mem_fwd_data),		
+		.spm_rd_data	(mem_spm_rd_data),	
+		.spm_addr		(mem_spm_addr),		
+		.spm_as_		(mem_spm_as_),		
+		.spm_rw			(mem_spm_rw),		
+		.spm_wr_data	(mem_spm_wr_data),	
+		.bus_rd_data	(mem_bus_rd_data),	
+		.bus_rdy_		(mem_bus_rdy_),		
+		.bus_grnt_		(mem_bus_grnt_),	
+		.bus_req_		(mem_bus_req_),		
+		.bus_addr		(mem_bus_addr),		
+		.bus_as_		(mem_bus_as_),		
+		.bus_rw			(mem_bus_rw),		
+		.bus_wr_data	(mem_bus_wr_data),	
+		.ex_pc			(ex_pc),			
+		.ex_en			(ex_en),			
+		.ex_br_flag		(ex_br_flag),		
+		.ex_mem_op		(ex_mem_op),		
+		.ex_mem_wr_data (ex_mem_wr_data),	
+		.ex_ctrl_op		(ex_ctrl_op),		
+		.ex_dst_addr	(ex_dst_addr),		
+		.ex_gpr_we_		(ex_gpr_we_),		
+		.ex_exp_code	(ex_exp_code),		
+		.ex_out			(ex_out),			
+		.mem_pc			(mem_pc),			
+		.mem_en			(mem_en),			
+		.mem_br_flag	(mem_br_flag),		
+		.mem_ctrl_op	(mem_ctrl_op),		
+		.mem_dst_addr	(mem_dst_addr),		
+		.mem_gpr_we_	(mem_gpr_we_),		
+		.mem_exp_code	(mem_exp_code),		
+		.mem_out		(mem_out)			
+	);
 
-    
-    assign  test_o[0]   = test_cnt_1[03]        ;
-    assign  test_o[1]   = test_cnt_2[03]        ;
-    assign  test_o[2]   = test_cnt_3[03]        ;
-//  assign  test_o[7:3] = {5{test_cnt_2[00]}}   ;
-    assign  test_o[3]   = ccd_log_test_1        ;   
-    assign  test_o[4]   = ccd_log_test_2        ;   
-    assign  test_o[5]   = ccd_log_test_3        ;   
-    assign  test_o[6]   = ccd_log_test_4        ;   
-    assign  test_o[7]   = ccd_log_test_5        ;   
-    `else
-    assign  test_o      = 8'b00000000           ;
-    `endif
-    
-    //************************************************************************************************
-    // 5.Sub module instantiation
-    //************************************************************************************************
-    //------------------------------------------------------------------------------------------------
-    // 5.1 the clk generate module
-    //------------------------------------------------------------------------------------------------    
-    clk_gen_top clk_gen_inst(
-        .clk                (clk                ),//01  In
-        .rst_n              (rst_n              ),//01  In
-        .div_2_clk          (div_2_clk          ),//01  Out
-        .div_4_clk          (div_4_clk          ),//01  Out
-        .clk_en             (clk_en             ),//01  In
-        .clk_sel            (clk_sel            ),//01  In
-        .sw_clk             (sw_clk             ),//01  In
-        .gated_clk          (gated_clk          ) //01  Out
-    );
-    
-    //------------------------------------------------------------------------------------------------
-    // 5.2 the system auxiliary module
-    //------------------------------------------------------------------------------------------------   
-    sys_aux_module sys_aux_inst(
-        .aux_clk            (clk                ),//01  In
-        .aux_rst_n          (rst_n              ),//01  In
-        .aux_data_i         (aux_data_i         ),//08  In
-        .aux_data_o         (aux_data_o         ) //15  Out     
-    );
-    
-    //------------------------------------------------------------------------------------------------
-    // 5.3 the udp/ip stack module
-    //------------------------------------------------------------------------------------------------
-    
-    `ifdef UDP
-    udpip_stack_module udpip_stack_inst(
-        .udp_clk            (sys_clk            ),//xx  I/O
-        .clk_200mhz         (adc_refclk_s       ),//xx  I/O
-        .clk_in_p           (clk_in_p           ),//xx  I/O
-        .clk_in_p           (clk_in_p           ),//xx  I/O
-        .udp_reset          (udp_reset          ),//xx  I/O
-        .mgtclk_p           (mgtclk_p           ),//xx  I/O
-        .phy_disable        (                   ) //xx  I/O 
-    );  
-    `endif
-    
-endmodule    
-//****************************************************************************************************
-//End of Mopdule
-//****************************************************************************************************
-    
-    
-    
-   
+		ctrl ctrl (
+		.clk			(clk),				
+		.reset			(reset),			
+		.creg_rd_addr	(creg_rd_addr),		
+		.creg_rd_data	(creg_rd_data),		
+		.exe_mode		(exe_mode),			
+		.irq			(cpu_irq),			
+		.int_detect		(int_detect),		
+		.id_pc			(id_pc),			
+		.mem_pc			(mem_pc),			
+		.mem_en			(mem_en),			
+		.mem_br_flag	(mem_br_flag),		
+		.mem_ctrl_op	(mem_ctrl_op),		
+		.mem_dst_addr	(mem_dst_addr),		
+		.mem_exp_code	(mem_exp_code),		
+		.mem_out		(mem_out),			
+		.if_busy		(if_busy),			
+		.ld_hazard		(ld_hazard),		
+		.mem_busy		(mem_busy),			
+		.if_stall		(if_stall),			
+		.id_stall		(id_stall),			
+		.ex_stall		(ex_stall),			
+		.mem_stall		(mem_stall),		
+		.if_flush		(if_flush),			
+		.id_flush		(id_flush),			
+		.ex_flush		(ex_flush),			
+		.mem_flush		(mem_flush),		
+		.new_pc			(new_pc)			
+	);
+
+		gpr gpr (
+		.clk	   (clk),					
+		.reset	   (reset),					
+		.rd_addr_0 (gpr_rd_addr_0),			
+		.rd_data_0 (gpr_rd_data_0),			
+		.rd_addr_1 (gpr_rd_addr_1),			
+		.rd_data_1 (gpr_rd_data_1),			
+		.we_	   (mem_gpr_we_),			
+		.wr_addr   (mem_dst_addr),			
+		.wr_data   (mem_out)				
+	);
+
+		spm spm (
+		.clk			 (clk_),					  
+		.if_spm_addr	 (if_spm_addr[`SpmAddrLoc]),  
+		.if_spm_as_		 (if_spm_as_),				  
+		.if_spm_rw		 (if_spm_rw),				  
+		.if_spm_wr_data	 (if_spm_wr_data),			  
+		.if_spm_rd_data	 (if_spm_rd_data),			  
+		.mem_spm_addr	 (mem_spm_addr[`SpmAddrLoc]), 
+		.mem_spm_as_	 (mem_spm_as_),				  
+		.mem_spm_rw		 (mem_spm_rw),				  
+		.mem_spm_wr_data (mem_spm_wr_data),			  
+		.mem_spm_rd_data (mem_spm_rd_data)			  
+	);
+
+endmodule
