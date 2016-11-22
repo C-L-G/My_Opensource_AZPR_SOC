@@ -1,3 +1,4 @@
+
 //****************************************************************************************************  
 //*---------------Copyright (c) 2016 C-L-G.FPGA1988.lichangbeiju. All rights reserved-----------------
 //
@@ -8,57 +9,43 @@
 //**************************************************************************************************** 
 //File Information
 //**************************************************************************************************** 
-//File Name      : chip_top.v 
+//File Name      : gpr.v 
 //Project Name   : azpr_soc
-//Description    : the top level of the project.
-//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/digital/rtl/chip_top.v
-//License        : Apache-2.0
+//Description    : the general purpose register module.
+//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/digital/rtl/gpr.v
+//License        : CPL
 //**************************************************************************************************** 
 //Version Information
 //**************************************************************************************************** 
-//Create Date    : 2016-11-22 17:00
+//Create Date    : 01-07-2016 17:00(1th Fri,July,2016)
 //First Author   : lichangbeiju
-//Last Modify    : 2016-11-23 14:20
+//Modify Date    : 02-09-2016 14:20(1th Sun,July,2016)
 //Last Author    : lichangbeiju
-//Version Number : 12 commits 
+//Version Number : 002   
+//Last Commit    : 03-09-2016 14:30(1th Sun,July,2016)
 //**************************************************************************************************** 
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
-//2016.11.22 - lichangbeiju - Change the coding style.
-//2016.11.22 - lichangbeiju - Add io port.
+//2016.11.21 - lichangbeiju - Add io port.
 //*---------------------------------------------------------------------------------------------------
-
-/********** 共通ヘッダファイル **********/
-`include "nettype.h"
-`include "stddef.h"
+`timescale 1ns/1ps
+`include "cpu.h"
 `include "global_config.h"
-
-/********** 個別ヘッダファイル **********/
-`include "gpio.h"
-
-/********** モジュール **********/
-module chip_top (
-	/********** クロック & リセット **********/
-	input wire				   clk_ref,		  // 基底クロック
-	input wire				   reset_sw		  // グローバルリセット
-	/********** UART **********/
-    `ifdef IMPLEMENT_UART // UART実装
-	, input wire			   uart_rx		  // UART受信信号
-	, output wire			   uart_tx		  // UART送信信号
-    `endif
-	/********** 汎用入出力ポート **********/
-    `ifdef IMPLEMENT_GPIO // GPIO実装
-    `ifdef GPIO_IN_CH	 // 入力ポートの実装
-	, input wire [`GPIO_IN_CH-1:0]	 gpio_in  // 入力ポート
-    `endif
-    `ifdef GPIO_OUT_CH	 // 出力ポートの実装
-	, output wire [`GPIO_OUT_CH-1:0] gpio_out // 出力ポート
-    `endif
-    `ifdef GPIO_IO_CH	 // 入出力ポートの実装
-	, inout wire [`GPIO_IO_CH-1:0]	 gpio_io  // 入出力ポート
-    `endif
-    `endif
+`include "stddef.h"
+module gpr(
+    input   wire                    clk             ,
+    input   wire                    rst_n           ,
+    //read port 0
+    input   wire    [`RegAddrBus]   rd_addr_0       ,//5    write data   
+    output  wire    [`WordDataBus]  rd_data_0       ,//32
+    //read port 1
+    input   wire    [`RegAddrBus]   rd_addr_1       ,//5    write data   
+    output  wire    [`WordDataBus]  rd_data_1       ,//32
+    //write port
+    input   wire                    we_n            ,//1
+    input   wire    [`WordAddrBus]  wr_addr         ,//32
+    input   wire    [`WordDataBus]  wr_data          //32
 );
 
     //************************************************************************************************
@@ -74,66 +61,56 @@ module chip_top (
     //------------------------------------------------------------------------------------------------   
 
     //------------------------------------------------------------------------------------------------
+    // 2.2 the internal variable 
+    //------------------------------------------------------------------------------------------------  
+    reg     [`WordDataBus]      gpr [`REG_NUM-1:0];
+    integer                     i;
+    
+    
+    
+    //------------------------------------------------------------------------------------------------
     // 2.x the test logic
     //------------------------------------------------------------------------------------------------
-	wire					   clk;			  // クロック
-	wire					   clk_;		  // 反転クロック
-	wire					   chip_reset;	  // チップリセット
 
     //************************************************************************************************
     // 3.Main code
     //************************************************************************************************
 
-
     //------------------------------------------------------------------------------------------------
-    // 3.1 the master grant logic
+    // 3.1 the read logic
     //------------------------------------------------------------------------------------------------
+    assign rd_data_0 = ((we_n == `ENABLE_N) && (wr_addr == rd_addr_0)) ? wr_data : gpr[rd_addr_0]; 
+    assign rd_data_1 = ((we_n == `ENABLE_N) && (wr_addr == rd_addr_1)) ? wr_data : gpr[rd_addr_1]; 
+    
+     
+    //------------------------------------------------------------------------------------------------
+    // 3.2 the write logic
+    //------------------------------------------------------------------------------------------------
+    
+    always @(posedge clk or `RESET_EDGE reset) begin : OWNER_CTRL 
+        if(reset == `RESET_ENABLE)
+            begin
+                for(i=0;i<`REG_NUM;i=i+1) begin : GPR_INIT
+                    gpr[i]  <= `WORD_DATA_W'h0;
+                end
+            end
+        else begin
+            if(we_n == `ENABLE_N)
+                begin
+                    gpr[wr_addr] <= wr_data;
+                end
+        end
+    end
 
+    
     //************************************************************************************************
     // 4.Sub module instantiation
     //************************************************************************************************
-
     //------------------------------------------------------------------------------------------------
-    // 4.1 the clk generate module
+    // 4.1 xxxx
     //------------------------------------------------------------------------------------------------    
-	clk_gen clk_gen (
-		/********** クロック & リセット **********/
-		.clk_ref	  (clk_ref),			  // 基底クロック
-		.reset_sw	  (reset_sw),			  // グローバルリセット
-		/********** 生成クロック **********/
-		.clk		  (clk),				  // クロック
-		.clk_		  (clk_),				  // 反転クロック
-		/********** チップリセット **********/
-		.chip_reset	  (chip_reset)			  // チップリセット
-	);
-    //------------------------------------------------------------------------------------------------
-    // 4.2 the cpu chip
-    //------------------------------------------------------------------------------------------------    
-	chip chip (
-		/********** クロック & リセット **********/
-		.clk	  (clk),					  // クロック
-		.clk_	  (clk_),					  // 反転クロック
-		.reset	  (chip_reset)				  // リセット
-		/********** UART **********/
-    `ifdef IMPLEMENT_UART
-		, .uart_rx	(uart_rx)				  // UART受信波形
-		, .uart_tx	(uart_tx)				  // UART送信波形
-    `endif
-		/********** 汎用入出力ポート **********/
-    `ifdef IMPLEMENT_GPIO
-    `ifdef GPIO_IN_CH  // 入力ポートの実装
-		, .gpio_in (gpio_in)				  // 入力ポート
-    `endif
-    `ifdef GPIO_OUT_CH // 出力ポートの実装
-		, .gpio_out (gpio_out)				  // 出力ポート
-    `endif
-    `ifdef GPIO_IO_CH  // 入出力ポートの実装
-		, .gpio_io	(gpio_io)				  // 入出力ポート
-    `endif
-    `endif
-	);
-
-endmodule
+    
+endmodule    
 //****************************************************************************************************
 //End of Mopdule
 //****************************************************************************************************
