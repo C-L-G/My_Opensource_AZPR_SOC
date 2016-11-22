@@ -1,0 +1,14 @@
+echo "Welcome to use the dc synthesis scripts."
+#Change to the run directory
+cd ../run_dir
+#Delete the temp file
+rm *.pvl
+rm *.syn
+rm *.mr
+#| channel
+#tee show the output of the programer and copy it to a file,it is different from the > 
+#> can not show the result on the screen.
+#tee will create the file if the file is not exist.It will be covered,you can use -a to addition. 
+#tee can use multi file.
+#- means output 2 times.
+dc_shell -f ../scripts/run_digital.tcl | tee ../log/digital.log
