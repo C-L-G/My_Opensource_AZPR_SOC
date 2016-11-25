@@ -43,52 +43,87 @@ module spm (
     //2.port a if stage
     input  wire [`SpmAddrBus]  if_spm_addr      ,//address
     input  wire                if_spm_as_n      ,//address strobe
-    input  wire                if_spm_rw        ,// 読み／書き
-    input  wire [`WordDataBus] if_spm_wr_data   ,   // 書き込みデータ
-    output wire [`WordDataBus] if_spm_rd_data   ,   // 読み出しデータ
-    /********** ポートB : MEMステージ **********/
+    input  wire                if_spm_rw        ,//read/write
+    input  wire [`WordDataBus] if_spm_wr_data   ,//write in data
+    output wire [`WordDataBus] if_spm_rd_data   ,//read out data
     //3.port b mem stage
-    input  wire [`SpmAddrBus]  mem_spm_addr     ,   // アドレス
-    input  wire                mem_spm_as_n     ,       // アドレスストローブ
-    input  wire                mem_spm_rw       ,       // 読み／書き
-    input  wire [`WordDataBus] mem_spm_wr_data  , // 書き込みデータ
-    output wire [`WordDataBus] mem_spm_rd_data  // 読み出しデータ
+    input  wire [`SpmAddrBus]  mem_spm_addr     ,//address
+    input  wire                mem_spm_as_n     ,//address strobe
+    input  wire                mem_spm_rw       ,//read/write    
+    input  wire [`WordDataBus] mem_spm_wr_data  ,//write in data 
+    output wire [`WordDataBus] mem_spm_rd_data  // read out data 
 );
 
-    /********** 書き込み有効信号 **********/
-    reg                        wea;         // ポート A
-    reg                        web;         // ポート B
+    //************************************************************************************************
+    // 1.Parameter and constant define
+    //************************************************************************************************
+    
+    
+    //************************************************************************************************
+    // 2.Register and wire declaration
+    //************************************************************************************************
+    //------------------------------------------------------------------------------------------------
+    // 2.1 the output reg
+    //------------------------------------------------------------------------------------------------   
 
-    /********** 書き込み有効信号の生成 **********/
+    //------------------------------------------------------------------------------------------------
+    // 2.x the test logic
+    //------------------------------------------------------------------------------------------------
+    reg                        wea  ;//write enable A
+    reg                        web  ;//write enable B
+
+    //************************************************************************************************
+    // 3.Main code
+    //************************************************************************************************
+
+    //------------------------------------------------------------------------------------------------
+    // 3.1 the generate of write enable
+    //------------------------------------------------------------------------------------------------
     always @(*) begin
-        /* ポート A */
-        if ((if_spm_as_ == `ENABLE_) && (if_spm_rw == `WRITE)) begin   
-            wea = `MEM_ENABLE;  // 書き込み有効
-        end else begin
-            wea = `MEM_DISABLE; // 書き込み無効
-        end
-        /* ポート B */
-        if ((mem_spm_as_ == `ENABLE_) && (mem_spm_rw == `WRITE)) begin
-            web = `MEM_ENABLE;  // 書き込み有効
-        end else begin
-            web = `MEM_DISABLE; // 書き込み無効
-        end
+        /* port A */
+        if ((if_spm_as_n == `ENABLE_N) && (if_spm_rw == `WRITE))
+            begin   
+                wea = `MEM_ENABLE;  //write in valid
+            end 
+        else
+            begin
+                wea = `MEM_DISABLE; //write in disable
+            end
+        /* port B */
+        if ((mem_spm_as_ == `ENABLE_) && (mem_spm_rw == `WRITE))
+            begin
+                web = `MEM_ENABLE;  //write in valid
+            end
+        else
+            begin
+                web = `MEM_DISABLE; //write in disable
+            end
     end
 
-    /********** Xilinx FPGA Block RAM : デュアルポートRAM **********/
+    //************************************************************************************************
+    // 4.Sub module instantiation
+    //************************************************************************************************
+
+    //------------------------------------------------------------------------------------------------
+    // 4.1 the clk generate module
+    //------------------------------------------------------------------------------------------------    
+    /********** Xilinx FPGA Block RAM : two ports RAM **********/
     x_s3e_dpram x_s3e_dpram (
-        /********** ポート A : IFステージ **********/
-        .clka  (clk),             // クロック
-        .addra (if_spm_addr),     // アドレス
-        .dina  (if_spm_wr_data),  // 書き込みデータ（未接続）
-        .wea   (wea),             // 書き込み有効（ネゲート）
-        .douta (if_spm_rd_data),  // 読み出しデータ
-        /********** ポート B : MEMステージ **********/
-        .clkb  (clk),             // クロック
-        .addrb (mem_spm_addr),    // アドレス
-        .dinb  (mem_spm_wr_data), // 書き込みデータ
-        .web   (web),             // 書き込み有効
-        .doutb (mem_spm_rd_data)  // 読み出しデータ
+        /********** port A : IF stage **********/
+        .clka  (clk),             //clock 
+        .addra (if_spm_addr),     //address
+        .dina  (if_spm_wr_data),  //
+        .wea   (wea),             //
+        .douta (if_spm_rd_data),  //
+        /********** port B : MEM Stage **********/
+        .clkb  (clk),             //
+        .addrb (mem_spm_addr),    //
+        .dinb  (mem_spm_wr_data), //
+        .web   (web),             //
+        .doutb (mem_spm_rd_data)  //read data
     );
   
 endmodule
+//****************************************************************************************************
+//End of Mopdule
+//****************************************************************************************************
