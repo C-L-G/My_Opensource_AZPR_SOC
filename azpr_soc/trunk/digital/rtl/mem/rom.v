@@ -32,19 +32,19 @@
 `include "rom.h" 
 `include "stddef.h"
 module rom.v#(
-   parameter MEM_WIDTH 		= 32,
+   parameter MEM_WIDTH      = 32,
    parameter MEM_ADDR_BITS  = 11
 )(
-	input	wire							clockA,
-	input	wire							clockB,
-	input	wire							write_enableA,
-	input	wire							write_enableB,
-	input	wire	[MEM_ADDR_BITS-1:0] 	addressA, 
-	input	wire	[MEM_ADDR_BITS-1:0] 	addressB, 
-	input	wire	[MEM_WIDTH-1:0] 		input_dataA, 
-	input	wire	[MEM_WIDTH-1:0] 		input_dataB, 
-	output	reg 	[MEM_WIDTH-1:0] 		output_dataA,
-	output	reg 	[MEM_WIDTH-1:0] 		output_dataB
+    input   wire                            clockA,
+    input   wire                            clockB,
+    input   wire                            write_enableA,
+    input   wire                            write_enableB,
+    input   wire    [MEM_ADDR_BITS-1:0]     addressA, 
+    input   wire    [MEM_ADDR_BITS-1:0]     addressB, 
+    input   wire    [MEM_WIDTH-1:0]         input_dataA, 
+    input   wire    [MEM_WIDTH-1:0]         input_dataB, 
+    output  reg     [MEM_WIDTH-1:0]         output_dataA,
+    output  reg     [MEM_WIDTH-1:0]         output_dataB
 );
     //************************************************************************************************
     // 1.Parameter and constant define
@@ -61,11 +61,11 @@ module rom.v#(
     // 2.2 the memory register
     //------------------------------------------------------------------------------------------------  
     //(* RAM_STYLE="{AUTO | BLOCK |  BLOCK_POWER1 | BLOCK_POWER2}" *)
-	(* RAM_STYLE="BLOCK" *)
-	reg [MEM_WIDTH-1:0] sym_ram [(2**MEM_ADDR_BITS)-1:0];
+    (* RAM_STYLE="BLOCK" *)
+    reg [MEM_WIDTH-1:0] sym_ram [(2**MEM_ADDR_BITS)-1:0];
 
-	wire                    enableA;
-	wire	                enableB;
+    wire                    enableA;
+    wire                    enableB;
     //************************************************************************************************
     // 3.Main code
     //************************************************************************************************
@@ -73,8 +73,8 @@ module rom.v#(
     //------------------------------------------------------------------------------------------------
     // 3.1 the memory read and write logic
     //------------------------------------------------------------------------------------------------
-	assign enableA = `ENABLE;
-	assign enableB = `ENABLE;
+    assign enableA = `ENABLE;
+    assign enableB = `ENABLE;
 
    //  The forllowing code is only necessary if you wish to initialize the RAM 
    //  contents via an external file (use $readmemb for binary data)
@@ -94,7 +94,7 @@ module rom.v#(
             sym_ram[addressB] <= input_dataB;
          output_dataB <= sym_ram[addressB];
       end
-	
+    
     
 endmodule    
 //****************************************************************************************************

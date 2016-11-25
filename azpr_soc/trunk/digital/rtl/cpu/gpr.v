@@ -1,4 +1,3 @@
-
 //****************************************************************************************************  
 //*---------------Copyright (c) 2016 C-L-G.FPGA1988.lichangbeiju. All rights reserved-----------------
 //
@@ -9,25 +8,25 @@
 //**************************************************************************************************** 
 //File Information
 //**************************************************************************************************** 
-//File Name      : gpr.v 
+//File Name      : chip_top.v 
 //Project Name   : azpr_soc
-//Description    : the general purpose register module.
-//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/digital/rtl/gpr.v
-//License        : CPL
+//Description    : the digital top of the chip.
+//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/digital/rtl/chip.v
+//License        : Apache-2.0
 //**************************************************************************************************** 
 //Version Information
 //**************************************************************************************************** 
-//Create Date    : 01-07-2016 17:00(1th Fri,July,2016)
+//Create Date    : 2016-11-22 17:00
 //First Author   : lichangbeiju
-//Modify Date    : 02-09-2016 14:20(1th Sun,July,2016)
+//Last Modify    : 2016-11-23 14:20
 //Last Author    : lichangbeiju
-//Version Number : 002   
-//Last Commit    : 03-09-2016 14:30(1th Sun,July,2016)
+//Version Number : 12 commits 
 //**************************************************************************************************** 
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
-//2016.11.21 - lichangbeiju - Add io port.
+//2016.11.23 - lichangbeiju - Change the coding style.
+//2016.11.22 - lichangbeiju - Add io port.
 //*---------------------------------------------------------------------------------------------------
 `timescale 1ns/1ps
 `include "cpu.h"
