@@ -1,7 +1,7 @@
-
-# azpr_soc
 ![signed](https://raw.githubusercontent.com/FPGA1988/resource/master/picture/prj_azpr_soc.png)
- 来自&lt;&lt;CPU自制入门>>的项目实现
+
+# 工程简介
+ 本项目来自&lt;&lt;CPU自制入门>>的项目实现
  
  [**书籍简介**](http://product.dangdang.com/23382868.html)<br>
 
