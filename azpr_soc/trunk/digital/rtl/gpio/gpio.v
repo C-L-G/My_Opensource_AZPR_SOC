@@ -36,36 +36,36 @@
 `include "gpio.h"
 
 module gpio (
-    input  wire                     clk,     // クロック
-    input  wire                     reset,   // リセット
-    input  wire                     cs_,     // チップセレクト
-    input  wire                     as_,     // アドレスストローブ
-    input  wire                     rw,      // Read / Write
-    input  wire [`GpioAddrBus]      addr,    // アドレス
-    input  wire [`WordDataBus]      wr_data, // 書き込みデータ
-    output reg  [`WordDataBus]      rd_data, // 読み出しデータ
-    output reg                      rdy_     // レディ
-`ifdef GPIO_IN_CH    // 入力ポートの実装
-    , input wire [`GPIO_IN_CH-1:0]  gpio_in  // 入力ポート（制御レジスタ0）
+    input  wire                     clk,     
+    input  wire                     reset,   
+    input  wire                     cs_n,     
+    input  wire                     as_n,     
+    input  wire                     rw,      
+    input  wire [`GpioAddrBus]      addr,    
+    input  wire [`WordDataBus]      wr_data, 
+    output reg  [`WordDataBus]      rd_data, 
+    output reg                      rdy_n     
+`ifdef GPIO_IN_CH    
+    , input wire [`GPIO_IN_CH-1:0]  gpio_in  
 `endif
-`ifdef GPIO_OUT_CH   // 出力ポートの実装
-    , output reg [`GPIO_OUT_CH-1:0] gpio_out // 出力ポート（制御レジスタ1）
+`ifdef GPIO_OUT_CH   
+    , output reg [`GPIO_OUT_CH-1:0] gpio_out 
 `endif
-`ifdef GPIO_IO_CH    // 入出力ポートの実装
-    , inout wire [`GPIO_IO_CH-1:0]  gpio_io  // 入出力ポート（制御レジスタ2）
+`ifdef GPIO_IO_CH    
+    , inout wire [`GPIO_IO_CH-1:0]  gpio_io  
 `endif
 );
 
-`ifdef GPIO_IO_CH    // 入出力ポートの制御
-    /********** 入出力信号 **********/
-    wire [`GPIO_IO_CH-1:0]          io_in;   // 入力データ
-    reg  [`GPIO_IO_CH-1:0]          io_out;  // 出力データ
-    reg  [`GPIO_IO_CH-1:0]          io_dir;  // 入出力方向（制御レジスタ3）
-    reg  [`GPIO_IO_CH-1:0]          io;      // 入出力
-    integer                         i;       // イテレータ
+`ifdef GPIO_IO_CH    
+    
+    wire [`GPIO_IO_CH-1:0]          io_in;   
+    reg  [`GPIO_IO_CH-1:0]          io_out;  
+    reg  [`GPIO_IO_CH-1:0]          io_dir;  
+    reg  [`GPIO_IO_CH-1:0]          io;      
+    integer                         i;       
    
-    assign io_in       = gpio_io;            // 入力データ
-    assign gpio_io     = io;                 // 入出力
+    assign io_in       = gpio_io;            
+    assign gpio_io     = io;                 
 
     always @(*) begin
         for (i = 0; i < `GPIO_IO_CH; i = i + 1) begin : IO_DIR
@@ -75,47 +75,47 @@ module gpio (
 
 `endif
    
-    /********** GPIOの制御 **********/
+    
     always @(posedge clk or `RESET_EDGE reset) begin
         if (reset == `RESET_ENABLE) begin
-            /* 非同期リセット */
+            
             rd_data  <= #1 `WORD_DATA_W'h0;
-            rdy_     <= #1 `DISABLE_;
-`ifdef GPIO_OUT_CH   // 出力ポートのリセット
+            rdy_n     <= #1 `DISABLE_N;
+`ifdef GPIO_OUT_CH   
             gpio_out <= #1 {`GPIO_OUT_CH{`LOW}};
 `endif
-`ifdef GPIO_IO_CH    // 入出力ポートのリセット
+`ifdef GPIO_IO_CH    
             io_out   <= #1 {`GPIO_IO_CH{`LOW}};
             io_dir   <= #1 {`GPIO_IO_CH{`GPIO_DIR_IN}};
 `endif
         end else begin
-            /* レディの生成 */
-            if ((cs_ == `ENABLE_) && (as_ == `ENABLE_)) begin
-                rdy_     <= #1 `ENABLE_;
+            
+            if ((cs_n == `ENABLE_N) && (as_n == `ENABLE_N)) begin
+                rdy_n     <= #1 `ENABLE_N;
             end else begin
-                rdy_     <= #1 `DISABLE_;
+                rdy_n     <= #1 `DISABLE_N;
             end 
-            /* 読み出しアクセス */
-            if ((cs_ == `ENABLE_) && (as_ == `ENABLE_) && (rw == `READ)) begin
+            
+            if ((cs_n == `ENABLE_N) && (as_n == `ENABLE_N) && (rw == `READ)) begin
                 case (addr)
-`ifdef GPIO_IN_CH   // 入力ポートの読み出し
-                    `GPIO_ADDR_IN_DATA  : begin // 制御レジスタ 0
+`ifdef GPIO_IN_CH   
+                    `GPIO_ADDR_IN_DATA  : begin 
                         rd_data  <= #1 {{`WORD_DATA_W-`GPIO_IN_CH{1'b0}}, 
                                         gpio_in};
                     end
 `endif
-`ifdef GPIO_OUT_CH  // 出力ポートの読み出し
-                    `GPIO_ADDR_OUT_DATA : begin // 制御レジスタ 1
+`ifdef GPIO_OUT_CH 
+                    `GPIO_ADDR_OUT_DATA : begin 
                         rd_data  <= #1 {{`WORD_DATA_W-`GPIO_OUT_CH{1'b0}}, 
                                         gpio_out};
                     end
 `endif
-`ifdef GPIO_IO_CH   // 入出力ポートの読み出し
-                    `GPIO_ADDR_IO_DATA  : begin // 制御レジスタ 2
+`ifdef GPIO_IO_CH   
+                    `GPIO_ADDR_IO_DATA  : begin 
                         rd_data  <= #1 {{`WORD_DATA_W-`GPIO_IO_CH{1'b0}}, 
                                         io_in};
                      end
-                    `GPIO_ADDR_IO_DIR   : begin // 制御レジスタ 3
+                    `GPIO_ADDR_IO_DIR   : begin 
                         rd_data  <= #1 {{`WORD_DATA_W-`GPIO_IO_CH{1'b0}}, 
                                         io_dir};
                     end
@@ -124,19 +124,19 @@ module gpio (
             end else begin
                 rd_data  <= #1 `WORD_DATA_W'h0;
             end
-            /* 書き込みアクセス */
-            if ((cs_ == `ENABLE_) && (as_ == `ENABLE_) && (rw == `WRITE)) begin
+            
+            if ((cs_n == `ENABLE_N) && (as_n == `ENABLE_N) && (rw == `WRITE)) begin
                 case (addr)
-`ifdef GPIO_OUT_CH  // 出力ポートへの書きこみ
-                    `GPIO_ADDR_OUT_DATA : begin // 制御レジスタ 1
+`ifdef GPIO_OUT_CH  
+                    `GPIO_ADDR_OUT_DATA : begin 
                         gpio_out <= #1 wr_data[`GPIO_OUT_CH-1:0];
                     end
 `endif
-`ifdef GPIO_IO_CH   // 入出力ポートへの書きこみ
-                    `GPIO_ADDR_IO_DATA  : begin // 制御レジスタ 2
+`ifdef GPIO_IO_CH   
+                    `GPIO_ADDR_IO_DATA  : begin 
                         io_out   <= #1 wr_data[`GPIO_IO_CH-1:0];
                      end
-                    `GPIO_ADDR_IO_DIR   : begin // 制御レジスタ 3
+                    `GPIO_ADDR_IO_DIR   : begin 
                         io_dir   <= #1 wr_data[`GPIO_IO_CH-1:0];
                     end
 `endif

@@ -71,7 +71,7 @@ module if_stage (
         .flush       (flush),               //
         .busy        (busy),                //
         .addr        (if_pc),               //
-        .as_         (`ENABLE_),            //
+        .as_         (`ENABLE_N),            //
         .rw          (`READ),               //
         .wr_data     (`WORD_DATA_W'h0),     //
         .rd_data     (insn),                //

@@ -1,12 +1,3 @@
-/*
- -- ============================================================================
- -- FILE NAME   : id_stage.v
- -- DESCRIPTION : ID僗僥乕僕
- -- ----------------------------------------------------------------------------
- -- Revision  Date        Coding_by  Comment
- -- 1.0.0     2011/06/27  suito      怴婯嶌惉
- -- ============================================================================
-*/
 //****************************************************************************************************  
 //*---------------Copyright (c) 2016 C-L-G.FPGA1988.lichangbeiju. All rights reserved-----------------
 //
@@ -38,153 +29,127 @@
 //2016.11.22 - lichangbeiju - Add io port.
 //*---------------------------------------------------------------------------------------------------
 
-/********** 嫟捠僿僢僟僼傽僀儖 **********/
 `include "nettype.h"
 `include "global_config.h"
 `include "stddef.h"
 
-/********** 屄暿僿僢僟僼傽僀儖 **********/
 `include "isa.h"
 `include "cpu.h"
 
-/********** 儌僕儏乕儖 **********/
 module id_stage (
-    /********** 僋儘僢僋 & 儕僙僢僩 **********/
-    input  wire                  clk,            // 僋儘僢僋
-    input  wire                  reset,          // 旕摨婜儕僙僢僩
-    /********** GPR僀儞僞僼僃乕僗 **********/
-    input  wire [`WordDataBus]   gpr_rd_data_0,  // 撉傒弌偟僨乕僞 0
-    input  wire [`WordDataBus]   gpr_rd_data_1,  // 撉傒弌偟僨乕僞 1
-    output wire [`RegAddrBus]    gpr_rd_addr_0,  // 撉傒弌偟傾僪儗僗 0
-    output wire [`RegAddrBus]    gpr_rd_addr_1,  // 撉傒弌偟傾僪儗僗 1
-    /********** 僼僅儚乕僨傿儞僌 **********/
-    // EX僗僥乕僕偐傜偺僼僅儚乕僨傿儞僌
-    input  wire                  ex_en,         // 僷僀僾儔僀儞僨乕僞偺桳岠
-    input  wire [`WordDataBus]   ex_fwd_data,    // 僼僅儚乕僨傿儞僌僨乕僞
-    input  wire [`RegAddrBus]    ex_dst_addr,    // 彂偒崬傒傾僪儗僗
-    input  wire                  ex_gpr_we_,     // 彂偒崬傒桳岠
-    // MEM僗僥乕僕偐傜偺僼僅儚乕僨傿儞僌
-    input  wire [`WordDataBus]   mem_fwd_data,   // 僼僅儚乕僨傿儞僌僨乕僞
-    /********** 惂屼儗僕僗僞僀儞僞僼僃乕僗 **********/
-    input  wire [`CpuExeModeBus] exe_mode,       // 幚峴儌乕僪
-    input  wire [`WordDataBus]   creg_rd_data,   // 撉傒弌偟僨乕僞
-    output wire [`RegAddrBus]    creg_rd_addr,   // 撉傒弌偟傾僪儗僗
-    /********** 僷僀僾儔僀儞惂屼怣崋 **********/
-    input  wire                  stall,          // 僗僩乕儖
-    input  wire                  flush,          // 僼儔僢僔儏
-    output wire [`WordAddrBus]   br_addr,        // 暘婒傾僪儗僗
-    output wire                  br_taken,       // 暘婒偺惉棫
-    output wire                  ld_hazard,      // 儘乕僪僴僓乕僪
-    /********** IF/ID僷僀僾儔僀儞儗僕僗僞 **********/
-    input  wire [`WordAddrBus]   if_pc,          // 僾儘僌儔儉僇僂儞僞
-    input  wire [`WordDataBus]   if_insn,        // 柦椷
-    input  wire                  if_en,          // 僷僀僾儔僀儞僨乕僞偺桳岠
-    /********** ID/EX僷僀僾儔僀儞儗僕僗僞 **********/
-    output wire [`WordAddrBus]   id_pc,          // 僾儘僌儔儉僇僂儞僞
-    output wire                  id_en,          // 僷僀僾儔僀儞僨乕僞偺桳岠
-    output wire [`AluOpBus]      id_alu_op,      // ALU僆儁儗乕僔儑儞
-    output wire [`WordDataBus]   id_alu_in_0,    // ALU擖椡 0
-    output wire [`WordDataBus]   id_alu_in_1,    // ALU擖椡 1
-    output wire                  id_br_flag,     // 暘婒僼儔僌
-    output wire [`MemOpBus]      id_mem_op,      // 儊儌儕僆儁儗乕僔儑儞
-    output wire [`WordDataBus]   id_mem_wr_data, // 儊儌儕彂偒崬傒僨乕僞
-    output wire [`CtrlOpBus]     id_ctrl_op,     // 惂屼僆儁儗乕僔儑儞
-    output wire [`RegAddrBus]    id_dst_addr,    // GPR彂偒崬傒傾僪儗僗
-    output wire                  id_gpr_we_,     // GPR彂偒崬傒桳岠
-    output wire [`IsaExpBus]     id_exp_code     // 椺奜僐乕僪
+    input  wire                  clk,            
+    input  wire                  reset,          
+    input  wire [`WordDataBus]   gpr_rd_data_0,  
+    input  wire [`WordDataBus]   gpr_rd_data_1,  
+    output wire [`RegAddrBus]    gpr_rd_addr_0,  
+    output wire [`RegAddrBus]    gpr_rd_addr_1,  
+    input  wire                  ex_en,         
+    input  wire [`WordDataBus]   ex_fwd_data,    
+    input  wire [`RegAddrBus]    ex_dst_addr,    
+    input  wire                  ex_gpr_we_n,     
+    input  wire [`WordDataBus]   mem_fwd_data,   
+    input  wire [`CpuExeModeBus] exe_mode,       
+    input  wire [`WordDataBus]   creg_rd_data,   
+    output wire [`RegAddrBus]    creg_rd_addr,   
+    input  wire                  stall,          
+    input  wire                  flush,          
+    output wire [`WordAddrBus]   br_addr,        
+    output wire                  br_taken,       
+    output wire                  ld_hazard,      
+    input  wire [`WordAddrBus]   if_pc,          
+    input  wire [`WordDataBus]   if_insn,        
+    input  wire                  if_en,          
+    output wire [`WordAddrBus]   id_pc,          
+    output wire                  id_en,          
+    output wire [`AluOpBus]      id_alu_op,      
+    output wire [`WordDataBus]   id_alu_in_0,    
+    output wire [`WordDataBus]   id_alu_in_1,    
+    output wire                  id_br_flag,     
+    output wire [`MemOpBus]      id_mem_op,      
+    output wire [`WordDataBus]   id_mem_wr_data, 
+    output wire [`CtrlOpBus]     id_ctrl_op,     
+    output wire [`RegAddrBus]    id_dst_addr,    
+    output wire                  id_gpr_we_n,     
+    output wire [`IsaExpBus]     id_exp_code     
 );
 
-    /********** 僨僐乕僪怣崋 **********/
-    wire  [`AluOpBus]            alu_op;         // ALU僆儁儗乕僔儑儞
-    wire  [`WordDataBus]         alu_in_0;       // ALU擖椡 0
-    wire  [`WordDataBus]         alu_in_1;       // ALU擖椡 1
-    wire                         br_flag;        // 暘婒僼儔僌
-    wire  [`MemOpBus]            mem_op;         // 儊儌儕僆儁儗乕僔儑儞
-    wire  [`WordDataBus]         mem_wr_data;    // 儊儌儕彂偒崬傒僨乕僞
-    wire  [`CtrlOpBus]           ctrl_op;        // 惂屼僆儁儗乕僔儑儞
-    wire  [`RegAddrBus]          dst_addr;       // GPR彂偒崬傒傾僪儗僗
-    wire                         gpr_we_;        // GPR彂偒崬傒桳岠
-    wire  [`IsaExpBus]           exp_code;       // 椺奜僐乕僪
+    wire  [`AluOpBus]            alu_op;         
+    wire  [`WordDataBus]         alu_in_0;       
+    wire  [`WordDataBus]         alu_in_1;       
+    wire                         br_flag;        
+    wire  [`MemOpBus]            mem_op;         
+    wire  [`WordDataBus]         mem_wr_data;    
+    wire  [`CtrlOpBus]           ctrl_op;        
+    wire  [`RegAddrBus]          dst_addr;       
+    wire                         gpr_we_n;        
+    wire  [`IsaExpBus]           exp_code;       
 
-    /********** 僨僐乕僟 **********/
     decoder decoder (
-        /********** IF/ID僷僀僾儔僀儞儗僕僗僞 **********/
-        .if_pc          (if_pc),          // 僾儘僌儔儉僇僂儞僞
-        .if_insn        (if_insn),        // 柦椷
-        .if_en          (if_en),          // 僷僀僾儔僀儞僨乕僞偺桳岠
-        /********** GPR僀儞僞僼僃乕僗 **********/
-        .gpr_rd_data_0  (gpr_rd_data_0),  // 撉傒弌偟僨乕僞 0
-        .gpr_rd_data_1  (gpr_rd_data_1),  // 撉傒弌偟僨乕僞 1
-        .gpr_rd_addr_0  (gpr_rd_addr_0),  // 撉傒弌偟傾僪儗僗 0
-        .gpr_rd_addr_1  (gpr_rd_addr_1),  // 撉傒弌偟傾僪儗僗 1
-        /********** 僼僅儚乕僨傿儞僌 **********/
-        // ID僗僥乕僕偐傜偺僼僅儚乕僨傿儞僌
-        .id_en          (id_en),          // 僷僀僾儔僀儞僨乕僞偺桳岠
-        .id_dst_addr    (id_dst_addr),    // 彂偒崬傒傾僪儗僗
-        .id_gpr_we_     (id_gpr_we_),     // 彂偒崬傒桳岠
-        .id_mem_op      (id_mem_op),      // 儊儌儕僆儁儗乕僔儑儞
-        // EX僗僥乕僕偐傜偺僼僅儚乕僨傿儞僌
-        .ex_en          (ex_en),          // 僷僀僾儔僀儞僨乕僞偺桳岠
-        .ex_fwd_data    (ex_fwd_data),    // 僼僅儚乕僨傿儞僌僨乕僞
-        .ex_dst_addr    (ex_dst_addr),    // 彂偒崬傒傾僪儗僗
-        .ex_gpr_we_     (ex_gpr_we_),     // 彂偒崬傒桳岠
-        // MEM僗僥乕僕偐傜偺僼僅儚乕僨傿儞僌
-        .mem_fwd_data   (mem_fwd_data),   // 僼僅儚乕僨傿儞僌僨乕僞
-        /********** 惂屼儗僕僗僞僀儞僞僼僃乕僗 **********/
-        .exe_mode       (exe_mode),       // 幚峴儌乕僪
-        .creg_rd_data   (creg_rd_data),   // 撉傒弌偟僨乕僞
-        .creg_rd_addr   (creg_rd_addr),   // 撉傒弌偟傾僪儗僗
-        /********** 僨僐乕僪怣崋 **********/
-        .alu_op         (alu_op),         // ALU僆儁儗乕僔儑儞
-        .alu_in_0       (alu_in_0),       // ALU擖椡 0
-        .alu_in_1       (alu_in_1),       // ALU擖椡 1
-        .br_addr        (br_addr),        // 暘婒傾僪儗僗
-        .br_taken       (br_taken),       // 暘婒偺惉棫
-        .br_flag        (br_flag),        // 暘婒僼儔僌
-        .mem_op         (mem_op),         // 儊儌儕僆儁儗乕僔儑儞
-        .mem_wr_data    (mem_wr_data),    // 儊儌儕彂偒崬傒僨乕僞
-        .ctrl_op        (ctrl_op),        // 惂屼僆儁儗乕僔儑儞
-        .dst_addr       (dst_addr),       // 斈梡儗僕僗僞彂偒崬傒傾僪儗僗
-        .gpr_we_        (gpr_we_),        // 斈梡儗僕僗僞彂偒崬傒桳岠
-        .exp_code       (exp_code),       // 椺奜僐乕僪
-        .ld_hazard      (ld_hazard)       // 儘乕僪僴僓乕僪
+        .if_pc          (if_pc),          
+        .if_insn        (if_insn),        
+        .if_en          (if_en),          
+        .gpr_rd_data_0  (gpr_rd_data_0),  
+        .gpr_rd_data_1  (gpr_rd_data_1),  
+        .gpr_rd_addr_0  (gpr_rd_addr_0),  
+        .gpr_rd_addr_1  (gpr_rd_addr_1),  
+        .id_en          (id_en),          
+        .id_dst_addr    (id_dst_addr),    
+        .id_gpr_we_n     (id_gpr_we_n),   
+        .id_mem_op      (id_mem_op),      
+        1.更新RTL的coding style
+2.更新fpga的tb top
+3.更新一个tc模板.ex_en          (ex_en),          
+        .ex_fwd_data    (ex_fwd_data),    
+        .ex_dst_addr    (ex_dst_addr),    
+        .ex_gpr_we_n     (ex_gpr_we_n),   
+        .mem_fwd_data   (mem_fwd_data),   
+        .exe_mode       (exe_mode),       
+        .creg_rd_data   (creg_rd_data),   
+        .creg_rd_addr   (creg_rd_addr),   
+        .alu_op         (alu_op),         
+        .alu_in_0       (alu_in_0),       
+        .alu_in_1       (alu_in_1),       
+        .br_addr        (br_addr),        
+        .br_taken       (br_taken),       
+        .br_flag        (br_flag),        
+        .mem_op         (mem_op),         
+        .mem_wr_data    (mem_wr_data),    
+        .ctrl_op        (ctrl_op),        
+        .dst_addr       (dst_addr),       
+        .gpr_we_n        (gpr_we_n),      
+        .exp_code       (exp_code),       
+        .ld_hazard      (ld_hazard)       
     );
 
-    /********** 僷僀僾儔僀儞儗僕僗僞 **********/
     id_reg id_reg (
-        /********** 僋儘僢僋 & 儕僙僢僩 **********/
-        .clk            (clk),            // 僋儘僢僋
-        .reset          (reset),          // 旕摨婜儕僙僢僩
-        /********** 僨僐乕僪寢壥 **********/
-        .alu_op         (alu_op),         // ALU僆儁儗乕僔儑儞
-        .alu_in_0       (alu_in_0),       // ALU擖椡 0
-        .alu_in_1       (alu_in_1),       // ALU擖椡 1
-        .br_flag        (br_flag),        // 暘婒僼儔僌
-        .mem_op         (mem_op),         // 儊儌儕僆儁儗乕僔儑儞
-        .mem_wr_data    (mem_wr_data),    // 儊儌儕彂偒崬傒僨乕僞
-        .ctrl_op        (ctrl_op),        // 惂屼僆儁儗乕僔儑儞
-        .dst_addr       (dst_addr),       // 斈梡儗僕僗僞彂偒崬傒傾僪儗僗
-        .gpr_we_        (gpr_we_),        // 斈梡儗僕僗僞彂偒崬傒桳岠
-        .exp_code       (exp_code),       // 椺奜僐乕僪
-        /********** 僷僀僾儔僀儞惂屼怣崋 **********/
-        .stall          (stall),          // 僗僩乕儖
-        .flush          (flush),          // 僼儔僢僔儏
-        /********** IF/ID僷僀僾儔僀儞儗僕僗僞 **********/
-        .if_pc          (if_pc),          // 僾儘僌儔儉僇僂儞僞
-        .if_en          (if_en),          // 僷僀僾儔僀儞僨乕僞偺桳岠
-        /********** ID/EX僷僀僾儔僀儞儗僕僗僞 **********/
-        .id_pc          (id_pc),          // 僾儘僌儔儉僇僂儞僞
-        .id_en          (id_en),          // 僷僀僾儔僀儞僨乕僞偺桳岠
-        .id_alu_op      (id_alu_op),      // ALU僆儁儗乕僔儑儞
-        .id_alu_in_0    (id_alu_in_0),    // ALU擖椡 0
-        .id_alu_in_1    (id_alu_in_1),    // ALU擖椡 1
-        .id_br_flag     (id_br_flag),     // 暘婒僼儔僌
-        .id_mem_op      (id_mem_op),      // 儊儌儕僆儁儗乕僔儑儞
-        .id_mem_wr_data (id_mem_wr_data), // 儊儌儕彂偒崬傒僨乕僞
-        .id_ctrl_op     (id_ctrl_op),     // 惂屼僆儁儗乕僔儑儞
-        .id_dst_addr    (id_dst_addr),    // 斈梡儗僕僗僞彂偒崬傒傾僪儗僗
-        .id_gpr_we_     (id_gpr_we_),     // 斈梡儗僕僗僞彂偒崬傒桳岠
-        .id_exp_code    (id_exp_code)     // 椺奜僐乕僪
+        .clk            (clk),            
+        .reset          (reset),          
+        .alu_op         (alu_op),         
+        .alu_in_0       (alu_in_0),       
+        .alu_in_1       (alu_in_1),       
+        .br_flag        (br_flag),        
+        .mem_op         (mem_op),         
+        .mem_wr_data    (mem_wr_data),    
+        .ctrl_op        (ctrl_op),        
+        .dst_addr       (dst_addr),       
+        .gpr_we_n        (gpr_we_n),      
+        .exp_code       (exp_code),       
+        .stall          (stall),          
+        .flush          (flush),          
+        .if_pc          (if_pc),          
+        .if_en          (if_en),          
+        .id_pc          (id_pc),          
+        .id_en          (id_en),          
+        .id_alu_op      (id_alu_op),      
+        .id_alu_in_0    (id_alu_in_0),    
+        .id_alu_in_1    (id_alu_in_1),    
+        .id_br_flag     (id_br_flag),     
+        .id_mem_op      (id_mem_op),      
+        .id_mem_wr_data (id_mem_wr_data), 
+        .id_ctrl_op     (id_ctrl_op),     
+        .id_dst_addr    (id_dst_addr),    
+        .id_gpr_we_n     (id_gpr_we_n),   
+        .id_exp_code    (id_exp_code)     
     );
 
 endmodule

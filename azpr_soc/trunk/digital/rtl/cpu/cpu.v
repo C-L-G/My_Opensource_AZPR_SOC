@@ -52,19 +52,19 @@ module cpu (
     input  wire                   clk_,            
     input  wire                   reset,           
     input  wire [`WordDataBus]    if_bus_rd_data,  
-    input  wire                   if_bus_rdy_,     
-    input  wire                   if_bus_grnt_,    
-    output wire                   if_bus_req_,     
+    input  wire                   if_bus_rdy_n,     
+    input  wire                   if_bus_grnt_n,    
+    output wire                   if_bus_req_n,     
     output wire [`WordAddrBus]    if_bus_addr,     
-    output wire                   if_bus_as_,      
+    output wire                   if_bus_as_n,      
     output wire                   if_bus_rw,       
     output wire [`WordDataBus]    if_bus_wr_data,  
     input  wire [`WordDataBus]    mem_bus_rd_data, 
-    input  wire                   mem_bus_rdy_,    
-    input  wire                   mem_bus_grnt_,   
-    output wire                   mem_bus_req_,    
+    input  wire                   mem_bus_rdy_n,    
+    input  wire                   mem_bus_grnt_n,   
+    output wire                   mem_bus_req_n,    
     output wire [`WordAddrBus]    mem_bus_addr,    
-    output wire                   mem_bus_as_,     
+    output wire                   mem_bus_as_n,     
     output wire                   mem_bus_rw,      
     output wire [`WordDataBus]    mem_bus_wr_data, 
     input  wire [`CPU_IRQ_CH-1:0] cpu_irq          
@@ -83,7 +83,7 @@ module cpu (
     wire [`WordDataBus]          id_mem_wr_data; 
     wire [`CtrlOpBus]            id_ctrl_op;     
     wire [`RegAddrBus]           id_dst_addr;    
-    wire                         id_gpr_we_;     
+    wire                         id_gpr_we_n;     
     wire [`IsaExpBus]            id_exp_code;    
     wire [`WordAddrBus]          ex_pc;          
     wire                         ex_en;          
@@ -92,7 +92,7 @@ module cpu (
     wire [`WordDataBus]          ex_mem_wr_data; 
     wire [`CtrlOpBus]            ex_ctrl_op;     
     wire [`RegAddrBus]           ex_dst_addr;    
-    wire                         ex_gpr_we_;     
+    wire                         ex_gpr_we_n;     
     wire [`IsaExpBus]            ex_exp_code;    
     wire [`WordDataBus]          ex_out;         
     wire [`WordAddrBus]          mem_pc;         
@@ -100,7 +100,7 @@ module cpu (
     wire                         mem_br_flag;    
     wire [`CtrlOpBus]            mem_ctrl_op;    
     wire [`RegAddrBus]           mem_dst_addr;   
-    wire                         mem_gpr_we_;    
+    wire                         mem_gpr_we_n;    
     wire [`IsaExpBus]            mem_exp_code;   
     wire [`WordDataBus]          mem_out;           
     wire                         if_stall;       
@@ -128,12 +128,12 @@ module cpu (
         
     wire [`WordDataBus]          if_spm_rd_data;  
     wire [`WordAddrBus]          if_spm_addr;     
-    wire                         if_spm_as_;      
+    wire                         if_spm_as_n;      
     wire                         if_spm_rw;       
     wire [`WordDataBus]          if_spm_wr_data;  
     wire [`WordDataBus]          mem_spm_rd_data; 
     wire [`WordAddrBus]          mem_spm_addr;    
-    wire                         mem_spm_as_;     
+    wire                         mem_spm_as_n;     
     wire                         mem_spm_rw;      
     wire [`WordDataBus]          mem_spm_wr_data; 
     wire [`WordDataBus]          ex_fwd_data;     
@@ -144,15 +144,15 @@ module cpu (
         .reset          (reset),            
         .spm_rd_data    (if_spm_rd_data),   
         .spm_addr       (if_spm_addr),      
-        .spm_as_        (if_spm_as_),       
+        .spm_as_n        (if_spm_as_n),       
         .spm_rw         (if_spm_rw),        
         .spm_wr_data    (if_spm_wr_data),   
         .bus_rd_data    (if_bus_rd_data),   
-        .bus_rdy_       (if_bus_rdy_),      
-        .bus_grnt_      (if_bus_grnt_),     
-        .bus_req_       (if_bus_req_),      
+        .bus_rdy_n       (if_bus_rdy_n),      
+        .bus_grnt_n      (if_bus_grnt_n),     
+        .bus_req_n       (if_bus_req_n),      
         .bus_addr       (if_bus_addr),      
-        .bus_as_        (if_bus_as_),       
+        .bus_as_n        (if_bus_as_n),       
         .bus_rw         (if_bus_rw),        
         .bus_wr_data    (if_bus_wr_data),   
         .stall          (if_stall),         
@@ -176,7 +176,7 @@ module cpu (
         .ex_en          (ex_en),            
         .ex_fwd_data    (ex_fwd_data),      
         .ex_dst_addr    (ex_dst_addr),      
-        .ex_gpr_we_     (ex_gpr_we_),       
+        .ex_gpr_we_n     (ex_gpr_we_n),       
         .mem_fwd_data   (mem_fwd_data),     
         .exe_mode       (exe_mode),         
         .creg_rd_data   (creg_rd_data),     
@@ -199,7 +199,7 @@ module cpu (
         .id_mem_wr_data (id_mem_wr_data),   
         .id_ctrl_op     (id_ctrl_op),       
         .id_dst_addr    (id_dst_addr),      
-        .id_gpr_we_     (id_gpr_we_),       
+        .id_gpr_we_n     (id_gpr_we_n),       
         .id_exp_code    (id_exp_code)       
     );
 
@@ -220,7 +220,7 @@ module cpu (
         .id_mem_wr_data (id_mem_wr_data),   
         .id_ctrl_op     (id_ctrl_op),       
         .id_dst_addr    (id_dst_addr),      
-        .id_gpr_we_     (id_gpr_we_),       
+        .id_gpr_we_n     (id_gpr_we_n),       
         .id_exp_code    (id_exp_code),      
         .ex_pc          (ex_pc),            
         .ex_en          (ex_en),            
@@ -229,7 +229,7 @@ module cpu (
         .ex_mem_wr_data (ex_mem_wr_data),   
         .ex_ctrl_op     (ex_ctrl_op),       
         .ex_dst_addr    (ex_dst_addr),      
-        .ex_gpr_we_     (ex_gpr_we_),       
+        .ex_gpr_we_n     (ex_gpr_we_n),       
         .ex_exp_code    (ex_exp_code),      
         .ex_out         (ex_out)            
     );
@@ -243,15 +243,15 @@ module cpu (
         .fwd_data       (mem_fwd_data),     
         .spm_rd_data    (mem_spm_rd_data),  
         .spm_addr       (mem_spm_addr),     
-        .spm_as_        (mem_spm_as_),      
+        .spm_as_n        (mem_spm_as_n),      
         .spm_rw         (mem_spm_rw),       
         .spm_wr_data    (mem_spm_wr_data),  
         .bus_rd_data    (mem_bus_rd_data),  
-        .bus_rdy_       (mem_bus_rdy_),     
-        .bus_grnt_      (mem_bus_grnt_),    
-        .bus_req_       (mem_bus_req_),     
+        .bus_rdy_n       (mem_bus_rdy_n),     
+        .bus_grnt_n      (mem_bus_grnt_n),    
+        .bus_req_n       (mem_bus_req_n),     
         .bus_addr       (mem_bus_addr),     
-        .bus_as_        (mem_bus_as_),      
+        .bus_as_n        (mem_bus_as_n),      
         .bus_rw         (mem_bus_rw),       
         .bus_wr_data    (mem_bus_wr_data),  
         .ex_pc          (ex_pc),            
@@ -261,7 +261,7 @@ module cpu (
         .ex_mem_wr_data (ex_mem_wr_data),   
         .ex_ctrl_op     (ex_ctrl_op),       
         .ex_dst_addr    (ex_dst_addr),      
-        .ex_gpr_we_     (ex_gpr_we_),       
+        .ex_gpr_we_n     (ex_gpr_we_n),       
         .ex_exp_code    (ex_exp_code),      
         .ex_out         (ex_out),           
         .mem_pc         (mem_pc),           
@@ -269,7 +269,7 @@ module cpu (
         .mem_br_flag    (mem_br_flag),      
         .mem_ctrl_op    (mem_ctrl_op),      
         .mem_dst_addr   (mem_dst_addr),     
-        .mem_gpr_we_    (mem_gpr_we_),      
+        .mem_gpr_we_n    (mem_gpr_we_n),      
         .mem_exp_code   (mem_exp_code),     
         .mem_out        (mem_out)           
     );
@@ -311,7 +311,7 @@ module cpu (
         .rd_data_0 (gpr_rd_data_0),         
         .rd_addr_1 (gpr_rd_addr_1),         
         .rd_data_1 (gpr_rd_data_1),         
-        .we_       (mem_gpr_we_),           
+        .we_n       (mem_gpr_we_n),           
         .wr_addr   (mem_dst_addr),          
         .wr_data   (mem_out)                
     );
@@ -319,15 +319,18 @@ module cpu (
         spm spm (
         .clk             (clk_),                      
         .if_spm_addr     (if_spm_addr[`SpmAddrLoc]),  
-        .if_spm_as_      (if_spm_as_),                
+        .if_spm_as_n      (if_spm_as_n),                
         .if_spm_rw       (if_spm_rw),                 
         .if_spm_wr_data  (if_spm_wr_data),            
         .if_spm_rd_data  (if_spm_rd_data),            
         .mem_spm_addr    (mem_spm_addr[`SpmAddrLoc]), 
-        .mem_spm_as_     (mem_spm_as_),               
+        .mem_spm_as_n     (mem_spm_as_n),               
         .mem_spm_rw      (mem_spm_rw),                
         .mem_spm_wr_data (mem_spm_wr_data),           
         .mem_spm_rd_data (mem_spm_rd_data)            
     );
 
 endmodule
+//****************************************************************************************************
+//End of Mopdule
+//****************************************************************************************************

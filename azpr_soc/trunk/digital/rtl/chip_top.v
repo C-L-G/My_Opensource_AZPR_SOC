@@ -29,34 +29,29 @@
 //2016.11.22 - lichangbeiju - Add io port.
 //*---------------------------------------------------------------------------------------------------
 
-/********** 共通ヘッダファイル **********/
 `include "nettype.h"
 `include "stddef.h"
 `include "global_config.h"
 
-/********** 個別ヘッダファイル **********/
 `include "gpio.h"
 
-/********** モジュール **********/
 module chip_top (
-    /********** クロック & リセット **********/
-    input wire                 clk_ref,       // 基底クロック
-    input wire                 reset_sw       // グローバルリセット
+    input wire                 clk_ref,       
+    input wire                 reset_sw       
     /********** UART **********/
-    `ifdef IMPLEMENT_UART // UART実装
-    , input wire               uart_rx        // UART受信信号
-    , output wire              uart_tx        // UART送信信号
+    `ifdef IMPLEMENT_UART 
+    , input wire               uart_rx        
+    , output wire              uart_tx        
     `endif
-    /********** 汎用入出力ポート **********/
-    `ifdef IMPLEMENT_GPIO // GPIO実装
-    `ifdef GPIO_IN_CH    // 入力ポートの実装
-    , input wire [`GPIO_IN_CH-1:0]   gpio_in  // 入力ポート
+    `ifdef IMPLEMENT_GPIO 
+    `ifdef GPIO_IN_CH    
+    , input wire [`GPIO_IN_CH-1:0]   gpio_in  
     `endif
-    `ifdef GPIO_OUT_CH   // 出力ポートの実装
-    , output wire [`GPIO_OUT_CH-1:0] gpio_out // 出力ポート
+    `ifdef GPIO_OUT_CH   
+    , output wire [`GPIO_OUT_CH-1:0] gpio_out 
     `endif
-    `ifdef GPIO_IO_CH    // 入出力ポートの実装
-    , inout wire [`GPIO_IO_CH-1:0]   gpio_io  // 入出力ポート
+    `ifdef GPIO_IO_CH    
+    , inout wire [`GPIO_IO_CH-1:0]   gpio_io  
     `endif
     `endif
 );
@@ -76,9 +71,9 @@ module chip_top (
     //------------------------------------------------------------------------------------------------
     // 2.x the test logic
     //------------------------------------------------------------------------------------------------
-    wire                       clk;           // クロック
-    wire                       clk_;          // 反転クロック
-    wire                       chip_reset;    // チップリセット
+    wire                       clk;           
+    wire                       clk_;          
+    wire                       chip_reset;    
 
     //************************************************************************************************
     // 3.Main code
@@ -97,38 +92,33 @@ module chip_top (
     // 4.1 the clk generate module
     //------------------------------------------------------------------------------------------------    
     clk_gen clk_gen (
-        /********** クロック & リセット **********/
-        .clk_ref      (clk_ref),              // 基底クロック
-        .reset_sw     (reset_sw),             // グローバルリセット
-        /********** 生成クロック **********/
-        .clk          (clk),                  // クロック
-        .clk_         (clk_),                 // 反転クロック
-        /********** チップリセット **********/
-        .chip_reset   (chip_reset)            // チップリセット
+        .clk_ref      (clk_ref),              
+        .reset_sw     (reset_sw),             
+        .clk          (clk),                  
+        .clk_         (clk_),                 
+        .chip_reset   (chip_reset)            
     );
     //------------------------------------------------------------------------------------------------
     // 4.2 the cpu chip
     //------------------------------------------------------------------------------------------------    
     chip chip (
-        /********** クロック & リセット **********/
-        .clk      (clk),                      // クロック
-        .clk_     (clk_),                     // 反転クロック
-        .reset    (chip_reset)                // リセット
+        .clk      (clk),                      
+        .clk_     (clk_),                     
+        .reset    (chip_reset)                
         /********** UART **********/
     `ifdef IMPLEMENT_UART
-        , .uart_rx  (uart_rx)                 // UART受信波形
-        , .uart_tx  (uart_tx)                 // UART送信波形
+        , .uart_rx  (uart_rx)                 
+        , .uart_tx  (uart_tx)                 
     `endif
-        /********** 汎用入出力ポート **********/
     `ifdef IMPLEMENT_GPIO
-    `ifdef GPIO_IN_CH  // 入力ポートの実装
-        , .gpio_in (gpio_in)                  // 入力ポート
+    `ifdef GPIO_IN_CH  
+        , .gpio_in (gpio_in)                  
     `endif
-    `ifdef GPIO_OUT_CH // 出力ポートの実装
-        , .gpio_out (gpio_out)                // 出力ポート
+    `ifdef GPIO_OUT_CH 
+        , .gpio_out (gpio_out)                
     `endif
-    `ifdef GPIO_IO_CH  // 入出力ポートの実装
-        , .gpio_io  (gpio_io)                 // 入出力ポート
+    `ifdef GPIO_IO_CH  
+        , .gpio_io  (gpio_io)                 
     `endif
     `endif
     );

@@ -56,7 +56,7 @@ module id_reg (
     input  wire [`WordDataBus] mem_wr_data,    //
     input  wire [`CtrlOpBus]   ctrl_op,        //
     input  wire [`RegAddrBus]  dst_addr,       //
-    input  wire                gpr_we_,        //
+    input  wire                gpr_we_n,        //
     input  wire [`IsaExpBus]   exp_code,       //
     input  wire                stall,          //
     input  wire                flush,          //
@@ -72,7 +72,7 @@ module id_reg (
     output reg  [`WordDataBus] id_mem_wr_data, //
     output reg  [`CtrlOpBus]   id_ctrl_op,     //
     output reg  [`RegAddrBus]  id_dst_addr,    //
-    output reg                 id_gpr_we_,     //
+    output reg                 id_gpr_we_n,     //
     output reg [`IsaExpBus]    id_exp_code     //
 );
 
@@ -88,7 +88,7 @@ module id_reg (
             id_mem_wr_data <= #1 `WORD_DATA_W'h0;
             id_ctrl_op     <= #1 `CTRL_OP_NOP;
             id_dst_addr    <= #1 `REG_ADDR_W'd0;
-            id_gpr_we_     <= #1 `DISABLE_;
+            id_gpr_we_n     <= #1 `DISABLE_N;
             id_exp_code    <= #1 `ISA_EXP_NO_EXP;
         end else begin
             if (stall == `DISABLE) begin 
@@ -103,7 +103,7 @@ module id_reg (
                    id_mem_wr_data <= #1 `WORD_DATA_W'h0;
                    id_ctrl_op     <= #1 `CTRL_OP_NOP;
                    id_dst_addr    <= #1 `REG_ADDR_W'd0;
-                   id_gpr_we_     <= #1 `DISABLE_;
+                   id_gpr_we_n     <= #1 `DISABLE_N;
                    id_exp_code    <= #1 `ISA_EXP_NO_EXP;
                 end else begin
                    id_pc          <= #1 if_pc;
@@ -116,7 +116,7 @@ module id_reg (
                    id_mem_wr_data <= #1 mem_wr_data;
                    id_ctrl_op     <= #1 ctrl_op;
                    id_dst_addr    <= #1 dst_addr;
-                   id_gpr_we_     <= #1 gpr_we_;
+                   id_gpr_we_n     <= #1 gpr_we_n;
                    id_exp_code    <= #1 exp_code;
                 end
             end

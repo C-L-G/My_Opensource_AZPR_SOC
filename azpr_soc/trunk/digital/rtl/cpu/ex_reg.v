@@ -51,7 +51,7 @@ module ex_reg (
     input  wire [`WordDataBus] id_mem_wr_data, //
     input  wire [`CtrlOpBus]   id_ctrl_op,     //
     input  wire [`RegAddrBus]  id_dst_addr,    //
-    input  wire                id_gpr_we_,     //
+    input  wire                id_gpr_we_n,     //
     input  wire [`IsaExpBus]   id_exp_code,    //
     output reg  [`WordAddrBus] ex_pc,          //
     output reg                 ex_en,          //
@@ -60,7 +60,7 @@ module ex_reg (
     output reg  [`WordDataBus] ex_mem_wr_data, //
     output reg  [`CtrlOpBus]   ex_ctrl_op,     //
     output reg  [`RegAddrBus]  ex_dst_addr,    //
-    output reg                 ex_gpr_we_,     //
+    output reg                 ex_gpr_we_n,     //
     output reg  [`IsaExpBus]   ex_exp_code,    //
     output reg  [`WordDataBus] ex_out          //
 );
@@ -74,12 +74,12 @@ module ex_reg (
             ex_mem_wr_data <= #1 `WORD_DATA_W'h0;
             ex_ctrl_op     <= #1 `CTRL_OP_NOP;
             ex_dst_addr    <= #1 `REG_ADDR_W'd0;
-            ex_gpr_we_     <= #1 `DISABLE_;
+            ex_gpr_we_n     <= #1 `DISABLE_;
             ex_exp_code    <= #1 `ISA_EXP_NO_EXP;
             ex_out         <= #1 `WORD_DATA_W'h0;
         end else begin
             if (stall == `DISABLE) begin 
-                if (flush == `ENABLE) begin               // フラッシュ
+                if (flush == `ENABLE) begin               
                     ex_pc          <= #1 `WORD_ADDR_W'h0;
                     ex_en          <= #1 `DISABLE;
                     ex_br_flag     <= #1 `DISABLE;
@@ -87,10 +87,10 @@ module ex_reg (
                     ex_mem_wr_data <= #1 `WORD_DATA_W'h0;
                     ex_ctrl_op     <= #1 `CTRL_OP_NOP;
                     ex_dst_addr    <= #1 `REG_ADDR_W'd0;
-                    ex_gpr_we_     <= #1 `DISABLE_;
+                    ex_gpr_we_n     <= #1 `DISABLE_;
                     ex_exp_code    <= #1 `ISA_EXP_NO_EXP;
                     ex_out         <= #1 `WORD_DATA_W'h0;
-                end else if (int_detect == `ENABLE) begin // 割り込みの検出
+                end else if (int_detect == `ENABLE) begin 
                     ex_pc          <= #1 id_pc;
                     ex_en          <= #1 id_en;
                     ex_br_flag     <= #1 id_br_flag;
@@ -98,10 +98,10 @@ module ex_reg (
                     ex_mem_wr_data <= #1 `WORD_DATA_W'h0;
                     ex_ctrl_op     <= #1 `CTRL_OP_NOP;
                     ex_dst_addr    <= #1 `REG_ADDR_W'd0;
-                    ex_gpr_we_     <= #1 `DISABLE_;
+                    ex_gpr_we_n     <= #1 `DISABLE_;
                     ex_exp_code    <= #1 `ISA_EXP_EXT_INT;
                     ex_out         <= #1 `WORD_DATA_W'h0;
-                end else if (alu_of == `ENABLE) begin     // 算術オーバフロー
+                end else if (alu_of == `ENABLE) begin     
                     ex_pc          <= #1 id_pc;
                     ex_en          <= #1 id_en;
                     ex_br_flag     <= #1 id_br_flag;
@@ -109,10 +109,10 @@ module ex_reg (
                     ex_mem_wr_data <= #1 `WORD_DATA_W'h0;
                     ex_ctrl_op     <= #1 `CTRL_OP_NOP;
                     ex_dst_addr    <= #1 `REG_ADDR_W'd0;
-                    ex_gpr_we_     <= #1 `DISABLE_;
+                    ex_gpr_we_n     <= #1 `DISABLE_;
                     ex_exp_code    <= #1 `ISA_EXP_OVERFLOW;
                     ex_out         <= #1 `WORD_DATA_W'h0;
-                end else begin                            // 次のデータ
+                end else begin                            
                     ex_pc          <= #1 id_pc;
                     ex_en          <= #1 id_en;
                     ex_br_flag     <= #1 id_br_flag;
@@ -120,7 +120,7 @@ module ex_reg (
                     ex_mem_wr_data <= #1 id_mem_wr_data;
                     ex_ctrl_op     <= #1 id_ctrl_op;
                     ex_dst_addr    <= #1 id_dst_addr;
-                    ex_gpr_we_     <= #1 id_gpr_we_;
+                    ex_gpr_we_n     <= #1 id_gpr_we_n;
                     ex_exp_code    <= #1 id_exp_code;
                     ex_out         <= #1 alu_out;
                 end

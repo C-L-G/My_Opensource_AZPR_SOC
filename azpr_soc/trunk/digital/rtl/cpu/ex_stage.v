@@ -63,7 +63,7 @@ module ex_stage (
     input  wire [`WordDataBus] id_mem_wr_data, //
     input  wire [`CtrlOpBus]   id_ctrl_op,     //
     input  wire [`RegAddrBus]  id_dst_addr,    //
-    input  wire                id_gpr_we_,     //
+    input  wire                id_gpr_we_n,     //
     input  wire [`IsaExpBus]   id_exp_code,    //
     output wire [`WordAddrBus] ex_pc,          //
     output wire                ex_en,          //
@@ -72,7 +72,7 @@ module ex_stage (
     output wire [`WordDataBus] ex_mem_wr_data, //
     output wire [`CtrlOpBus]   ex_ctrl_op,     //
     output wire [`RegAddrBus]  ex_dst_addr,    //
-    output wire                ex_gpr_we_,     //
+    output wire                ex_gpr_we_n,     //
     output wire [`IsaExpBus]   ex_exp_code,    //
     output wire [`WordDataBus] ex_out          //
 );
@@ -106,7 +106,7 @@ module ex_stage (
         .id_mem_wr_data (id_mem_wr_data), //
         .id_ctrl_op     (id_ctrl_op),     //
         .id_dst_addr    (id_dst_addr),    //
-        .id_gpr_we_     (id_gpr_we_),     //
+        .id_gpr_we_n     (id_gpr_we_n),     //
         .id_exp_code    (id_exp_code),    //
         .ex_pc          (ex_pc),          //
         .ex_en          (ex_en),          //
@@ -115,7 +115,7 @@ module ex_stage (
         .ex_mem_wr_data (ex_mem_wr_data), //
         .ex_ctrl_op     (ex_ctrl_op),     //
         .ex_dst_addr    (ex_dst_addr),    //
-        .ex_gpr_we_     (ex_gpr_we_),     //
+        .ex_gpr_we_n     (ex_gpr_we_n),     //
         .ex_exp_code    (ex_exp_code),    //
         .ex_out         (ex_out)          //
     );
