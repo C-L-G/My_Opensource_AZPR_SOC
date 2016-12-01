@@ -18,6 +18,7 @@
 # 更新记录
 ```
 yyyy.mm.dd - Author - xxxx
+2016.12.01 - 离场悲剧 - 添加testbench组件 : env and gen.
 2016.12.01 - 离场悲剧 - 删除大部分RTL的乱码注释,修改_为_n.
 2016.12.01 - 离场悲剧 - 更新部分FPGA仿真环境的tb top以及部分rtl的coding style.
 2016.11.25 - 离场悲剧 - 更新部分rtl的coding style.
