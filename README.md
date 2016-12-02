@@ -12,14 +12,20 @@
 * **----trunk**
 * **----trunk/apr**
 * **----trunk/digital**
+* **----trunk/digital/verif**
 * ..
 * **----trunk/fpga**
+* **----trunk/fpga/simulate**
+* **----trunk/fpga/simulate/tb**
+* **----trunk/fpga/simulate/tc**
+* **----trunk/fpga/simulate/model**
 * **----trunk/fullchip**
 * ..
 ----------------------------------------------------------------    
 # 更新记录
 ```
 yyyy.mm.dd - Author - xxxx
+2016.12.02 - 离场悲剧 - 添加testbench组件 : mon sb drv and interface.
 2016.12.01 - 离场悲剧 - 添加testbench组件 : env and gen.
 2016.12.01 - 离场悲剧 - 删除大部分RTL的乱码注释,修改_为_n.
 2016.12.01 - 离场悲剧 - 更新部分FPGA仿真环境的tb top以及部分rtl的coding style.
