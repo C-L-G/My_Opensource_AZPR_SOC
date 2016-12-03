@@ -8,10 +8,10 @@
 //**************************************************************************************************** 
 //File Information
 //**************************************************************************************************** 
-//File Name      : azpr_soc_tb_top.sv 
+//File Name      : Testbench.sv 
 //Project Name   : azpr_soc
 //Description    : the fpga testbench top of the chip.
-//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/fpga/simulate/tb/azpr_soc_tb_top.sv
+//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/fpga/simulate/tb/Testbench.sv
 //License        : Apache-2.0
 //**************************************************************************************************** 
 //Version Information
@@ -32,7 +32,7 @@
 `include "global_config.h"
 `include "stddef.h"
 
-module azpr_soc_tb_top();
+module Testbench();
     //************************************************************************************************
     // 1.Parameter and constant define
     //************************************************************************************************
