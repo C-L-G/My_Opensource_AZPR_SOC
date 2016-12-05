@@ -1,3 +1,42 @@
+//****************************************************************************************************  
+//*---------------Copyright (c) 2016 C-L-G.FPGA1988.lichangbeiju. All rights reserved-----------------
+//
+//                   --              It to be define                --
+//                   --                    ...                      --
+//                   --                    ...                      --
+//                   --                    ...                      --
+//**************************************************************************************************** 
+//File Information
+//**************************************************************************************************** 
+//File Name      : alu.v 
+//Project Name   : azpr_soc
+//Description    : the alu module.
+//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/digital/rtl/cpu/alu.v
+//License        : Apache-2.0
+//**************************************************************************************************** 
+//Version Information
+//**************************************************************************************************** 
+//Create Date    : 2016-11-22 17:00
+//First Author   : lichangbeiju
+//Last Modify    : 2016-11-23 14:20
+//Last Author    : lichangbeiju
+//Version Number : 12 commits 
+//**************************************************************************************************** 
+//Change History(latest change first)
+//yyyy.mm.dd - Author - Your log of change
+//**************************************************************************************************** 
+//2016.12.01 - lichangbeiju - Change the coding style : part 2.
+//2016.11.22 - lichangbeiju - Change the coding style : part 1.
+//2016.11.22 - lichangbeiju - Add io port.
+//**************************************************************************************************** 
+`timescale 1ns/1ps
+//File Include : system header file
+`include "nettype.h"
+`include "global_config.h"
+`include "stddef.h"
+
+`include "cpu.h"
+
 module gpr(
     input   wire                    clk             ,
     input   wire                    rst_n           ,
@@ -65,3 +104,6 @@ module gpr(
         end
     end
 endmodule
+//****************************************************************************************************
+//End of Mopdule
+//****************************************************************************************************

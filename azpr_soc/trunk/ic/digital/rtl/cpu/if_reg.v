@@ -28,7 +28,7 @@
 //2016.11.29 - lichangbeiju - Change the xx_ to xx_n.
 //2016.11.23 - lichangbeiju - Change the coding style.
 //2016.11.22 - lichangbeiju - Add io port.
-//*---------------------------------------------------------------------------------------------------
+//**************************************************************************************************** 
 //File Include : system header file
 `include "nettype.h"
 `include "global_config.h"
@@ -38,25 +38,23 @@
 `include "cpu.h"
 
 module if_reg (
-    input  wire                clk,        
-    input  wire                reset,      
-    input  wire [`WordDataBus] insn,       
-    input  wire                stall,      
-    input  wire                flush,      
-    input  wire [`WordAddrBus] new_pc,     
-    input  wire                br_taken,   
-    input  wire [`WordAddrBus] br_addr,    
-    output reg  [`WordAddrBus] if_pc,      
-    output reg  [`WordDataBus] if_insn,    
-    output reg                 if_en       
+    input   wire                    clk     ,//clock     
+    input   wire                    reset   ,//async reset
+    input   wire    [`WordDataBus]  insn    ,//read inst
+    input   wire                    stall   ,//delay
+    input   wire                    flush   ,//refresh
+    input   wire    [`WordAddrBus]  new_pc  ,//new program count  
+    input   wire                    br_taken,//branch taken
+    input   wire    [`WordAddrBus]  br_addr ,//branch dest address
+    output  reg     [`WordAddrBus]  if_pc   ,//program count
+    output  reg     [`WordDataBus]  if_insn ,//inst
+    output  reg                     if_en    //pipeline data valid flag  
 );
 
     //************************************************************************************************
     // 1.Parameter and constant define
     //************************************************************************************************
     
-//    `define UDP
-//    `define CLK_TEST_EN
     
     //************************************************************************************************
     // 2.Register and wire declaration
@@ -77,7 +75,7 @@ module if_reg (
     //************************************************************************************************
 
     //------------------------------------------------------------------------------------------------
-    // 3.1 the master grant logic
+    // 3.1 the pipeline register
     //------------------------------------------------------------------------------------------------
     always @(posedge clk or `RESET_EDGE reset) begin
         if (reset == `RESET_ENABLE) begin 
