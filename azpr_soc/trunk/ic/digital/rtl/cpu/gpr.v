@@ -1,8 +1,3 @@
-
-`timescale 1ns/1ps
-`include "cpu.h"
-`include "global_config.h"
-`include "stddef.h"
 module gpr(
     input   wire                    clk             ,
     input   wire                    rst_n           ,
@@ -80,4 +75,4 @@ module gpr(
     // 4.1 xxxx
     //------------------------------------------------------------------------------------------------    
     
-endmodule    
+endmodule
