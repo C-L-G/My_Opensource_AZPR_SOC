@@ -25,21 +25,19 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.12.01 - lichangbeiju - Change the coding style : part 2.
 //2016.11.22 - lichangbeiju - Change the coding style : part 1.
 //2016.11.22 - lichangbeiju - Add io port.
 //**************************************************************************************************** 
-`timescale 1ns/1ps
 //File Include : system header file
-`include "nettype.h"
-`include "global_config.h"
-`include "stddef.h"
+`include "../sys_include.h"
 
 `include "cpu.h"
 
 module gpr(
     input   wire                    clk             ,
-    input   wire                    rst_n           ,
+    input   wire                    reset           ,
     //read port 0
     input   wire    [`RegAddrBus]   rd_addr_0       ,//5    write data   
     output  wire    [`WordDataBus]  rd_data_0       ,//32
@@ -105,5 +103,5 @@ module gpr(
     end
 endmodule
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

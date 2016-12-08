@@ -25,13 +25,12 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.23 - lichangbeiju - Change the coding style.
 //2016.11.22 - lichangbeiju - Add io port.
-//*---------------------------------------------------------------------------------------------------
+//**************************************************************************************************** 
 
-`include "nettype.h"
-`include "global_config.h"
-`include "stddef.h"
+`include "../sys_include.h"
 
 `include "isa.h"
 `include "cpu.h"
@@ -74,7 +73,7 @@ module ex_reg (
             ex_mem_wr_data <= #1 `WORD_DATA_W'h0;
             ex_ctrl_op     <= #1 `CTRL_OP_NOP;
             ex_dst_addr    <= #1 `REG_ADDR_W'd0;
-            ex_gpr_we_n     <= #1 `DISABLE_;
+            ex_gpr_we_n     <= #1 `DISABLE_N;
             ex_exp_code    <= #1 `ISA_EXP_NO_EXP;
             ex_out         <= #1 `WORD_DATA_W'h0;
         end else begin
@@ -87,7 +86,7 @@ module ex_reg (
                     ex_mem_wr_data <= #1 `WORD_DATA_W'h0;
                     ex_ctrl_op     <= #1 `CTRL_OP_NOP;
                     ex_dst_addr    <= #1 `REG_ADDR_W'd0;
-                    ex_gpr_we_n     <= #1 `DISABLE_;
+                    ex_gpr_we_n     <= #1 `DISABLE_N;
                     ex_exp_code    <= #1 `ISA_EXP_NO_EXP;
                     ex_out         <= #1 `WORD_DATA_W'h0;
                 end else if (int_detect == `ENABLE) begin 
@@ -98,7 +97,7 @@ module ex_reg (
                     ex_mem_wr_data <= #1 `WORD_DATA_W'h0;
                     ex_ctrl_op     <= #1 `CTRL_OP_NOP;
                     ex_dst_addr    <= #1 `REG_ADDR_W'd0;
-                    ex_gpr_we_n     <= #1 `DISABLE_;
+                    ex_gpr_we_n     <= #1 `DISABLE_N;
                     ex_exp_code    <= #1 `ISA_EXP_EXT_INT;
                     ex_out         <= #1 `WORD_DATA_W'h0;
                 end else if (alu_of == `ENABLE) begin     
@@ -109,7 +108,7 @@ module ex_reg (
                     ex_mem_wr_data <= #1 `WORD_DATA_W'h0;
                     ex_ctrl_op     <= #1 `CTRL_OP_NOP;
                     ex_dst_addr    <= #1 `REG_ADDR_W'd0;
-                    ex_gpr_we_n     <= #1 `DISABLE_;
+                    ex_gpr_we_n     <= #1 `DISABLE_N;
                     ex_exp_code    <= #1 `ISA_EXP_OVERFLOW;
                     ex_out         <= #1 `WORD_DATA_W'h0;
                 end else begin                            
@@ -129,3 +128,6 @@ module ex_reg (
     end
 
 endmodule
+//****************************************************************************************************
+//End of Module
+//****************************************************************************************************

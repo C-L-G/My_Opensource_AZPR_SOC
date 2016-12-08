@@ -26,91 +26,78 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.22 - lichangbeiju - Add the instance and io port.
-//*---------------------------------------------------------------------------------------------------
-`timescale 1ns/1ps
+//**************************************************************************************************** 
+`include "../sys_include.h"
+
 `include "bus.h"
-`include "global_config.h"
-`include "stddef.h"
 module bus(
     input   wire                    clk             ,//01   the system clock 
     input   wire                    reset           ,//01   
+    //master 0
     input   wire                    m0_req_n        ,//01   
     output  wire                    m0_grant_n      ,//01   
-    input   wire                    m1_req_n        ,//01   
-    output  wire                    m1_grant_n      ,//01   
-    input   wire                    m2_req_n        ,//01   
-    output  wire                    m2_grant_n      ,//01   
-    input   wire                    m3_req_n        ,//01   
-    output  wire                    m3_grant_n      ,//01   
-    //master 0
     input   wire    [`WordAddrBus]  m0_addr         ,//30   address
     input   wire                    m0_as_n         ,//01
     input   wire                    m0_rw           ,//01
     input   wire    [`WordDataBus]  m0_wr_data      ,//32   write data   
-    input   wire                    m0_grant_n      ,//01
     //master 1
+    input   wire                    m1_req_n        ,//01   
+    output  wire                    m1_grant_n      ,//01   
     input   wire    [`WordAddrBus]  m1_addr         ,//30   address
     input   wire                    m1_as_n         ,//01
     input   wire                    m1_rw           ,//01
     input   wire    [`WordDataBus]  m1_wr_data      ,//32   write data   
-    input   wire                    m1_grant_n      ,//01
     //master 2
+    input   wire                    m2_req_n        ,//01   
+    output  wire                    m2_grant_n      ,//01   
     input   wire    [`WordAddrBus]  m2_addr         ,//30   address
     input   wire                    m2_as_n         ,//01
     input   wire                    m2_rw           ,//01
     input   wire    [`WordDataBus]  m2_wr_data      ,//32   write data   
-    input   wire                    m2_grant_n      ,//01
     //master 3
+    input   wire                    m3_req_n        ,//01   
+    output  wire                    m3_grant_n      ,//01   
     input   wire    [`WordAddrBus]  m3_addr         ,//30   address
     input   wire                    m3_as_n         ,//01
     input   wire                    m3_rw           ,//01
     input   wire    [`WordDataBus]  m3_wr_data      ,//32   write data   
-    input   wire                    m3_grant_n      ,//01
     //share
-    output  wire    [`WordAddrBus]  s_addr          ,//30
+    output  wire    [`WordAddrBus]  s_addr          ,//30   address
     output  wire                    s_as_n          ,//01
     output  wire                    s_rw            ,//01
     output  wire    [`WordDataBus]  s_wr_data       ,//3
-    input   wire    [`WordAddrBus]  s_addr          ,//30   address
-    output  wire                    s0_cs_n         ,//01   slave 0 chip select
-    output  wire                    s1_cs_n         ,//01   slave 1 chip select
-    output  wire                    s2_cs_n         ,//01   slave 2 chip select
-    output  wire                    s3_cs_n         ,//01   slave 3 chip select
-    output  wire                    s4_cs_n         ,//01   slave 4 chip select
-    output  wire                    s5_cs_n         ,//01   slave 5 chip select
-    output  wire                    s6_cs_n         ,//01   slave 6 chip select
-    output  wire                    s7_cs_n         ,//01   slave 7 chip selec
     //slave 0
-    input   wire                    s0_cs_n         ,//01   chip select
+    output  wire                    s0_cs_n         ,//01   chip select
     input   wire    [`WordDataBus]  s0_rd_data      ,//32   write data   
     input   wire                    s0_rdy_n        ,//01
     //slave 1
-    input   wire                    s1_cs_n         ,//01   chip select
+    output  wire                    s1_cs_n         ,//01   chip select
     input   wire    [`WordDataBus]  s1_rd_data      ,//32   write data   
     input   wire                    s1_rdy_n        ,//01
     //slave 2
-    input   wire                    s2_cs_n         ,//01   chip select
+    output  wire                    s2_cs_n         ,//01   chip select
     input   wire    [`WordDataBus]  s2_rd_data      ,//32   write data   
     input   wire                    s2_rdy_n        ,//01
     //slave 3
-    input   wire                    s3_cs_n         ,//01   chip select
+    output  wire                    s3_cs_n         ,//01   chip select
     input   wire    [`WordDataBus]  s3_rd_data      ,//32   write data   
     input   wire                    s3_rdy_n        ,//01
     //slave 4
-    input   wire                    s4_cs_n         ,//01   chip select
+    output  wire                    s4_cs_n         ,//01   chip select
     input   wire    [`WordDataBus]  s4_rd_data      ,//32   write data   
     input   wire                    s4_rdy_n        ,//01
     //slave 5
-    input   wire                    s5_cs_n         ,//01   chip select
+    output  wire                    s5_cs_n         ,//01   chip select
     input   wire    [`WordDataBus]  s5_rd_data      ,//32   write data   
     input   wire                    s5_rdy_n        ,//01
     //slave 6
-    input   wire                    s6_cs_n         ,//01   chip select
+    output  wire                    s6_cs_n         ,//01   chip select
     input   wire    [`WordDataBus]  s6_rd_data      ,//32   write data   
     input   wire                    s6_rdy_n        ,//01
     //slave 7
-    input   wire                    s7_cs_n         ,//01   chip select
+    output  wire                    s7_cs_n         ,//01   chip select
     input   wire    [`WordDataBus]  s7_rd_data      ,//32   write data   
     input   wire                    s7_rdy_n        ,//01
     //share
@@ -259,5 +246,5 @@ module bus(
     
 endmodule    
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

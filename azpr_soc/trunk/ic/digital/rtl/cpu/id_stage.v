@@ -25,13 +25,12 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.23 - lichangbeiju - Change the coding style.
 //2016.11.22 - lichangbeiju - Add io port.
-//*---------------------------------------------------------------------------------------------------
+//**************************************************************************************************** 
 
-`include "nettype.h"
-`include "global_config.h"
-`include "stddef.h"
+`include "../sys_include.h"
 
 `include "isa.h"
 `include "cpu.h"
@@ -85,23 +84,21 @@ module id_stage (
     wire  [`IsaExpBus]           exp_code;       
 
     decoder decoder (
-        .if_pc          (if_pc),          
-        .if_insn        (if_insn),        
-        .if_en          (if_en),          
+        .if_pc          (if_pc          ),          
+        .if_insn        (if_insn        ),        
+        .if_en          (if_en          ),          
         .gpr_rd_data_0  (gpr_rd_data_0),  
         .gpr_rd_data_1  (gpr_rd_data_1),  
         .gpr_rd_addr_0  (gpr_rd_addr_0),  
         .gpr_rd_addr_1  (gpr_rd_addr_1),  
         .id_en          (id_en),          
         .id_dst_addr    (id_dst_addr),    
-        .id_gpr_we_n     (id_gpr_we_n),   
+        .id_gpr_we_n    (id_gpr_we_n),   
         .id_mem_op      (id_mem_op),      
-        1.更新RTL的coding style
-2.更新fpga的tb top
-3.更新一个tc模板.ex_en          (ex_en),          
+        .ex_en          (ex_en),          
         .ex_fwd_data    (ex_fwd_data),    
         .ex_dst_addr    (ex_dst_addr),    
-        .ex_gpr_we_n     (ex_gpr_we_n),   
+        .ex_gpr_we_n    (ex_gpr_we_n),   
         .mem_fwd_data   (mem_fwd_data),   
         .exe_mode       (exe_mode),       
         .creg_rd_data   (creg_rd_data),   
@@ -116,7 +113,7 @@ module id_stage (
         .mem_wr_data    (mem_wr_data),    
         .ctrl_op        (ctrl_op),        
         .dst_addr       (dst_addr),       
-        .gpr_we_n        (gpr_we_n),      
+        .gpr_we_n       (gpr_we_n),      
         .exp_code       (exp_code),       
         .ld_hazard      (ld_hazard)       
     );

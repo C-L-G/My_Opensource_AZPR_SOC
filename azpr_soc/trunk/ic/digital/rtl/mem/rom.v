@@ -11,7 +11,7 @@
 //File Name      : rom.v 
 //Project Name   : azpr_soc
 //Description    : the system rom.
-//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/digital/rtl/rom.v
+//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/digital/rtl/mem/rom.v
 //License        : CPL
 //**************************************************************************************************** 
 //Version Information
@@ -26,12 +26,14 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.22 - lichangbeiju - Add basic rom write and read logic.
 //*---------------------------------------------------------------------------------------------------
-`timescale 1ns/1ps
+//File Include : system header file
+`include "../sys_include.h"
+
 `include "rom.h" 
-`include "stddef.h"
-module rom.v#(
+module rom #(
    parameter MEM_WIDTH      = 32,
    parameter MEM_ADDR_BITS  = 11
 )(
@@ -98,5 +100,5 @@ module rom.v#(
     
 endmodule    
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

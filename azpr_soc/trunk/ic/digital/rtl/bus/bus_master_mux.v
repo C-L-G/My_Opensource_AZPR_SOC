@@ -26,12 +26,12 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.21 - lichangbeiju - Add io port.
-//*---------------------------------------------------------------------------------------------------
-`timescale 1ns/1ps
+//**************************************************************************************************** 
+`include "../sys_include.h"
+
 `include "bus.h"
-`include "global_config.h"
-`include "stddef.h"
 module bus_master_mux(
     //master 0
     input   wire    [`WordAddrBus]  m0_addr         ,//30   address
@@ -58,10 +58,10 @@ module bus_master_mux(
     input   wire    [`WordDataBus]  m3_wr_data      ,//32   write data   
     input   wire                    m3_grant_n      ,//01
     //share
-    output  wire    [`WordAddrBus]  s_addr          ,//30
-    output  wire                    s_as_n          ,//01
-    output  wire                    s_rw            ,//01
-    output  wire    [`WordDataBus]  s_wr_data        //32
+    output  reg     [`WordAddrBus]  s_addr          ,//30
+    output  reg                     s_as_n          ,//01
+    output  reg                     s_rw            ,//01
+    output  reg     [`WordDataBus]  s_wr_data        //32
 
 );
 
@@ -78,15 +78,10 @@ module bus_master_mux(
     //------------------------------------------------------------------------------------------------
     // 2.1 the output reg
     //------------------------------------------------------------------------------------------------   
-    reg     [`WordAddrBus]      s_addr      ;
-    reg                         s_as_n      ;
-    reg                         s_rw        ;
-    reg     [`WordDataBus]      s_wr_data   ;
 
     //------------------------------------------------------------------------------------------------
     // 2.2 the internal reg
     //------------------------------------------------------------------------------------------------  
-    reg     [01:00]     owner           ;//aux data input and output
     
     
     
@@ -145,106 +140,6 @@ module bus_master_mux(
     // 3.2 the master owner control logic
     //------------------------------------------------------------------------------------------------
     
-    always @(posedge clk or `RESET_EDGE reset) begin : OWNER_CTRL 
-        if(reset == `RESET_ENABLE)
-            begin
-                owner   <= `BUS_OWNER_MASTER_0;
-            end
-        else begin
-            case(owner)
-                `BUS_OWNER_MASTER_0 :   begin
-                    if(m0_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_0;
-                        end
-                    else if(m1_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_1;
-                        end
-                    else if(m2_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_2;
-                        end
-                    else if(m3_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_3;
-                        end
-                    else
-                        begin
-                            owner   <= owner;
-                        end
-                end
-                `BUS_OWNER_MASTER_1 :   begin
-                    if(m1_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_1;
-                        end
-                    else if(m2_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_2;
-                        end
-                    else if(m3_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_3;
-                        end
-                    else if(m0_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_0;
-                        end
-                    else
-                        begin
-                            owner   <= owner;
-                        end
-                end
-                `BUS_OWNER_MASTER_2 :   begin
-                    if(m2_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_2;
-                        end
-                    else if(m3_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_3;
-                        end
-                    else if(m0_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_0;
-                        end
-                    else if(m1_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_1;
-                        end
-                    else
-                        begin
-                            owner   <= owner;
-                        end
-                end
-                `BUS_OWNER_MASTER_3 :   begin
-                    if(m3_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_3;
-                        end
-                    else if(m0_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_0;
-                        end
-                    else if(m1_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_1;
-                        end
-                    else if(m2_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_2;
-                        end
-                    else
-                        begin
-                            owner   <= owner;
-                        end
-                end
-            endcase
-        end
-    end
-
-
     
     //************************************************************************************************
     // 4.Sub module instantiation
@@ -255,5 +150,5 @@ module bus_master_mux(
     
 endmodule    
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

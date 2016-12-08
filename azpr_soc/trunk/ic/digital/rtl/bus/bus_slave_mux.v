@@ -27,12 +27,12 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.21 - lichangbeiju - Add io port.
-//*---------------------------------------------------------------------------------------------------
-`timescale 1ns/1ps
+//**************************************************************************************************** 
+`include "../sys_include.h"
+
 `include "bus.h"
-`include "global_config.h"
-`include "stddef.h"
 module bus_slave_mux(
     //slave 0
     input   wire                    s0_cs_n     ,//01   chip select
@@ -67,8 +67,8 @@ module bus_slave_mux(
     input   wire    [`WordDataBus]  s7_rd_data  ,//32   write data   
     input   wire                    s7_rdy_n    ,//01
     //share
-    output  wire    [`WordDataBus]  m_rd_data   ,//32
-    output  wire                    m_rdy_n      //01   Ready
+    output  reg     [`WordDataBus]  m_rd_data   ,//32
+    output  reg                     m_rdy_n      //01   Ready
 
 );
 
@@ -85,8 +85,6 @@ module bus_slave_mux(
     //------------------------------------------------------------------------------------------------
     // 2.1 the output reg
     //------------------------------------------------------------------------------------------------   
-    reg     [`WordDataBus]      m_rd_data   ;
-    reg                         m_rdy_n     ;
 
     //------------------------------------------------------------------------------------------------
     // 2.2 the internal reg
@@ -170,5 +168,5 @@ module bus_slave_mux(
     
 endmodule    
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

@@ -8,31 +8,29 @@
 //**************************************************************************************************** 
 //File Information
 //**************************************************************************************************** 
-//File Name      : chip_top.v 
+//File Name      : spm.v 
 //Project Name   : azpr_soc
 //Description    : the digital top of the chip.
-//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/digital/rtl/chip.v
+//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/digital/rtl/cpu/spm.v
 //License        : Apache-2.0
 //**************************************************************************************************** 
 //Version Information
 //**************************************************************************************************** 
 //Create Date    : 2016-11-22 17:00
 //First Author   : lichangbeiju
-//Last Modify    : 2016-11-23 14:20
+//Last Modify    : 2016-12-08 14:20
 //Last Author    : lichangbeiju
 //Version Number : 12 commits 
 //**************************************************************************************************** 
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.23 - lichangbeiju - Change the coding style.
 //2016.11.22 - lichangbeiju - Add io port.
-//*---------------------------------------------------------------------------------------------------
-
+//**************************************************************************************************** 
 //File Include : system header file
-`include "nettype.h"
-`include "global_config.h"
-`include "stddef.h"
+`include "../sys_include.h"
 
 //File Include : module header file
 `include "spm.h"
@@ -90,7 +88,7 @@ module spm (
                 wea = `MEM_DISABLE; //write in disable
             end
         /* port B */
-        if ((mem_spm_as_ == `ENABLE_) && (mem_spm_rw == `WRITE))
+        if ((mem_spm_as_n == `ENABLE_N) && (mem_spm_rw == `WRITE))
             begin
                 web = `MEM_ENABLE;  //write in valid
             end
@@ -108,22 +106,22 @@ module spm (
     // 4.1 the clk generate module
     //------------------------------------------------------------------------------------------------    
     /********** Xilinx FPGA Block RAM : two ports RAM **********/
-    x_s3e_dpram x_s3e_dpram (
+    symmetric_mem_core x_s3e_dpram (
         /********** port A : IF stage **********/
-        .clka  (clk),             //clock 
-        .addra (if_spm_addr),     //address
-        .dina  (if_spm_wr_data),  //
-        .wea   (wea),             //
-        .douta (if_spm_rd_data),  //
+        .clockA         (clk),             //clock 
+        .addressA       (if_spm_addr),     //address
+        .input_dataA    (if_spm_wr_data),  //
+        .write_enableA  (wea),             //
+        .output_dataA   (if_spm_rd_data),  //
         /********** port B : MEM Stage **********/
-        .clkb  (clk),             //
-        .addrb (mem_spm_addr),    //
-        .dinb  (mem_spm_wr_data), //
-        .web   (web),             //
-        .doutb (mem_spm_rd_data)  //read data
+        .clockB         (clk),             //
+        .addressB       (mem_spm_addr),    //
+        .input_dataB    (mem_spm_wr_data), //
+        .write_enableB  (web),             //
+        .output_dataB   (mem_spm_rd_data)  //read data
     );
   
 endmodule
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

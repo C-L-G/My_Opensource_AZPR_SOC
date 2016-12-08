@@ -25,15 +25,13 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.22 - lichangbeiju - Change the coding style.
 //2016.11.22 - lichangbeiju - Add io port.
-//*---------------------------------------------------------------------------------------------------
+//**************************************************************************************************** 
+`include "sys_include.h"
 
-`include "nettype.h"
-`include "stddef.h"
-`include "global_config.h"
-
-`include "gpio.h"
+`include "gpio/gpio.h"
 
 module chip_top (
     input wire                 clk_ref,       
@@ -72,7 +70,7 @@ module chip_top (
     // 2.x the test logic
     //------------------------------------------------------------------------------------------------
     wire                       clk;           
-    wire                       clk_;          
+    wire                       clk_n;          
     wire                       chip_reset;    
 
     //************************************************************************************************
@@ -92,10 +90,10 @@ module chip_top (
     // 4.1 the clk generate module
     //------------------------------------------------------------------------------------------------    
     clk_gen clk_gen (
-        .clk_ref      (clk_ref),              
-        .reset_sw     (reset_sw),             
-        .clk          (clk),                  
-        .clk_         (clk_),                 
+        .clk_ref      (clk_ref  ),              
+        .reset_sw     (reset_sw ),             
+        .clk          (clk      ),                  
+        .clk_n        (clk_n    ),                 
         .chip_reset   (chip_reset)            
     );
     //------------------------------------------------------------------------------------------------
@@ -103,7 +101,7 @@ module chip_top (
     //------------------------------------------------------------------------------------------------    
     chip chip (
         .clk      (clk),                      
-        .clk_     (clk_),                     
+        .clk_n    (clk_n),                     
         .reset    (chip_reset)                
         /********** UART **********/
     `ifdef IMPLEMENT_UART
@@ -125,5 +123,5 @@ module chip_top (
 
 endmodule
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

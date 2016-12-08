@@ -25,13 +25,13 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.23 - lichangbeiju - Change the coding style.
 //2016.11.22 - lichangbeiju - Add io port.
 //**************************************************************************************************** 
+//File Include : system header file
+`include "../sys_include.h"
 
-`include "nettype.h"
-`include "global_config.h"
-`include "stddef.h"
 
 `include "isa.h"
 `include "cpu.h"

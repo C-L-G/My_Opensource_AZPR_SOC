@@ -1,13 +1,3 @@
-/*
- -- ============================================================================
- -- FILE NAME   : cpu.v
- -- DESCRIPTION : CPUトップモジュール
- -- ----------------------------------------------------------------------------
- -- Revision  Date        Coding_by  Comment
- -- 1.0.0     2011/06/27  suito      新規作成
- -- ============================================================================
-*/
-
 //****************************************************************************************************  
 //*---------------Copyright (c) 2016 C-L-G.FPGA1988.lichangbeiju. All rights reserved-----------------
 //
@@ -35,12 +25,11 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.23 - lichangbeiju - Change the coding style.
 //2016.11.22 - lichangbeiju - Add io port.
-//*---------------------------------------------------------------------------------------------------
-`include "nettype.h"
-`include "global_config.h"
-`include "stddef.h"
+//**************************************************************************************************** 
+`include "../sys_include.h"
 
 `include "isa.h"
 `include "cpu.h"
@@ -49,11 +38,11 @@
 
 module cpu (
     input  wire                   clk,             
-    input  wire                   clk_,            
+    input  wire                   clk_n,            
     input  wire                   reset,           
     input  wire [`WordDataBus]    if_bus_rd_data,  
     input  wire                   if_bus_rdy_n,     
-    input  wire                   if_bus_grnt_n,    
+    input  wire                   if_bus_grant_n,    
     output wire                   if_bus_req_n,     
     output wire [`WordAddrBus]    if_bus_addr,     
     output wire                   if_bus_as_n,      
@@ -61,7 +50,7 @@ module cpu (
     output wire [`WordDataBus]    if_bus_wr_data,  
     input  wire [`WordDataBus]    mem_bus_rd_data, 
     input  wire                   mem_bus_rdy_n,    
-    input  wire                   mem_bus_grnt_n,   
+    input  wire                   mem_bus_grant_n,   
     output wire                   mem_bus_req_n,    
     output wire [`WordAddrBus]    mem_bus_addr,    
     output wire                   mem_bus_as_n,     
@@ -149,7 +138,7 @@ module cpu (
         .spm_wr_data    (if_spm_wr_data),   
         .bus_rd_data    (if_bus_rd_data),   
         .bus_rdy_n       (if_bus_rdy_n),      
-        .bus_grnt_n      (if_bus_grnt_n),     
+        .bus_grant_n      (if_bus_grant_n),     
         .bus_req_n       (if_bus_req_n),      
         .bus_addr       (if_bus_addr),      
         .bus_as_n        (if_bus_as_n),       
@@ -248,7 +237,7 @@ module cpu (
         .spm_wr_data    (mem_spm_wr_data),  
         .bus_rd_data    (mem_bus_rd_data),  
         .bus_rdy_n       (mem_bus_rdy_n),     
-        .bus_grnt_n      (mem_bus_grnt_n),    
+        .bus_grant_n      (mem_bus_grant_n),    
         .bus_req_n       (mem_bus_req_n),     
         .bus_addr       (mem_bus_addr),     
         .bus_as_n        (mem_bus_as_n),      
@@ -317,7 +306,7 @@ module cpu (
     );
 
         spm spm (
-        .clk             (clk_),                      
+        .clk             (clk_n),                      
         .if_spm_addr     (if_spm_addr[`SpmAddrLoc]),  
         .if_spm_as_n      (if_spm_as_n),                
         .if_spm_rw       (if_spm_rw),                 
@@ -332,5 +321,5 @@ module cpu (
 
 endmodule
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

@@ -26,23 +26,23 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.21 - lichangbeiju - Add grant and master owner logic.
-//*---------------------------------------------------------------------------------------------------
-`timescale 1ns/1ps
+//**************************************************************************************************** 
+`include "../sys_include.h"
+
 `include "bus.h"
-`include "global_config.h"
-`include "stddef.h"
 module bus_arbiter(
     input   wire            clk             ,//01   the system clock 
     input   wire            reset           ,//01   
     input   wire            m0_req_n        ,//01   
-    output  wire            m0_grant_n      ,//01   
+    output  reg             m0_grant_n      ,//01   
     input   wire            m1_req_n        ,//01   
-    output  wire            m1_grant_n      ,//01   
+    output  reg             m1_grant_n      ,//01   
     input   wire            m2_req_n        ,//01   
-    output  wire            m2_grant_n      ,//01   
+    output  reg             m2_grant_n      ,//01   
     input   wire            m3_req_n        ,//01   
-    output  wire            m3_grant_n       //01   
+    output  reg             m3_grant_n       //01   
 );
 
     //************************************************************************************************
@@ -58,10 +58,7 @@ module bus_arbiter(
     //------------------------------------------------------------------------------------------------
     // 2.1 the output reg
     //------------------------------------------------------------------------------------------------   
-    reg                 m0_grant_n      ;
-    reg                 m1_grant_n      ;
-    reg                 m2_grant_n      ;
-    reg                 m3_grant_n      ;
+    
     //------------------------------------------------------------------------------------------------
     // 2.2 the internal reg
     //------------------------------------------------------------------------------------------------  
@@ -99,6 +96,7 @@ module bus_arbiter(
             `BUS_OWNER_MASTER_3 :   begin
                 m3_grant_n  = `ENABLE_N;
             end
+        endcase
     end
     
      
@@ -216,5 +214,5 @@ module bus_arbiter(
     
 endmodule    
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

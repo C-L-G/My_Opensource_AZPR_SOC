@@ -25,13 +25,12 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.23 - lichangbeiju - Change the coding style.
 //2016.11.22 - lichangbeiju - Add io port.
-//*---------------------------------------------------------------------------------------------------
-
-`include "nettype.h"
-`include "global_config.h"
-`include "stddef.h"
+//**************************************************************************************************** 
+//File Include : system header file
+`include "../sys_include.h"
 
 `include "cpu.h"
 
@@ -40,15 +39,15 @@ module if_stage (
     input  wire                reset,       //
     input  wire [`WordDataBus] spm_rd_data, //
     output wire [`WordAddrBus] spm_addr,    //
-    output wire                spm_as_,     //
+    output wire                spm_as_n,     //
     output wire                spm_rw,      //
     output wire [`WordDataBus] spm_wr_data, //
     input  wire [`WordDataBus] bus_rd_data, //
-    input  wire                bus_rdy_,    //
-    input  wire                bus_grnt_,   //
-    output wire                bus_req_,    //
+    input  wire                bus_rdy_n,    //
+    input  wire                bus_grant_n,   //
+    output wire                bus_req_n,    //
     output wire [`WordAddrBus] bus_addr,    //
-    output wire                bus_as_,     //
+    output wire                bus_as_n,     //
     output wire                bus_rw,      //
     output wire [`WordDataBus] bus_wr_data, //
     input  wire                stall,       //
@@ -71,21 +70,21 @@ module if_stage (
         .flush       (flush),               //
         .busy        (busy),                //
         .addr        (if_pc),               //
-        .as_         (`ENABLE_N),            //
+        .as_n        (`ENABLE_N),            //
         .rw          (`READ),               //
         .wr_data     (`WORD_DATA_W'h0),     //
         .rd_data     (insn),                //
         .spm_rd_data (spm_rd_data),         //
         .spm_addr    (spm_addr),            //
-        .spm_as_     (spm_as_),             //
+        .spm_as_n     (spm_as_n),             //
         .spm_rw      (spm_rw),              //
         .spm_wr_data (spm_wr_data),         //
         .bus_rd_data (bus_rd_data),         //
-        .bus_rdy_    (bus_rdy_),            //
-        .bus_grnt_   (bus_grnt_),           //
-        .bus_req_    (bus_req_),            //
+        .bus_rdy_n    (bus_rdy_n),            //
+        .bus_grant_n   (bus_grant_n),           //
+        .bus_req_n    (bus_req_n),            //
         .bus_addr    (bus_addr),            //
-        .bus_as_     (bus_as_),             //
+        .bus_as_n     (bus_as_n),             //
         .bus_rw      (bus_rw),              //
         .bus_wr_data (bus_wr_data)          //
     );

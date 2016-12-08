@@ -8,10 +8,10 @@
 //**************************************************************************************************** 
 //File Information
 //**************************************************************************************************** 
-//File Name      : bug_addr_dec.v 
+//File Name      : bus_addr_dec.v 
 //Project Name   : azpr_soc
 //Description    : the bus arbiter.
-//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/digital/rtl/bug_addr_dec.v
+//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/digital/rtl/bus_addr_dec.v
 //License        : CPL
 //**************************************************************************************************** 
 //Version Information
@@ -26,22 +26,22 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.21 - lichangbeiju - Add io port.
-//*---------------------------------------------------------------------------------------------------
-`timescale 1ns/1ps
+//**************************************************************************************************** 
+`include "../sys_include.h"
+
 `include "bus.h"
-`include "global_config.h"
-`include "stddef.h"
-module bug_addr_dec(
+module bus_addr_dec(
     input   wire    [`WordAddrBus]  s_addr      ,//30   address
-    output  wire                    s0_cs_n     ,//01   slave 0 chip select
-    output  wire                    s1_cs_n     ,//01   slave 1 chip select
-    output  wire                    s2_cs_n     ,//01   slave 2 chip select
-    output  wire                    s3_cs_n     ,//01   slave 3 chip select
-    output  wire                    s4_cs_n     ,//01   slave 4 chip select
-    output  wire                    s5_cs_n     ,//01   slave 5 chip select
-    output  wire                    s6_cs_n     ,//01   slave 6 chip select
-    output  wire                    s7_cs_n      //01   slave 7 chip select
+    output  reg                     s0_cs_n     ,//01   slave 0 chip select rom
+    output  reg                     s1_cs_n     ,//01   slave 1 chip select spm
+    output  reg                     s2_cs_n     ,//01   slave 2 chip select timer
+    output  reg                     s3_cs_n     ,//01   slave 3 chip select uart
+    output  reg                     s4_cs_n     ,//01   slave 4 chip select gpio
+    output  reg                     s5_cs_n     ,//01   slave 5 chip select nc
+    output  reg                     s6_cs_n     ,//01   slave 6 chip select nc
+    output  reg                     s7_cs_n      //01   slave 7 chip select nc
 
 );
 
@@ -58,14 +58,6 @@ module bug_addr_dec(
     //------------------------------------------------------------------------------------------------
     // 2.1 the output reg
     //------------------------------------------------------------------------------------------------   
-    reg                     s0_cs_n     ;//01   rom
-    reg                     s1_cs_n     ;//01   spm
-    reg                     s2_cs_n     ;//01   timer
-    reg                     s3_cs_n     ;//01   uart
-    reg                     s4_cs_n     ;//01   gpio
-    reg                     s5_cs_n     ;//01   dont use
-    reg                     s6_cs_n     ;//01   dont use
-    reg                     s7_cs_n     ;//01   dont use
 
     //------------------------------------------------------------------------------------------------
     // 2.x the test logic
@@ -124,105 +116,6 @@ module bug_addr_dec(
     // 3.2 the master owner control logic
     //------------------------------------------------------------------------------------------------
     
-    always @(posedge clk or `RESET_EDGE reset) begin : OWNER_CTRL 
-        if(reset == `RESET_ENABLE)
-            begin
-                owner   <= `BUS_OWNER_MASTER_0;
-            end
-        else begin
-            case(owner)
-                `BUS_OWNER_MASTER_0 :   begin
-                    if(m0_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_0;
-                        end
-                    else if(m1_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_1;
-                        end
-                    else if(m2_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_2;
-                        end
-                    else if(m3_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_3;
-                        end
-                    else
-                        begin
-                            owner   <= owner;
-                        end
-                end
-                `BUS_OWNER_MASTER_1 :   begin
-                    if(m1_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_1;
-                        end
-                    else if(m2_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_2;
-                        end
-                    else if(m3_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_3;
-                        end
-                    else if(m0_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_0;
-                        end
-                    else
-                        begin
-                            owner   <= owner;
-                        end
-                end
-                `BUS_OWNER_MASTER_2 :   begin
-                    if(m2_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_2;
-                        end
-                    else if(m3_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_3;
-                        end
-                    else if(m0_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_0;
-                        end
-                    else if(m1_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_1;
-                        end
-                    else
-                        begin
-                            owner   <= owner;
-                        end
-                end
-                `BUS_OWNER_MASTER_3 :   begin
-                    if(m3_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_3;
-                        end
-                    else if(m0_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_0;
-                        end
-                    else if(m1_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_1;
-                        end
-                    else if(m2_req_n == `ENABLE_N)
-                        begin
-                            owner   <= `BUS_OWNER_MASTER_2;
-                        end
-                    else
-                        begin
-                            owner   <= owner;
-                        end
-                end
-            endcase
-        end
-    end
-
 
     
     //************************************************************************************************
@@ -234,5 +127,5 @@ module bug_addr_dec(
     
 endmodule    
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

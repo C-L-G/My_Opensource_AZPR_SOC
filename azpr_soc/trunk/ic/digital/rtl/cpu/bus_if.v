@@ -25,14 +25,13 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.29 - lichangbeiju - Change the xx_ to xx_n.
 //2016.11.23 - lichangbeiju - Change the coding style.
 //2016.11.22 - lichangbeiju - Add io port.
-//*---------------------------------------------------------------------------------------------------
+//**************************************************************************************************** 
 //File Include : system header file
-`include "nettype.h"
-`include "global_config.h"
-`include "stddef.h"
+`include "../sys_include.h"
 
 `include "cpu.h"
 `include "bus.h"
@@ -55,7 +54,7 @@ module bus_if (
     output wire [`WordDataBus] spm_wr_data,    // 
     input  wire [`WordDataBus] bus_rd_data,    //bus : read data 
     input  wire                bus_rdy_n,      //bus : ready
-    input  wire                bus_grnt_,      //bus : grant 
+    input  wire                bus_grant_n,      //bus : grant 
     output reg                 bus_req_n,      //bus : request
     output reg  [`WordAddrBus] bus_addr,       //bus : address
     output reg                 bus_as_n,       //bus : address select
@@ -178,7 +177,7 @@ module bus_if (
                 end
                 `BUS_IF_STATE_REQ    : begin //bus request
                     /* wait the bus grant */
-                    if (bus_grnt_ == `ENABLE_N) begin //get the grant
+                    if (bus_grant_n == `ENABLE_N) begin //get the grant
                         state       <= #1 `BUS_IF_STATE_ACCESS;
                         bus_as_n    <= #1 `ENABLE_N;
                     end
@@ -223,5 +222,5 @@ module bus_if (
     
 endmodule    
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

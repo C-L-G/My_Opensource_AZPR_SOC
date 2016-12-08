@@ -25,15 +25,13 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.12.01 - lichangbeiju - Change the coding style : part 2.
 //2016.11.22 - lichangbeiju - Change the coding style : part 1.
 //2016.11.22 - lichangbeiju - Add io port.
-//*---------------------------------------------------------------------------------------------------
-`timescale 1ns/1ps
+//**************************************************************************************************** 
 //File Include : system header file
-`include "nettype.h"
-`include "global_config.h"
-`include "stddef.h"
+`include "../sys_include.h"
 
 `include "cpu.h"
 module alu (
@@ -109,5 +107,5 @@ module alu (
 
 endmodule
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

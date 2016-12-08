@@ -18,32 +18,31 @@
 //**************************************************************************************************** 
 //Create Date    : 2016-11-22 17:00
 //First Author   : lichangbeiju
-//Last Modify    : 2016-11-23 14:20
+//Last Modify    : 2016-12-08 14:20
 //Last Author    : lichangbeiju
 //Version Number : 12 commits 
 //**************************************************************************************************** 
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.22 - lichangbeiju - Change the coding style.
 //2016.11.22 - lichangbeiju - Add io port.
-//*---------------------------------------------------------------------------------------------------
-`timescale 1ns/1ps
+//**************************************************************************************************** 
 //File Include : system header file
-`include "nettype.h"
-`include "stddef.h"
-`include "global_config.h"
+`include "sys_include.h"
 //File Include : module level header file
-`include "cpu.h"
-`include "bus.h"
-`include "rom.h"
-`include "timer.h"
-`include "uart.h"
-`include "gpio.h"
+`include "cpu/cpu.h"
+`include "bus/bus.h"
+`include "mem/rom.h"
+
+`include "timer/timer.h"
+`include "uart/uart.h"
+`include "gpio/gpio.h"
 
 module chip (
     input  wire                      clk,         
-    input  wire                      clk_,       
+    input  wire                      clk_n,       
     input  wire                      reset      
     /********** UART  **********/
     `ifdef IMPLEMENT_UART 
@@ -85,25 +84,25 @@ module chip (
     wire                m0_as_n;                   
     wire                m0_rw;                   
     wire [`WordDataBus] m0_wr_data;              
-    wire                m0_grnt_;                
+    wire                m0_grant_n;                
     wire                m1_req_n;                 
     wire [`WordAddrBus] m1_addr;                 
     wire                m1_as_n;                 
     wire                m1_rw;                   
     wire [`WordDataBus] m1_wr_data;              
-    wire                m1_grnt_;                
+    wire                m1_grant_n;                
     wire                m2_req_n;                 
     wire [`WordAddrBus] m2_addr;                 
     wire                m2_as_n;                 
     wire                m2_rw;                   
     wire [`WordDataBus] m2_wr_data;              
-    wire                m2_grnt_;                
+    wire                m2_grant_n;                
     wire                m3_req_n;                 
     wire [`WordAddrBus] m3_addr;                 
     wire                m3_as_n;                 
     wire                m3_rw;                   
     wire [`WordDataBus] m3_wr_data;              
-    wire                m3_grnt_;                
+    wire                m3_grant_n;                
     wire [`WordAddrBus] s_addr;                  
     wire                s_as_n;                  
     wire                s_rw;                    
@@ -157,12 +156,12 @@ module chip (
     /********** CPU **********/
     cpu cpu (
         .clk             (clk),        
-        .clk_            (clk_),       
+        .clk_n            (clk_n),       
         .reset           (reset),      
         // IF Stage
         .if_bus_rd_data  (m_rd_data),  
         .if_bus_rdy_n     (m_rdy_n),   
-        .if_bus_grnt_    (m0_grnt_),   
+        .if_bus_grant_n    (m0_grant_n),   
         .if_bus_req_n     (m0_req_n),    
         .if_bus_addr     (m0_addr),    
         .if_bus_as_n      (m0_as_n),   
@@ -171,7 +170,7 @@ module chip (
         // MEM Stage
         .mem_bus_rd_data (m_rd_data),  
         .mem_bus_rdy_n    (m_rdy_n),   
-        .mem_bus_grnt_   (m1_grnt_),   
+        .mem_bus_grant_n   (m1_grant_n),   
         .mem_bus_req_n    (m1_req_n),    
         .mem_bus_addr    (m1_addr),    
         .mem_bus_as_n     (m1_as_n),   
@@ -181,70 +180,70 @@ module chip (
     );
 
     assign m2_addr    = `WORD_ADDR_W'h0;
-    assign m2_as_n     = `DISABLE_;
+    assign m2_as_n     = `DISABLE_N;
     assign m2_rw      = `READ;
     assign m2_wr_data = `WORD_DATA_W'h0;
-    assign m2_req_n    = `DISABLE_;
+    assign m2_req_n    = `DISABLE_N;
 
     assign m3_addr    = `WORD_ADDR_W'h0;
-    assign m3_as_n     = `DISABLE_;
+    assign m3_as_n     = `DISABLE_N;
     assign m3_rw      = `READ;
     assign m3_wr_data = `WORD_DATA_W'h0;
-    assign m3_req_n    = `DISABLE_;
+    assign m3_req_n    = `DISABLE_N;
    
     rom rom (
         /********** Clock & Reset **********/
-        .clk             (clk),                   
-        .reset           (reset),                 
+        .clockA             (clk                ),                   
+        //.reset              (reset      ),                 
         /********** Bus Interface **********/
-        .cs_n             (s0_cs_n),                
-        .as_n             (s_as_n),               
-        .addr            (s_addr[`RomAddrLoc]),   
-        .rd_data         (s0_rd_data),            
-        .rdy_n            (s0_rdy_n)              
+        //.cs_n               (s0_cs_n    ),                
+        //.as_n               (s_as_n     ),               
+        .addressA           (s_addr[`RomAddrLoc]),   
+        .output_dataA       (s0_rd_data         )            
+        //.rdy_n              (s0_rdy_n   )              
     );
 
     assign s1_rd_data = `WORD_DATA_W'h0;
-    assign s1_rdy_n    = `DISABLE_;
+    assign s1_rdy_n    = `DISABLE_N;
 
 `ifdef IMPLEMENT_TIMER
     timer timer (
-        .clk             (clk),                   
-        .reset           (reset),                 
-        .cs_n             (s2_cs_n),                
-        .as_n             (s_as_n),               
+        .clk             (clk       ),                   
+        .reset           (reset     ),                 
+        .cs_n            (s2_cs_n   ),                
+        .as_n            (s_as_n    ),               
         .addr            (s_addr[`TimerAddrLoc]), 
-        .rw              (s_rw),                  
-        .wr_data         (s_wr_data),             
+        .rw              (s_rw      ),                  
+        .wr_data         (s_wr_data ),             
         .rd_data         (s2_rd_data),            
-        .rdy_n            (s2_rdy_n),             
-        .irq             (irq_timer)              
+        .rdy_n           (s2_rdy_n  ),             
+        .irq             (irq_timer )              
      );
 `else                  
     assign s2_rd_data = `WORD_DATA_W'h0;
-    assign s2_rdy_n    = `DISABLE_;
+    assign s2_rdy_n    = `DISABLE_N;
     assign irq_timer  = `DISABLE;
 `endif
 
 `ifdef IMPLEMENT_UART 
     uart uart (
-        .clk             (clk),                   
-        .reset           (reset),                 
-        .cs_n             (s3_cs_n),                
-        .as_n             (s_as_n),               
-        .rw              (s_rw),                  
+        .clk             (clk       ),                   
+        .reset           (reset     ),                 
+        .cs_n            (s3_cs_n   ),                
+        .as_n            (s_as_n    ),               
+        .rw              (s_rw      ),                  
         .addr            (s_addr[`UartAddrLoc]),  
-        .wr_data         (s_wr_data),             
+        .wr_data         (s_wr_data ),             
         .rd_data         (s3_rd_data),            
-        .rdy_n            (s3_rdy_n),             
+        .rdy_n            (s3_rdy_n ),             
         .irq_rx          (irq_uart_rx),           
         .irq_tx          (irq_uart_tx),           
-        .rx              (uart_rx),               
-        .tx              (uart_tx)                
+        .rx              (uart_rx   ),               
+        .tx              (uart_tx   )                
     );
 `else                 
     assign s3_rd_data  = `WORD_DATA_W'h0;
-    assign s3_rdy_n     = `DISABLE_;
+    assign s3_rdy_n     = `DISABLE_N;
     assign irq_uart_rx = `DISABLE;
     assign irq_uart_tx = `DISABLE;
 `endif
@@ -272,17 +271,17 @@ module chip (
     );
 `else                 
     assign s4_rd_data = `WORD_DATA_W'h0;
-    assign s4_rdy_n    = `DISABLE_;
+    assign s4_rdy_n    = `DISABLE_N;
 `endif
 
     assign s5_rd_data = `WORD_DATA_W'h0;
-    assign s5_rdy_n    = `DISABLE_;
+    assign s5_rdy_n    = `DISABLE_N;
   
     assign s6_rd_data = `WORD_DATA_W'h0;
-    assign s6_rdy_n    = `DISABLE_;
+    assign s6_rdy_n    = `DISABLE_N;
   
     assign s7_rd_data = `WORD_DATA_W'h0;
-    assign s7_rdy_n    = `DISABLE_;
+    assign s7_rdy_n    = `DISABLE_N;
 
     bus bus (
         .clk             (clk),                  
@@ -294,25 +293,25 @@ module chip (
         .m0_as_n          (m0_as_n),             
         .m0_rw           (m0_rw),                
         .m0_wr_data      (m0_wr_data),           
-        .m0_grnt_        (m0_grnt_),             
+        .m0_grant_n        (m0_grant_n),             
         .m1_req_n         (m1_req_n),              
         .m1_addr         (m1_addr),              
         .m1_as_n          (m1_as_n),             
         .m1_rw           (m1_rw),                
         .m1_wr_data      (m1_wr_data),           
-        .m1_grnt_        (m1_grnt_),             
+        .m1_grant_n        (m1_grant_n),             
         .m2_req_n         (m2_req_n),              
         .m2_addr         (m2_addr),              
         .m2_as_n          (m2_as_n),             
         .m2_rw           (m2_rw),                
         .m2_wr_data      (m2_wr_data),           
-        .m2_grnt_        (m2_grnt_),             
+        .m2_grant_n        (m2_grant_n),             
         .m3_req_n         (m3_req_n),              
         .m3_addr         (m3_addr),              
         .m3_as_n          (m3_as_n),             
         .m3_rw           (m3_rw),                
         .m3_wr_data      (m3_wr_data),           
-        .m3_grnt_        (m3_grnt_),             
+        .m3_grant_n        (m3_grant_n),             
         .s_addr          (s_addr),               
         .s_as_n           (s_as_n),              
         .s_rw            (s_rw),                 
@@ -345,5 +344,5 @@ module chip (
 
 endmodule
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

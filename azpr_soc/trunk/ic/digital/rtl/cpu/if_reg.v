@@ -25,14 +25,13 @@
 //Change History(latest change first)
 //yyyy.mm.dd - Author - Your log of change
 //**************************************************************************************************** 
+//2016.12.08 - lichangbeiju - Change the include.
 //2016.11.29 - lichangbeiju - Change the xx_ to xx_n.
 //2016.11.23 - lichangbeiju - Change the coding style.
 //2016.11.22 - lichangbeiju - Add io port.
 //**************************************************************************************************** 
 //File Include : system header file
-`include "nettype.h"
-`include "global_config.h"
-`include "stddef.h"
+`include "../sys_include.h"
 
 `include "isa.h"
 `include "cpu.h"
@@ -77,23 +76,25 @@ module if_reg (
     //------------------------------------------------------------------------------------------------
     // 3.1 the pipeline register
     //------------------------------------------------------------------------------------------------
-    always @(posedge clk or `RESET_EDGE reset) begin
+    always @(posedge clk or `RESET_EDGE reset) begin : PIPELINE_REG
+        //asynchronous reset
         if (reset == `RESET_ENABLE) begin 
             if_pc   <= #1 `RESET_VECTOR;
             if_insn <= #1 `ISA_NOP;
             if_en   <= #1 `DISABLE;
         end else begin
+            //update the pipeline reg
             if (stall == `DISABLE) begin 
-                if (flush == `ENABLE) begin             
+                if (flush == `ENABLE) begin     //refresh the pipeline and pc       
                     if_pc   <= #1 new_pc;
                     if_insn <= #1 `ISA_NOP;
                     if_en   <= #1 `DISABLE;
-                end else if (br_taken == `ENABLE) begin 
+                end else if (br_taken == `ENABLE) begin //branch taken and pc = br_addr
                     if_pc   <= #1 br_addr;
                     if_insn <= #1 insn;
                     if_en   <= #1 `ENABLE;
                 end else begin                          
-                    if_pc   <= #1 if_pc + 1'd1;
+                    if_pc   <= #1 if_pc + 1'd1;         //pc = next address[+1]
                     if_insn <= #1 insn;
                     if_en   <= #1 `ENABLE;
                 end
@@ -110,5 +111,5 @@ module if_reg (
     
 endmodule    
 //****************************************************************************************************
-//End of Mopdule
+//End of Module
 //****************************************************************************************************

@@ -49,7 +49,7 @@
     `define CregExeModeLoc          0
     `define CregIntEnableLoc        1
     `define CregExpCodeLoc          2:0
-    `define CregDLyFlagLoc          3
+    `define CregDlyFlagLoc          3
     //BusIF
     `define BusIfStateBus           1:0
     `define BUS_IF_STATE_IDLE       2'h0
