@@ -1,14 +1,14 @@
 `ifndef __STDDEF_HEADER__
     `define __STDDEF_HEADER__
-    `define HIGH                1
-    `define LOW                 0
-    `define ENABLE              1
-    `define DISABLE             0
-    `define ENABLE_N            0
-    `define DISABLE_N           1
-    `define READ                1
-    `define WRITE               0
-    `define LSB                 0
+    `define HIGH                1'b1
+    `define LOW                 1'b0
+    `define ENABLE              1'b1
+    `define DISABLE             1'b0
+    `define ENABLE_N            1'b0
+    `define DISABLE_N           1'b1
+    `define READ                1'b1
+    `define WRITE               1'b0
+    `define LSB                 1'b0
     `define BYTE_DATA_W         8
     `define BYTE_MSB            7
     `define ByteDataBus         7:0
