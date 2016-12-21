@@ -1,4 +1,3 @@
-#!/usr/local/bin/perl
 #****************************************************************************************************  
 #*----------------Copyright (c) 2016 C-L-G.FPGA1988.Roger Wang. All rights reserved------------------
 #
@@ -9,7 +8,7 @@
 #**************************************************************************************************** 
 #File Information
 #**************************************************************************************************** 
-#File Name      : cklog 
+#File Name      : constraint.tcl
 #Project Name   : scripts
 #Description    : The constraint file
 #Github Address : https://github.com/C-L-G/scripts/script_header.txt
@@ -17,17 +16,18 @@
 #**************************************************************************************************** 
 #Version Information
 #**************************************************************************************************** 
-#Create Date    : 01-07-2016 17:00(1th Fri,July,2016)
+#Create Date    : 11-07-2016 17:00(1th Fri,July,2016)
 #First Author   : Roger Wang
 #Modify Date    : 03-07-2016 14:20(1th Sun,July,2016)
 #Last Author    : Roger Wang
 #Version Number : 001   
 #Last Commit    : 03-07-2016 14:30(1th Sun,July,2016)
 #**************************************************************************************************** 
-#Revison History
-#dd.mm.yyyy - Author - Your log of change
+#Revison History    (latest change first)
+#yyyy.mm.dd - Author - Your log of change
 #**************************************************************************************************** 
-#31.08.2016 - Roger Wang - The initial version.
+#2016.12.21 - Roger Wang - Change the script base on gt5238.
+#2016.08.31 - Roger Wang - The initial version.
 #*---------------------------------------------------------------------------------------------------
 set_units -time ns
 
@@ -46,11 +46,13 @@ set_max_fanout              20                      [current_design]
 ##---------------------------------------------------------------------------------------------------
 ## l.2 set the clock arrtibute parameter
 ##---------------------------------------------------------------------------------------------------
-set CLK_PERIOD              5  
-set CLK_FREQ                [expr 1000/$CLK_PERIOD]
-echo "System clock frequency = $CLK_FREQ MHz."
 set clk_setup_uncertainty   1.0
 set clk_hold_uncertainty    0.5
+
+#SCL clock and Timer clock Frequncy = 1.25MHz[require  = 1MHz]
+set SCL_PERIOD              800
+set TIMER_CLK_PERIOD        800
+set SDA_CLK_PERIOD          [expr $SCL_PERIOD*2]
 
 ##***************************************************************************************************
 ## 2.The clock contraint
@@ -59,18 +61,16 @@ set clk_hold_uncertainty    0.5
 ##---------------------------------------------------------------------------------------------------
 ## 2.1 Create the source clock
 ##---------------------------------------------------------------------------------------------------
-create_clock -name clk    -period $CLK_PERIOD            [get_ports clk]
-#create_clock -name sw_clk -period [expr 2 * $CLK_PERIOD] [get_ports clk_gen_inst/clk_switch_inst/clk_o]
+create_clock -name iic_clk   -period $SCL_PERIOD       [get_ports scl_in]     -waveform {0 400}
+create_clock -name sda_clk   -period $SDA_CLK_PERIOD   [get_ports sda_in_clk] -waveform {260 1060}
+create_clock -name timer_clk -period $TIMER_CLK_PERIOD [get_ports timer_clk]  -waveform {0 400}
 
 
 ##---------------------------------------------------------------------------------------------------
 ## 2.2 create the generated clock
 ##---------------------------------------------------------------------------------------------------
-
-#create_generated_clock -name div_clk -source clk_name -divide_by 3 [get_ports inst1/div_clk] 
-create_generated_clock -name div_2_clk -source clk -divide_by 2 [get_ports clk_gen_inst/clk_div_inst/div_clk_0] 
-create_generated_clock -name div_4_clk -source clk -divide_by 4 [get_ports clk_gen_inst/clk_div_inst/div_clk_1] 
-create_generated_clock -name gated_clk -source clk -divide_by 1 -combinational [get_ports clk_gen_inst/clk_gated_inst/gated_clk] 
+create_generated_clock -name rd_clk [get_ports rd_clk] -source [get_ports scl_in] -divide_by 1 -invert
+#create_generated_clock -name gated_clk -source clk -divide_by 1 -combinational [get_ports clk_gen_inst/clk_gated_inst/gated_clk] 
 
 ##---------------------------------------------------------------------------------------------------
 ## 2.3 set the clock network arrtibute
@@ -82,20 +82,24 @@ create_generated_clock -name gated_clk -source clk -divide_by 1 -combinational [
 #set timing_enable_multiple_clocks_per_reg true,CLKA,CLKB
 
 
-set_ideal_network [get_clocks clk]
+set_ideal_network [get_ports scl_in]
+set_ideal_network [get_ports sda_in_clk]
+set_ideal_network [get_ports timer_clk]
 #set_ideal_network [get_clock div_clk]
+#
+#
+set_clock_uncertainty -setup $clk_setup_uncertainty [get_clocks {iic_clk}] 
+set_clock_uncertainty -hold  $clk_hold_uncertainty  [get_clocks {iic_clk}] 
 
-set_clock_uncertainty -setup $clk_setup_uncertainty [get_clocks {clk}] 
-set_clock_uncertainty -hold  $clk_hold_uncertainty  [get_clocks {clk}] 
+set_clock_uncertainty -setup $clk_setup_uncertainty [get_clocks {rd_clk}] 
+set_clock_uncertainty -hold  $clk_hold_uncertainty  [get_clocks {rd_clk}] 
 
-set_clock_uncertainty -setup $clk_setup_uncertainty [get_clocks {div_2_clk}] 
-set_clock_uncertainty -hold  $clk_hold_uncertainty  [get_clocks {div_2_clk}] 
+set_clock_uncertainty -setup $clk_setup_uncertainty [get_clocks {sda_clk}] 
+set_clock_uncertainty -hold  $clk_hold_uncertainty  [get_clocks {sda_clk}] 
 
-set_clock_uncertainty -setup $clk_setup_uncertainty [get_clocks {div_4_clk}] 
-set_clock_uncertainty -hold  $clk_hold_uncertainty  [get_clocks {div_4_clk}] 
+set_clock_uncertainty -setup $clk_setup_uncertainty [get_clocks {timer_clk}] 
+set_clock_uncertainty -hold  $clk_hold_uncertainty  [get_clocks {timer_clk}] 
 
-set_clock_uncertainty -setup $clk_setup_uncertainty [get_clocks {gated_clk}] 
-set_clock_uncertainty -hold  $clk_hold_uncertainty  [get_clocks {gated_clk}] 
 
 #set_clock_uncertainty -setup $clk_setup_uncertainty [get_clocks {sw_clk}] 
 #set_clock_uncertainty -hold  $clk_hold_uncertainty  [get_clocks {sw_clk}] 
@@ -105,6 +109,8 @@ set_clock_uncertainty -hold  $clk_hold_uncertainty  [get_clocks {gated_clk}]
 
 #set_case_analysis 1 [get_pins clk_rst_gen/sss]
 #set_case_analysis 0 [get_pins clk_rst_gen/sss]
+#
+
 
 ##***************************************************************************************************
 ## 3.The Exception Constraint
@@ -119,19 +125,38 @@ set_clock_uncertainty -hold  $clk_hold_uncertainty  [get_clocks {gated_clk}]
 #set_false_path -from clk1 -to clk2
 
 
+#----iic_clk ----> timer_clk : test_en
+set_false_path -from iic_clk -to timer_clk
+set_false_path -from timer_clk -to iic_clk
+
+#----timer_clk ----> sda_clk: start_pulse
+set_false_path -from sda_clk -to timer_clk
+set_false_path -from timer_clk -to sda_clk
+
+
+set_false_path -from rd_clk -to timer_clk
+set_false_path -from timer_clk -to rd_clk
+
 ##---------------------------------------------------------------------------------------------------
 ## 3.2 set false path on the asynchronous reset signal
 ##---------------------------------------------------------------------------------------------------
 
 #set_false_path -from [get_ports rst_n]
+set_false_path -from [get_ports por_rst_n]
+set_false_path -from [get_ports clk_rst_inst/frm_rst_n]
+set_false_path -from [get_ports clk_rst_inst/sys_rst_n]
+set_false_path -from [get_ports clk_rst_inst/wbusy_rst_n]
+set_false_path -from [get_ports clk_rst_inst/start_pulse_clr]
+set_false_path -from [get_ports clk_rst_inst/start_clr]
+set_false_path -from [get_ports clk_rst_inst/stop_clr]
 
 ##---------------------------------------------------------------------------------------------------
 ## 3.3 set false path on the constant signal and impossible/ignore path
 ##---------------------------------------------------------------------------------------------------
 
-#set_false_path -from [get_cells top/inst1/reg1_reg] -through [get_ports top/inst1/s] -to [get_ports ....reg3[*]] 
-
-
+set_false_path -from sda_clk -to [get_ports tcode_sel]
+set_false_path -from [get_ports sda_in] -to [get_ports tcode_sel]
+set_false_path -from [get_ports ee_32k_en_in]
 
 ##---------------------------------------------------------------------------------------------------
 ## 3.4 set the multicycle path
@@ -155,23 +180,42 @@ set multicycle_hold [expr $multicycle_setup-1]
 ##---------------------------------------------------------------------------------------------------
 ## 4.1 the input delay
 ##---------------------------------------------------------------------------------------------------
-#set_input_delay [expr 0.8 * $CLK_PERIOD] -clock clk [get_ports ]
-#set_input_delay [expr 0.8 * $CLK_PERIOD] -clock clk [get_ports ]
-set_input_delay [expr 0.6 * 1 * $CLK_PERIOD] -clock clk [get_ports en]
+
+set_input_delay [expr 0.4 * $SCL_PERIOD] -clock iic_clk [get_ports {ee_data_e2l}]
+set_input_delay [expr 0.4 * $SCL_PERIOD] -clock timer_clk [get_ports {ee_data_e2l}] -add_delay
+set_input_delay [expr 0.2 * $SCL_PERIOD] -clock iic_clk [get_ports sda_in]
+
+set_input_delay [expr 0.7 * $SCL_PERIOD] -clock iic_clk [get_ports {a0_in a1_in a2_in}]
+set_input_delay [expr 0.4 * $SCL_PERIOD] -clock iic_clk [get_ports {scl_in_data}]
+set_input_delay [expr 0.7 * $SCL_PERIOD] -clock iic_clk [get_ports {swpen_n_in}]
+
 
 ##---------------------------------------------------------------------------------------------------
 ## 4.2 the output delay
 ##---------------------------------------------------------------------------------------------------
-set_output_delay [expr 0.6 * 1 * $CLK_PERIOD] -clock clk       [get_ports led[*]]
-set_output_delay [expr 0.8 * 2 * $CLK_PERIOD] -clock div_2_clk [get_ports test_o[0]]
-set_output_delay [expr 0.8 * 4 * $CLK_PERIOD] -clock div_4_clk [get_ports test_o[1]]
-set_output_delay [expr 0.6 * 1 * $CLK_PERIOD] -clock gated_clk [get_ports test_o[2]]
-set_output_delay [expr 0.6 * 1 * $CLK_PERIOD] -clock clk       [get_ports test_o[3]]
-set_output_delay [expr 0.8 * 4 * $CLK_PERIOD] -clock div_4_clk [get_ports test_o[4]]
-set_output_delay [expr 0.6 * 1 * $CLK_PERIOD] -clock clk       [get_ports test_o[5]]
-set_output_delay [expr 0.6 * 1 * $CLK_PERIOD] -clock clk       [get_ports test_o[6]]
-#set_output_delay [expr 0.8 * 2 * $CLK_PERIOD] -clock sw_clk    [get_ports test_o[7]]
-set_output_delay [expr 0.8 * 2 * $CLK_PERIOD] -clock div_4_clk [get_ports test_o[7]]
+set_output_delay [expr 0.70 * $SCL_PERIOD / 1] -clock iic_clk [get_ports {clr_dl}]
+set_output_delay [expr 0.60 * $SCL_PERIOD / 1] -clock iic_clk [get_ports {vs_en}]
+set_output_delay [expr 0.70 * $SCL_PERIOD / 1] -clock iic_clk [get_ports {ee_data_l2e[*]}]
+set_output_delay [expr 0.70 * $SCL_PERIOD / 1] -clock iic_clk [get_ports {test_en}]
+set_output_delay [expr 0.70 * $SCL_PERIOD / 1] -clock iic_clk [get_ports {d_active cin}]
+set_output_delay [expr 0.70 * $SCL_PERIOD / 1] -clock iic_clk [get_ports {alleven allodd tm_wall tm_hv}]
+set_output_delay [expr 0.70 * $SCL_PERIOD / 1] -clock iic_clk [get_ports {clr_dl}]
+set_output_delay [expr 0.20 * $SCL_PERIOD / 1] -clock iic_clk [get_ports {padout}]
+
+set_output_delay [expr 0.96 * $SCL_PERIOD / 2] -clock rd_clk -clock_fall [get_ports {bit_sel[*]}]
+set_output_delay [expr 0.96 * $SCL_PERIOD / 2] -clock rd_clk -clock_fall [get_ports {tcode_sel}]
+set_output_delay [expr 0.30 * $SCL_PERIOD / 2] -clock rd_clk -clock_fall [get_ports {tm_icell tm_iref}]
+
+
+set_output_delay [expr 0.96 * $TIMER_CLK_PERIOD/ 1] -clock timer_clk -clock_fall [get_ports {bit_sel[*]}] -add_delay
+set_output_delay [expr 0.96 * $TIMER_CLK_PERIOD/ 1] -clock timer_clk -clock_fall [get_ports {ee_addr[*]}] -add_delay
+set_output_delay [expr 0.70 * $TIMER_CLK_PERIOD/ 1] -clock timer_clk -clock_fall [get_ports {erase write pumpen ee_wbusy clr_hv tr}]
+set_output_delay [expr 0.70 * $TIMER_CLK_PERIOD/ 1] -clock timer_clk -clock_fall [get_ports {op[*] op_n[*]}]
+set_output_delay [expr 0.70 * $TIMER_CLK_PERIOD/ 1] -clock timer_clk -clock_fall [get_ports {a0_out a1_out a2_out}]
+set_output_delay [expr 0.70 * $TIMER_CLK_PERIOD/ 1] -clock timer_clk -clock_fall [get_ports {ee_32k_en_out}]
+set_output_delay [expr 0.70 * $TIMER_CLK_PERIOD/ 1] -clock timer_clk -clock_fall [get_ports {swpen_n_out}]
+set_output_delay [expr 0.70 * $TIMER_CLK_PERIOD/ 1] -clock timer_clk -clock_fall [get_ports {por_cfg_done}]
+set_output_delay [expr 0.70 * $TIMER_CLK_PERIOD/ 1] -clock timer_clk -clock_fall [get_ports {timer_en}]
 
 ##---------------------------------------------------------------------------------------------------
 ## 4.3 the max/min delay
@@ -189,4 +233,7 @@ set_output_delay [expr 0.8 * 2 * $CLK_PERIOD] -clock div_4_clk [get_ports test_o
 #set_dont_touch [get_cells -filter "full_name =~ dont_touch_*" -hier]
 #set_dont_touch clk_inst/sdsd_buf*sa*clk
 
+set_dont_touch clk_rst_inst/sda_in_clk_dly_inst/*
+set_dont_touch clk_rst_inst/rd_clk_dly_inst/*
+set_dont_touch spare_inst/*
 

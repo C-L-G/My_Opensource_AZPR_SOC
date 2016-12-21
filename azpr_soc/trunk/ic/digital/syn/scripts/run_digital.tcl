@@ -1,4 +1,3 @@
-#!/usr/local/bin/perl
 #****************************************************************************************************  
 #*----------------Copyright (c) 2016 C-L-G.FPGA1988.Roger Wang. All rights reserved------------------
 #
@@ -9,7 +8,7 @@
 #**************************************************************************************************** 
 #File Information
 #**************************************************************************************************** 
-#File Name      : cklog 
+#File Name      : run_digital.tcl
 #Project Name   : scripts
 #Description    : The simulation script for nc-verilog : environment and parameter.
 #Github Address : https://github.com/C-L-G/scripts/script_header.txt
@@ -24,11 +23,12 @@
 #Version Number : 001   
 #Last Commit    : 03-07-2016 14:30(1th Sun,July,2016)
 #**************************************************************************************************** 
-#Revison History
+#Revison History    (latest change first)
+#yyyy.mm.dd - Author - Your log of change
 #**************************************************************************************************** 
-#27.07.2016 - Roger Wang - Add the nolib argument.
-#03.07.2016 - Roger Wang - Add the File information and the version info.
-#02.07.2016 - Roger Wang - The initial version.
+#2016.07.27 - Roger Wang - Add the nolib argument.
+#2016.07.03 - Roger Wang - Add the File information and the version info.
+#2016.07.02 - Roger Wang - The initial version.
 #*---------------------------------------------------------------------------------------------------
 
 ##***************************************************************************************************
@@ -37,9 +37,23 @@
 #1.1 get the date and hostname of the host
 sh date
 sh hostname
+
+
+#1.2 set the name_rule
+define_name_rules verilog -case_insensitive -check_bus_indexing
+define_name_rules verilog -allowed {a-z 0-9 _} -type net
+define_name_rules verilog -allowed {a-z 0-9 A-Z [] _} -type port
+define_name_rules verilog -first_restricted {0-9 _} -type net
+define_name_rules verilog -first_restricted {0-9 _} -type port
+set default_name_rules verilog
+
+
 #1.2 set the normal path
 set SCRIPTS_DIR "scripts"
 set REPORTS_DIR "reports"
+set RESULTS_DIT "results"
+
+
 #The space is necessary beyween (if and {) and ({ and }) and ({ and [) ...
 if { ! [file exists ../$REPORTS_DIR] } {
     file mkdir ../$REPORTS_DIR
@@ -49,7 +63,7 @@ if { ! [file exists ../$RESULTS_DIR] } {
     file mkdir ../$RESULTS_DIR
 }
 #1.3 set the dc use path
-set RTL_PATH "../../rtl ../../rtl/clk_gen_top ../../rtl/sys_aux_module"
+#set RTL_PATH "../../rtl ../../rtl/clk_gen_top ../../rtl/sys_aux_module"
 
 ##***************************************************************************************************
 ## 2.Set the naming rule
@@ -60,11 +74,18 @@ set RTL_PATH "../../rtl ../../rtl/clk_gen_top ../../rtl/sys_aux_module"
 ## 3.Source the setup up file[library]
 ##***************************************************************************************************
 source -echo -verbose ../$SCRIPTS_DIR/configure.tcl
+#set timing_enable_multiple_clocks_per_reg true
+
+
+file delete ../$REPORTS_DIR/*.*
+
+
+set_svf ../$RESULTS_DIR/${DIGITAL_NAME}_mapped.svf
 
 ##***************************************************************************************************
 ## 4.Read the design
 ##***************************************************************************************************
-set DESIGN_NAME "gt0000_digital_top"
+set topdown 1
 #read file or read containt the analyze+elaborate
 #read can support all format,analyze and eleborate can only support the hdl
 
@@ -78,6 +99,7 @@ elaborate $DESIGN_NAME
 #4.3 set the top name as the current design
 current_design $DESIGN_NAME
 
+#write the unmapped design
 write -f verilog -hier -out ../$RESULTS_DIR/$DESIGN_NAME.GTECH.v
 
 #4.4 link and check the design
@@ -103,6 +125,8 @@ report_wire_load
 #set_driving_cell -cell cell_name all_inputs()
 #set_drive 0 netname
 #wire load mode
+
+set auto_wire_load_selection true
 
 
 ##***************************************************************************************************
@@ -136,8 +160,12 @@ set topdown 1
 uniquify
 
 set_host_options -max_cores 16
-compile_ultra
 
+set loop 5
+while {$loop > 0}{
+    compile_ultra -area
+    set loop [expr $loop-1]
+}
 
 
 ##***************************************************************************************************
