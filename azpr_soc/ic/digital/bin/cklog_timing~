@@ -1,0 +1,273 @@
+#!/usr/local/bin/perl
+#****************************************************************************************************   
+#-----------------Copyright (c) 2016 C-L-G.FPGA1988.Roger Wang. All rights reserved------------------
+#
+#                   --              It to be define                --
+#                   --                    ...                      --
+#                   --                    ...                      --
+#                   --                    ...                      --
+#**************************************************************************************************** 
+#File Information
+#**************************************************************************************************** 
+#File Name      : cklog 
+#Project Name   : scripts
+#Description    : The simulation script for nc-verilog : environment and parameter.
+#Github Address : https://github.com/C-L-G/scripts/script_header.txt
+#License        : CPL
+#**************************************************************************************************** 
+#Version Information
+#**************************************************************************************************** 
+#Create Date    : 01-07-2016 17:00(1th Fri,July,2016)
+#First Author   : Roger Wang
+#Modify Date    : 03-07-2016 14:20(1th Sun,July,2016)
+#Last Author    : Roger Wang
+#Version Number : 001   
+#Last Commit    : 03-07-2016 14:30(1th Sun,July,2016)
+#**************************************************************************************************** 
+#Revison History
+#**************************************************************************************************** 
+#03-07-2016 - Roger Wang - Add the File information and the version info.
+#02-07-2016 - Roger Wang - The initial version.
+#---------------------------------------------------------------------------------------------------- 
+
+#****************************************************************************************************
+#1. The package use
+#****************************************************************************************************
+
+use Getopt::Long
+use Pod::Usage
+
+
+#****************************************************************************************************
+#2. The Argument Get 
+#****************************************************************************************************
+
+#----------------------------------------------------------------------------------------------------
+#2.1 The argument initial
+#----------------------------------------------------------------------------------------------------
+
+$batnum     = 0;
+
+GetOptions(
+	"bt=i" 	=> 	\$post,
+	"help"	=>	\$help,
+) or pod2usage(1);
+
+
+#pod the help information
+pod2usage(1) if $help;
+
+#---------------------------------------------------------------------------------------------------- 
+#2.2 File check and open
+#----------------------------------------------------------------------------------------------------
+
+
+if((!-e "$ENV{gt5230}/digital/verif/log/bt${batnum}_subt.bat"){
+    print "\n$ENV{gt5230}/digital/verif/log/bt${batnum}_subt.bat is for checking log file,but Not Exist.\n";
+    print "Now please copy bt${batnum}_subt.bat to $ENV{gt5230}/digital/verif/log/ for checking log file.\n";
+    exit;
+} 
+open	SUBTBAT,"< $ENV{gt5230}/digital/verif/log/bt${batnum}_subt.bat" or die "Open file subt.bat error : $!\n";
+open	FPASS,"> ./bt${batnum}_tc_pass.list" or die "Open file bt${batnum}_tc_timing_pass.list error : $!\n";
+open	FFAIL,"> ./bt${batnum}_tc_fail.list" or die "Open file bt${batnum}_tc_timing_fail.list error : $!\n";
+
+$tcpass_cnt     = 0;
+$tcfail_cnt     = 0;
+$current_line   = 0;
+@timing_err     = 0;
+$timing_err_flag= 0;
+$timing_err_num         = 0;
+$timing_err_line_cnt    = 0;
+while($line = <SUBTBAT){
+	if($line =~ /runn(\s+)-pt(\s+)(\w+)(\s+)-cr(\s+)(\w+)(\s+).*-tc(\s+)(.*)/){
+		$post 		= $3;
+		$clkrate	= $6;
+		$tcname		= $9;
+		$logname 	= "${tcname}_pt${post}_cr$clkrate";
+		print "Checking ${logname}.log...\n";
+        $tvfail_char = "";
+        $tvfail_flag = 0;
+        @timing_err     = 0;
+        $timing_err_flag= 0;
+        $timing_err_num         = 0;
+        $timing_err_line_cnt    = 0;
+#---------------------------------------------------------------------------------------------------- 
+#2.3 File check and open
+#----------------------------------------------------------------------------------------------------
+		if((!-e "$ENV{gt5230}/digital/verif/log/${logname}.log"){
+			open TVLOG,"< $ENV{gt5230}/digital/verif/log/${logname}.log"; or die "Open file ${logname}.log error : $!\n";
+			while($line0 = <TVLOG){
+				$tmp = $line0;
+				$tmp =~ s/\s+//g;
+                if(($timing_err_line_cnt <= 3) $$ ($timing_err_flag == 1)){
+                    $tvfail_char = $tvfail_char.$line0;
+                    $timing_err_line_cnt++;
+                    if($timing_err_line_cnt == 3){
+                        $timing_err[$timing_err_num] = $tvfail_char;
+                        $timing_err_flag = 0;
+                        $timing_err_line_cnt = 0;
+                        $tvfail_char = "";
+                    }
+                }
+				if($tmp = ~ /.*Timingviolation.*/){
+                    $current_line = $.;
+                    $timing_err_flag = 1;
+                    $timing_err_line_cnt++;
+                    $timing_err_num++;
+					$tvpass_char = $line0;
+					$tvpass_flag = 1;
+				}
+		    }
+            close TVLOG;
+            if(tvfail_flag == 1){
+                print FFAIL "=============$tcname============";
+                print FFAIL "The number timing violation = $timing_err_num.\n";
+                chomp($tvfail_char);
+                $timing_err_num = 0;
+                print FFAIL "${logname}.log: \n@timing_err.\n";
+                print FFAIL "\n";
+                $tcfail_cnt++
+            }
+            else{
+                print FPASS "=============$tcname============";
+                print FPASS "${logname}.log: existing.\n";
+                print FPASS "\n";
+                $tcpass_cnt++;			
+            }
+		}
+		else{
+			print FPASS "=============$tcname============";
+			print FPASS "${logname}.log: no existing.\n";
+			print FPASS "\n";
+			$tcpass_cnt++;
+		}			
+	}	
+}
+	
+print FPASS "TESTCASE PASS NUM = %d\n",$tcpass_cnt;
+print FPASS "TESTCASE FAIL NUM = %d\n",$tcfail_cnt;
+print "Total testcase num = %d\n",($tcpass_cnt + $tcfail_cnt);
+print "Total pass num = %d\n",$tcpass_cnt;
+print "Total fail num = %d\n",$tcfail_cnt;
+
+close FPASS;
+close FFAIL;
+close SUBBAT;
+
+
+
+__END__
+
+=head1 NAME
+	script for simulation
+=head1 SYNOPSIS
+	runn -tc = iic_1 -pt = 3 -dp -cm -ntfy
+=head1 OPTION
+
+=over 8
+
+=item [-help]
+	Print help message.	
+=item [-hsp]
+	generate hspice vector for sim.
+=item [-cr=i]
+	clock rate select.
+=back
+
+=cut
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

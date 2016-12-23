@@ -1,0 +1,109 @@
+#!/bin/csh -f
+
+
+#****************************************************************************************************   
+#-----------------Copyright (c) 2016 C-L-G.FPGA1988.Roger Wang. All rights reserved------------------
+#
+#                   --              It to be define                --
+#                   --                    ...                      --
+#                   --                    ...                      --
+#                   --                    ...                      --
+#**************************************************************************************************** 
+#File Information
+#**************************************************************************************************** 
+#File Name      : runn 
+#Project Name   : scripts
+#Description    : The simulation script for nc-verilog : environment and parameter.
+#Github Address : https://github.com/C-L-G/scripts/script_header.txt
+#License        : CPL
+#**************************************************************************************************** 
+#Version Information
+#**************************************************************************************************** 
+#Create Date    : 01-07-2016 17:00(1th Fri,July,2016)
+#First Author   : Roger Wang
+#Modify Date    : 03-07-2016 14:20(1th Sun,July,2016)
+#Last Author    : Roger Wang
+#Version Number : 001   
+#Last Commit    : 03-07-2016 14:30(1th Sun,July,2016)
+#**************************************************************************************************** 
+#Revison History
+#**************************************************************************************************** 
+#03.07.2016 - Roger Wang - Add the File information and the version info.
+#02.07.2016 - Roger Wang - The initial version.
+#---------------------------------------------------------------------------------------------------- 
+
+#****************************************************************************************************
+#1. The package use
+#****************************************************************************************************
+
+echo " "
+tput bold
+echo "**** Runing testcase $1 ...... ****"
+tput rmso
+echo " "
+
+#****************************************************************************************************
+#2. The Argument Get 
+#****************************************************************************************************
+set SIM = "ncverilog"
+set simarg = ""
+#*----------------------------------------------------------------------------------------------------
+#2.1 The argument initial
+#*----------------------------------------------------------------------------------------------------
+if ($3 == "nc" || $4 == "nc" || $5 == "nc" || $6 == "nc"|| $7 == "nc" || $8 == "nc" || $9 == "nc" || $10 == "nc" || $11 == "nc" || $12 == "nc") then
+	set simarg = "$simarg +define+NORMALCASE"
+	echo "*************************NORMAL TEST*********************"
+endif
+if ($3 == "fsdb" || $4 == "fsdb" || $5 == "fsdb" || $6 == "fsdb"|| $7 == "fsdb" || $8 == "fsdb" || $9 == "fsdb" || $10 == "fsdb" || $11 == "fsdb" || $12 == "fsdb") then
+	set simarg = "$simarg +define+fsdb"
+	echo "*************************NORMAL TEST*********************"
+endif
+if ($3 == "lv" || $4 == "lv" || $5 == "lv" || $6 == "lv"|| $7 == "lv" || $8 == "lv" || $9 == "lv" || $10 == "lv" || $11 == "lv" || $12 == "lv") then
+	set simarg = "$simarg +define+lv"
+endif
+if ($3 == "hsim" || $4 == "hsim" || $5 == "hsim" || $6 == "hsim"|| $7 == "hsim" || $8 == "hsim" || $9 == "hsim" || $10 == "hsim" || $11 == "hsim" || $12 == "hsim") then
+	set simarg = "$simarg +define+hsim"
+endif
+if ($3 == "hsp" || $4 == "hsp" || $5 == "hsp" || $6 == "hsp"|| $7 == "hsp" || $8 == "hsp" || $9 == "hsp" || $10 == "hsp" || $11 == "hsp" || $12 == "hsp") then
+	set simarg = "$simarg +define+hsp"
+endif
+if ($3 == "hold" || $4 == "hold" || $5 == "hold" || $6 == "hold"|| $7 == "hold" || $8 == "hold" || $9 == "hold" || $10 == "hold" || $11 == "hold" || $12 == "hold") then
+	set simarg = "$simarg +define+hold"
+endif
+
+if ($3 == "cm" || $4 == "cm" || $5 == "cm" || $6 == "cm"|| $7 == "cm" || $8 == "cm" || $9 == "cm" || $10 == "cm" || $11 == "cm" || $12 == "cm") then
+	set simarg = "$simarg +nccoverage+all -covwork cov_work"
+endif
+
+
+if ($3 == "ptgt" || $4 == "ptgt" || $5 == "ptgt" || $6 == "ptgt"|| $7 == "ptgt" || $8 == "ptgt" || $9 == "ptgt" || $10 == "ptgt" || $11 == "ptgt" || $12 == "ptgt") then
+	set simarg = "$simarg +define+NRTL +notimingcheck +nospecify"
+endif
+if ($3 == "ptmin" || $4 == "ptmin" || $5 == "ptmin" || $6 == "ptmin"|| $7 == "ptmin" || $8 == "ptmin" || $9 == "ptmin" || $10 == "ptmin" || $11 == "ptmin" || $12 == "ptmin") then
+	set simarg = "$simarg +define+NRTL+POSTMIN+compsdf+sdfverbose+neg_tchk"
+endif
+if ($3 == "pttyp" || $4 == "pttyp" || $5 == "pttyp" || $6 == "pttyp"|| $7 == "pttyp" || $8 == "pttyp" || $9 == "pttyp" || $10 == "pttyp" || $11 == "pttyp" || $12 == "pttyp") then
+	set simarg = "$simarg +define+NRTL+POSTTYP+compsdf+sdfverbose+neg_tchk"
+endif
+if ($3 == "ptmax" || $4 == "ptmax" || $5 == "ptmax" || $6 == "ptmax"|| $7 == "ptmax" || $8 == "ptmax" || $9 == "ptmax" || $10 == "ptmax" || $11 == "ptmax" || $12 == "ptmax") then
+	set simarg = "$simarg +define+NRTL+POSTMAX+compsdf+sdfverbose+neg_tchk"
+endif
+if ($3 == "ntfy" || $4 == "ntfy" || $5 == "ntfy" || $6 == "ntfy"|| $7 == "ntfy" || $8 == "ntfy" || $9 == "ntfy" || $10 == "ntfy" || $11 == "ntfy" || $12 == "ntfy") then
+	set simarg = "$simarg +no_notifier"
+endif
+
+set OSTYPE = `unname`
+
+if($OSTYPE == "Linux") then
+	set OSTYPE = "LINUX"
+else
+	set OSTYPE = "SOL7_32bit"
+endif
+
+echo $OSTYPE
+
+$SIM +loadplil = /tool/tmp/novas/verdi/share/PLI/nc61/LINUX/nc_loadplil/debpli_boot \
+-l tv.log \
+$simarg \
++access+wrc+licq+name+$1 \
+-f $2

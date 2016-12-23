@@ -1,0 +1,341 @@
+#!/usr/local/bin/perl
+#****************************************************************************************************   
+#-----------------Copyright (c) 2016 C-L-G.FPGA1988.Roger Wang. All rights reserved------------------
+#
+#                   --              It to be define                --
+#                   --                    ...                      --
+#                   --                    ...                      --
+#                   --                    ...                      --
+#**************************************************************************************************** 
+#File Information
+#**************************************************************************************************** 
+#File Name      : runn 
+#Project Name   : scripts
+#Description    : The simulation script for nc-verilog : environment and parameter.
+#Github Address : https://github.com/C-L-G/scripts/script_header.txt
+#License        : CPL
+#**************************************************************************************************** 
+#Version Information
+#**************************************************************************************************** 
+#Create Date    : 01-07-2016 17:00(1th Fri,July,2016)
+#First Author   : Roger Wang
+#Modify Date    : 03-07-2016 14:20(1th Sun,July,2016)
+#Last Author    : Roger Wang
+#Version Number : 001   
+#Last Commit    : 03-07-2016 14:30(1th Sun,July,2016)
+#**************************************************************************************************** 
+#Revison History
+#**************************************************************************************************** 
+#03.07.2016 - Roger Wang - Add the File information and the version info.
+#02.07.2016 - Roger Wang - The initial version.
+#---------------------------------------------------------------------------------------------------- 
+
+#****************************************************************************************************
+#1. The package use
+#****************************************************************************************************
+
+use Getopt::Long
+use Pod::Usage
+
+
+#****************************************************************************************************
+#2. The Argument Get 
+#****************************************************************************************************
+
+#----------------------------------------------------------------------------------------------------
+#2.1 The argument initial
+#----------------------------------------------------------------------------------------------------
+
+$simargs 	= "";
+$verdiargs 	= "";
+$post 		= 5;
+$clkrate 	= 0;
+
+GetOptions(
+	"tc=s" 	=> 	\$tcname,
+	"pt=i" 	=> 	\$post,
+	"emu"  	=> 	\$emu,
+	"dp"	=> 	\$dump,
+	"cm"	=>	\$coverage,
+	"ntfy"	=>	\$notifier,
+	"help"	=>	\$help,
+	"hsim"	=>	\$hsim,
+	"hsp"	=>	\$hsp,
+	"cr=i"	=>	\$clkrate,	
+) or pod2usage(1);
+
+#new add for the no tc parameter
+if(($tcname eq "") && ($help eq "")){
+	print "";
+	print "";
+	print "";
+	print "";
+	exit;		
+}
+
+#pod the help information
+pod2usage(1) if $help;
+
+#FPGA and ASIC
+if($emu){
+	$rtlpath 	= "$ENV{gt5230}/fpga/src/rtl";
+	$tcpath 	= "$ENV{gt5230}/fpga/tc";
+	$tbpath 	= "$ENV{gt5230}/fpga/tb";
+	$modelpath 	= "$ENV{gt5230}/fpga/model";
+	$flistpath 	= "$ENV{gt5230}/fpga/flist";
+}
+else{
+	$rtlpath 	= "$ENV{gt5230}/digital/rtl";
+	$tcpath 	= "$ENV{gt5230}/digital/verif/tc";
+	$tbpath 	= "$ENV{gt5230}/digital/verif/tb";
+	$libpath 	= "$ENV{gt5230}/digital/verif/lib";
+	$vecpath 	= "$ENV{gt5230}/digital/hspice/stimulus";
+	$hsimpath 	= "$ENV{gt5230}/digital/verif/hsim/stimulus";
+	$modelpath 	= "$ENV{gt5230}/digital/verif/model";
+	$flistpath 	= "$ENV{gt5230}/digital/verif/flist";
+}
+if($emu){
+	print "Emulation Simulation!\n";
+}
+else{
+	print "ASIC Simulation!\n";
+}
+
+
+if((!e "$tcpath/$tcname/") || !($tcname)){
+	print "";
+	print "";
+	exit;
+}
+
+#change the work path to tcname. 
+#因为有上面的判断，所以这句话是不是多余的？
+chdir "$tbpath/$tcname" or die "cannot chdir to $tcname : $!";
+
+print "\n**********************Simulation Options************************\n";
+print "\n";
+
+print "## Test case name = $tcname\n";
+
+#----------------------------------------------------------------------------------------------------
+#2.2 Load the file list
+#----------------------------------------------------------------------------------------------------
+
+#Load the file list
+if($post eq 0){
+	$simargs = " ./gtl_simp.f";
+}
+#下面是进行post = 1 2 3的匹配，不能简单写成 == [123]，这样不能进行匹配，而是直接判断，匹配必须要用=~
+#也不能写成 =~ [123],因为这会匹配类似14、25、33、356这种数字，必须要用^和$这两个元字符/锚定符来进行限制
+#也可以写成 ($post == 1) || ($post == 2) || ($post == 3)
+elsif($post =~ /^[123]$/){
+	$simargs = " ./pst_simp.f";
+}
+else{
+	$simargs = " .rtl_simp.f";
+}
+
+
+#----------------------------------------------------------------------------------------------------
+#2.3 The clock rate select
+#----------------------------------------------------------------------------------------------------
+#The follow 3 speed is for IIC
+if($clkrate == 0){
+	print "## IIC 2.5V testcase;clk rate = 400KHz.\n";
+	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
+}
+elsif($clkrate == 1){
+	print "## IIC 2.5V testcase;clk rate = 400KHz.\n";
+	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
+}
+elsif($clkrate == 2){
+	print "## IIC 2.5V testcase;clk rate = 400KHz.\n";
+	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
+}
+#The follow 3 speed is for SPI
+elsif($clkrate == 3){
+	print "## SPI 2.5V testcase;clk rate = 5MHz.\n";
+	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
+}
+elsif($clkrate == 4){
+	print "## SPI 4.0V testcase;clk rate = 10MHz.\n";
+	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
+}
+elsif($clkrate == 5){
+	print "## SPI 5.5V testcase;clk rate = 20MHz.\n";
+	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
+}
+#Default
+else{
+	print "## SPI 5.5V testcase;clk rate = 20MHz.\n";
+	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
+}
+
+
+#----------------------------------------------------------------------------------------------------
+#2.3 dump/hsim/hsp/coverage/post/ntfy arguments
+#----------------------------------------------------------------------------------------------------
+
+#2.3.1 dump
+if($dump){
+	print "## Dump fsdb file.\n";
+	$simargs 	= "$simargs" . " fsdb";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+fsdb\n";
+}
+else{
+	print "## No dump file.\n";
+}
+#2.3.2 hsim
+if($hsim){
+	print "## Gen hsim file.\n";
+	$simargs 	= "$simargs" . " hsim";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+hsim\n";
+}
+else{
+	print "## No required to generate the hsim vector file.\n";
+}
+#2.3.3 hspice
+if($hsp){
+	print "## Gen hspice file.\n";
+	$simargs 	= "$simargs" . " hsp";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+hsp\n";
+}
+else{
+	print "## No required to generate the hspice vector file.\n";
+}
+#2.3.4 coverage
+if($hsp){
+	print "## Gen coverage file.\n";
+	$simargs 	= "$simargs" . " cm";	#. is the same as the verilog : {a,a}.
+#	$verdiargs	= "$verdiargs" . "+define+hsp\n";
+}
+else{
+	print "## No required to generate the coverage file.\n";
+}
+#2.3.5 post and ntfy
+
+
+
+
+__END__
+
+=head1 NAME
+	script for simulation
+=head1 SYNOPSIS
+	runn -tc = iic_1 -pt = 3 -dp -cm -ntfy
+=head1 OPTION
+
+=over 8
+
+=item [-help]
+	Print help message.	
+=item [-hsp]
+	generate hspice vector for sim.
+=item [-cr=i]
+	clock rate select.
+=back
+
+=cut
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
