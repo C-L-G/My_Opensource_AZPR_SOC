@@ -41,7 +41,7 @@
 // 1.Interface
 //************************************************************************************************
 interface soc_if(
-    input   logic           sclk
+    input   logic           sclk     
 );
     logic   [00:00]         pad1    ;
     logic   [15:00]         bus_addr;
@@ -64,9 +64,12 @@ interface soc_if(
         input               sdi     ,
         output              scl     ,
         output              wp
-    
     );
     
+    modport uart(
+        output              uart_tx ,
+        input               uart_rx  
+    );
 
 
 endinterface

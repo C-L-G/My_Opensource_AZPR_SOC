@@ -45,12 +45,15 @@ class Driver;
     //------------------------------------------------------------------------------------------------
     //1.1 Interface define
     //------------------------------------------------------------------------------------------------
-    virtual ee_if.iic iic_if        ; 
+    virtual ee_if.iic   iic_if          ; 
+    virtual ee_if.uart  uart_if         ; 
+    
     //------------------------------------------------------------------------------------------------
     //1.2 Class and varialbe define
     //------------------------------------------------------------------------------------------------   
     static int          count = 0   ; 
     int                 id          ;
+    bit                 uart_clk    ;
 
     //------------------------------------------------------------------------------------------------
     //1.3 mailbox define
@@ -58,11 +61,24 @@ class Driver;
     mailbox             g2d         ;
     mailbox             d2m         ;
 
-    
+     
 
     //------------------------------------------------------------------------------------------------
-    //1.4 function and task define
+    //1.4 uart function and task define
     //------------------------------------------------------------------------------------------------  
+
+    extern function uart_baud_set(input bit [15:00] baud_val,output bit uart_clk);
+    extern function uart_byte_send(input bit [07:00] data);
+    extern function uart_byte_receive(output bit [07:00] data);
+
+    //------------------------------------------------------------------------------------------------
+    //1.5 iic function and task define
+    //------------------------------------------------------------------------------------------------  
+    
+    
+    
+    
+    
     extern function new(virtual ee_if.iic iic_if,mailbox g2d_i,d2m_i);
     extern task set_dev_addr_iic(input bit [02:00] dev_addr);
     extern task send_start_iic();
@@ -96,10 +112,6 @@ endclass : Driver
 //************************************************************************************************
 //2.Task and function
 //************************************************************************************************
-
-//------------------------------------------------------------------------------------------------
-//2.1 new function
-//------------------------------------------------------------------------------------------------
 function Driver::new(virtual ee_if.iic iic_if_i,mailbox g2d_i,d2m_i);
     id       = count++;
     iic_if   = iic_if_i;
@@ -107,6 +119,43 @@ function Driver::new(virtual ee_if.iic iic_if_i,mailbox g2d_i,d2m_i);
     this.d2m = d2m_i;
     $display("id = %d.",id);
 endfunction
+
+function Driver::uart_baud_set(input bit [15:00] baud_val,output bit uart_clk);
+    logic   [15:00]     baud_div    ;    
+    logic   [15:00]     baud_period ;
+    logic               uart_en     ;
+    uart_en     = 1'b1;
+    baud_period = 1_000_000_000/baud_val;
+    while(uart_en) begin
+        for(int i=0;i<baud_period;i++)
+            if((i == baud_period/2-1) | (i == baud_period - 1))
+                uart_clk = ~uart_clk;
+            else
+                uart_clk = uart_clk;
+    end
+endfunction
+
+function Driver::uart_byte_send(input bit [07:00] data);
+    for(int i = 8;i > 0;i--)
+        @(posedge uart_clk)
+            uart_if.uart_tx = data[i-1];
+endfunction
+
+function Driver::uart_byte_receive(output bit [07:00] data);
+    for(int i = 8;i > 0;i--)
+        @(posedge uart_clk)
+            data[i-1] = uart_if.uart_rx;
+endfunction
+
+
+
+
+
+
+
+//------------------------------------------------------------------------------------------------
+//2.1 new function
+//------------------------------------------------------------------------------------------------
 
 task Driver::set_dev_addr_iic(input bit [02:00] dev_addr);
     $display("set the iic slave device address = %b.",dev_addr);
