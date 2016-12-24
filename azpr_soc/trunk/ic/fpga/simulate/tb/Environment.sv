@@ -50,7 +50,8 @@ class Environment;
     //------------------------------------------------------------------------------------------------
     //1.1 Interface define
     //------------------------------------------------------------------------------------------------
-    virtual soc_if.iic  iic_if  ;
+//    virtual soc_if soc_if       ;
+//    virtual soc_if.uart uart_if ;
     
     //------------------------------------------------------------------------------------------------
     //1.2 Class define
@@ -73,7 +74,7 @@ class Environment;
     //------------------------------------------------------------------------------------------------
     //1.4 function and task define
     //------------------------------------------------------------------------------------------------  
-    extern function new(virtual soc_if.iic iic_if);
+    extern function new(virtual soc_if soc_if_i);
     
 
 endclass
@@ -85,15 +86,15 @@ endclass
 //------------------------------------------------------------------------------------------------
 //2.1 new
 //------------------------------------------------------------------------------------------------
-function Environment::new(virtual soc_if.iic iic_if);
-    iic_if.sdo  = 1;
+function Environment::new(virtual soc_if soc_if_i);
+//    iic_if.sdo  = 1;
     g2d         = new();
     g2s         = new();
     d2m         = new();
     m2s         = new();
-    drv         = new(iic_if,g2d,d2m);
+    drv         = new(soc_if_i,g2d,d2m);
     gen         = new(g2d,g2s);
-    mon         = new(iic_if,d2m,d2m);
+    mon         = new(soc_if_i,d2m,d2m);
     sb          = new(d2m,g2s);
 endfunction
 

@@ -46,8 +46,9 @@ class Driver;
     //------------------------------------------------------------------------------------------------
     //1.1 Interface define
     //------------------------------------------------------------------------------------------------
-    virtual soc_if.iic   iic_if          ; 
-    virtual soc_if.uart  uart_if         ; 
+//    virtual soc_if      soc_if          ; 
+    virtual soc_if.iic  iic_if          ; 
+    virtual soc_if.uart uart_if         ; 
     
     //------------------------------------------------------------------------------------------------
     //1.2 Class and varialbe define
@@ -68,9 +69,12 @@ class Driver;
     //1.4 uart function and task define
     //------------------------------------------------------------------------------------------------  
 
-    extern task uart_baud_set(input bit [15:00] baud_val,output bit uart_clk);
+    extern task uart_start_send();
+    extern task uart_baud_set(input bit [31:00] baud_val);
     extern task uart_byte_send(input bit [07:00] data);
     extern task uart_byte_receive(output bit [07:00] data);
+    extern task uart_stop_send();
+    extern task uart_frame_send(input bit [15:00] len);
 
     //------------------------------------------------------------------------------------------------
     //1.5 iic function and task define
@@ -80,7 +84,7 @@ class Driver;
     
     
     
-    extern function new(virtual soc_if.iic iic_if_i,mailbox g2d_i,d2m_i);
+    extern function new(virtual soc_if soc_if_i,mailbox g2d_i,d2m_i);
 //    extern task set_dev_addr_iic(input bit [02:00] dev_addr);
 //    extern task send_start_iic();
  //   extern task send_error_start_iic();
@@ -114,33 +118,46 @@ endclass : Driver
 //************************************************************************************************
 //2.Task and function
 //************************************************************************************************
-function Driver::new(virtual soc_if.iic iic_if_i,mailbox g2d_i,d2m_i);
+function Driver::new(virtual soc_if soc_if_i,mailbox g2d_i,d2m_i);
     id       = count++;
-    iic_if   = iic_if_i;
+    iic_if   = soc_if_i.iic;
+    uart_if  = soc_if_i.uart;
     this.g2d = g2d_i;
     this.d2m = d2m_i;
     $display("id = %d.",id);
 endfunction
 
-task Driver::uart_baud_set(input bit [15:00] baud_val,output bit uart_clk);
+task Driver::uart_baud_set(input bit [31:00] baud_val);
     logic   [15:00]     baud_div    ;    
     logic   [15:00]     baud_period ;
     logic               uart_en     ;
+    $display("baud_val = %dHz.",baud_val);
     uart_en     = 1'b1;
+    uart_clk    = 1'b1;
     baud_period = 1_000_000_000/baud_val;
+    $display("baud_period = %d.",baud_period);
     while(uart_en) begin
-        for(int i=0;i<baud_period;i++)
-            if((i == baud_period/2-1) | (i == baud_period - 1))
-                uart_clk = ~uart_clk;
-            else
-                uart_clk = uart_clk;
+        //#(baud_period/2-1);
+        #500;
+        //$display("uart_clk = %b.",uart_clk);
+        uart_clk = ~uart_clk;
     end
 endtask
 
+task Driver::uart_start_send();
+    $display("uart send start.");
+    $display("uart_clk = %b.",uart_clk);
+    @(posedge uart_clk)
+        uart_if.uart_tx = 1'b0;
+    $display("uart send start end.");
+endtask
+
 task Driver::uart_byte_send(input bit [07:00] data);
-    for(int i = 8;i > 0;i--)
+    for(int i = 8;i > 0;i--) begin
         @(posedge uart_clk)
             uart_if.uart_tx = data[i-1];
+            $display("uart_tx = %b.",uart_if.uart_tx);
+    end
 endtask
 
 task Driver::uart_byte_receive(output bit [07:00] data);
@@ -149,7 +166,22 @@ task Driver::uart_byte_receive(output bit [07:00] data);
             data[i-1] = uart_if.uart_rx;
 endtask
 
+task Driver::uart_stop_send();
+    @(posedge uart_clk)
+        uart_if.uart_tx = 1'b1;
+endtask
 
+
+task Driver::uart_frame_send(input bit [15:00] len);
+    logic   [07:00] data = 8'd0;
+    uart_start_send();
+    for(int i=0;i<len;i++) begin
+        $display("send frame %0dst data = %d.",i,data);
+        uart_byte_send(data); 
+        data = data + 1'b1;
+    end
+    uart_stop_send();
+endtask
 
 //------------------------------------------------------------------------------------------------
 //2.1 new function

@@ -64,7 +64,7 @@ class Monitor;
     //------------------------------------------------------------------------------------------------
     //1.4 function and task define
     //------------------------------------------------------------------------------------------------  
-    extern function new(virtual soc_if.iic iic_if_i,mailbox d2m_i,m2s_i);
+    extern function new(virtual soc_if soc_if_i,mailbox d2m_i,m2s_i);
 //    extern task recv_data();
     
 
@@ -77,8 +77,8 @@ endclass : Monitor
 //------------------------------------------------------------------------------------------------
 //2.1 new function
 //------------------------------------------------------------------------------------------------
-function Monitor::new(virtual soc_if.iic iic_if_i,mailbox d2m_i,m2s_i);
-    this.iic_if = iic_if_i;
+function Monitor::new(virtual soc_if soc_if_i,mailbox d2m_i,m2s_i);
+    this.iic_if = soc_if_i.iic;
     this.d2m    = d2m_i;
     this.m2s    = m2s_i;
 endfunction
