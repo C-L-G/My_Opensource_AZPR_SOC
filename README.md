@@ -25,6 +25,7 @@
 # 更新记录
 ```
 yyyy.mm.dd - Author - xxxx
+2016.12.24 - 离场悲剧 - 初步的modelsim仿真环境搭建完毕，接下来准备test case.
 2016.12.08 - 离场悲剧 - 修改RTL并在ISE下完成初步的综合.
 2016.12.03 - 离场悲剧 - 更改目录结构,添加gitignore文件来对.DS_Store进行忽略.
 2016.12.02 - 离场悲剧 - 添加testbench组件 : mon sb drv and interface.
