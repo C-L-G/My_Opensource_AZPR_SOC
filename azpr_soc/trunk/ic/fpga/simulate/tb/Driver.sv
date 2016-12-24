@@ -40,13 +40,14 @@
 //************************************************************************************************
 // 1.Class
 //************************************************************************************************
-
+`define tSU_STA 200
+`define tHD_DAT 10
 class Driver;
     //------------------------------------------------------------------------------------------------
     //1.1 Interface define
     //------------------------------------------------------------------------------------------------
-    virtual ee_if.iic   iic_if          ; 
-    virtual ee_if.uart  uart_if         ; 
+    virtual soc_if.iic   iic_if          ; 
+    virtual soc_if.uart  uart_if         ; 
     
     //------------------------------------------------------------------------------------------------
     //1.2 Class and varialbe define
@@ -67,9 +68,9 @@ class Driver;
     //1.4 uart function and task define
     //------------------------------------------------------------------------------------------------  
 
-    extern function uart_baud_set(input bit [15:00] baud_val,output bit uart_clk);
-    extern function uart_byte_send(input bit [07:00] data);
-    extern function uart_byte_receive(output bit [07:00] data);
+    extern task uart_baud_set(input bit [15:00] baud_val,output bit uart_clk);
+    extern task uart_byte_send(input bit [07:00] data);
+    extern task uart_byte_receive(output bit [07:00] data);
 
     //------------------------------------------------------------------------------------------------
     //1.5 iic function and task define
@@ -79,41 +80,41 @@ class Driver;
     
     
     
-    extern function new(virtual ee_if.iic iic_if,mailbox g2d_i,d2m_i);
-    extern task set_dev_addr_iic(input bit [02:00] dev_addr);
-    extern task send_start_iic();
-    extern task send_error_start_iic();
-    extern task send_stop_iic();
-    extern task send_error_stop_iic();
-    extern task send_byte_iic(input bit [07:00] data,input bit [02:00] len);
-    extern task send_ack_iic(input bit ack_bit);
-    extern task check_ack_iic(input bit ack_bit);
-    extern task iic_ucmd_polling(output bit ack_bit);
-    extern task iic_compare_byte_read(input bit [07:00] cmd,input bit [15:00] addr,input bit [07:00] data);
-    extern task iic_compare_byte_curr_read(input bit [07:00] cmd,input bit [07:00] data);
-    extern task iic_send_addr(input bit pr_en,input bit [15:00] addr);
+    extern function new(virtual soc_if.iic iic_if_i,mailbox g2d_i,d2m_i);
+//    extern task set_dev_addr_iic(input bit [02:00] dev_addr);
+//    extern task send_start_iic();
+ //   extern task send_error_start_iic();
+//    extern task send_stop_iic();
+//    extern task send_error_stop_iic();
+//    extern task send_byte_iic(input bit [07:00] data,input bit [02:00] len);
+//    extern task send_ack_iic(input bit ack_bit);
+//    extern task check_ack_iic(input bit ack_bit);
+//    extern task iic_ucmd_polling(output bit ack_bit);
+//    extern task iic_compare_byte_read(input bit [07:00] cmd,input bit [15:00] addr,input bit [07:00] data);
+//    extern task iic_compare_byte_curr_read(input bit [07:00] cmd,input bit [07:00] data);
+//    extern task iic_send_addr(input bit pr_en,input bit [15:00] addr);
 
-    extern task iic_random_read(input bit read_pr_en,input bit [15:00] addr_start,input bit [15:00] len);
-    extern task iic_curr_read(input bit [15:00] len,input bit [07:00] recv_data);
+//    extern task iic_random_read(input bit read_pr_en,input bit [15:00] addr_start,input bit [15:00] len);
+//    extern task iic_curr_read(input bit [15:00] len,input bit [07:00] recv_data);
 
-    extern task iic_page_write(input bit write_pr_en,input bit [15:00] addr_start,input bit [15:00] len);
+//    extern task iic_page_write(input bit write_pr_en,input bit [15:00] addr_start,input bit [15:00] len);
 
 
     //test mode command
-    extern task enter_testmode();
-    extern task exit_testmode();
-    extern task iic_tcmd_page_write(input bit [07:00] cmd,input bit [15:00] addr_start,input bit [15:00] len);
-    extern task iic_tcmd_read_curr(input bit [07:00] cmd,input bit [07:00] curr_bit);
-    extern task iic_tcmd_curr_read(input bit [07:00] cmd,input bit [15:00] len);
-    extern task iic_tcmd_dummy_write(input bit [07:00] cmd,input bit [15:00] addr_start);
-    extern task comp_run();
+//    extern task enter_testmode();
+//    extern task exit_testmode();
+//    extern task iic_tcmd_page_write(input bit [07:00] cmd,input bit [15:00] addr_start,input bit [15:00] len);
+//    extern task iic_tcmd_read_curr(input bit [07:00] cmd,input bit [07:00] curr_bit);
+//    extern task iic_tcmd_curr_read(input bit [07:00] cmd,input bit [15:00] len);
+//    extern task iic_tcmd_dummy_write(input bit [07:00] cmd,input bit [15:00] addr_start);
+//    extern task comp_run();
 
 endclass : Driver
 
 //************************************************************************************************
 //2.Task and function
 //************************************************************************************************
-function Driver::new(virtual ee_if.iic iic_if_i,mailbox g2d_i,d2m_i);
+function Driver::new(virtual soc_if.iic iic_if_i,mailbox g2d_i,d2m_i);
     id       = count++;
     iic_if   = iic_if_i;
     this.g2d = g2d_i;
@@ -121,7 +122,7 @@ function Driver::new(virtual ee_if.iic iic_if_i,mailbox g2d_i,d2m_i);
     $display("id = %d.",id);
 endfunction
 
-function Driver::uart_baud_set(input bit [15:00] baud_val,output bit uart_clk);
+task Driver::uart_baud_set(input bit [15:00] baud_val,output bit uart_clk);
     logic   [15:00]     baud_div    ;    
     logic   [15:00]     baud_period ;
     logic               uart_en     ;
@@ -134,26 +135,26 @@ function Driver::uart_baud_set(input bit [15:00] baud_val,output bit uart_clk);
             else
                 uart_clk = uart_clk;
     end
-endfunction
+endtask
 
-function Driver::uart_byte_send(input bit [07:00] data);
+task Driver::uart_byte_send(input bit [07:00] data);
     for(int i = 8;i > 0;i--)
         @(posedge uart_clk)
             uart_if.uart_tx = data[i-1];
-endfunction
+endtask
 
-function Driver::uart_byte_receive(output bit [07:00] data);
+task Driver::uart_byte_receive(output bit [07:00] data);
     for(int i = 8;i > 0;i--)
         @(posedge uart_clk)
             data[i-1] = uart_if.uart_rx;
-endfunction
+endtask
 
 
 
 //------------------------------------------------------------------------------------------------
 //2.1 new function
 //------------------------------------------------------------------------------------------------
-
+/*
 task Driver::set_dev_addr_iic(input bit [02:00] dev_addr);
     $display("set the iic slave device address = %b.",dev_addr);
     iic_if.a0 = dev_addr[0];
@@ -212,10 +213,11 @@ task Driver::recv_byte_iic(input logic mailbox_en,output logic [07:00] recv_data
             $display("d2m num = %d.",d2m.num());
         end
 endtask
-
+*/
 //------------------------------------------------------------------------------------------------
 // 2.2 the send data generator
 //------------------------------------------------------------------------------------------------    
+/*
 task Driver::comp_run();
     logic   [07:00]     m2s_recv    ;
     logic   [07:00]     g2s_recv    ;
@@ -245,23 +247,23 @@ task Driver::comp_run();
             end
             if(~comp_fail)
                 begin
-                    $display("//**************************************************************************//");
+                    $display("//--------------------------------------------------------------------------//");
                     $display("                            Compare success                                   ");
-                    $display("//**************************************************************************//");
+                    $display("//--------------------------------------------------------------------------//");
                 end
             else
                 begin
-                    $display("//**************************************************************************//");
+                    $display("//--------------------------------------------------------------------------//");
                     $display("                            Compare Fail                                      ");
-                    $display("//**************************************************************************//");
+                    $display("//--------------------------------------------------------------------------//");
                 end
         end
     else
         begin
-            $display("//**************************************************************************//");
+            $display("//--------------------------------------------------------------------------//");
             $display("                            Compare Fail                                      ");
-            $display("****The number is different!!!****");
-            $display("//**************************************************************************//");
+            $display("----The number is different!!!----");
+            $display("//--------------------------------------------------------------------------//");
 
         end
 endtask
@@ -274,7 +276,7 @@ task Driver::write_read_comp(input bit [07:00] wdata,input bit [07:00] rdata);
     if(wdata != rdata)
         error = 1;
 endtask
-
+*/
 
 `endif
 //****************************************************************************************************

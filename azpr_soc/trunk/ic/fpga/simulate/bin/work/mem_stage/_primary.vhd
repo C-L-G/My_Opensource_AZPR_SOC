@@ -1,0 +1,43 @@
+library verilog;
+use verilog.vl_types.all;
+entity mem_stage is
+    port(
+        clk             : in     vl_logic;
+        reset           : in     vl_logic;
+        stall           : in     vl_logic;
+        flush           : in     vl_logic;
+        busy            : out    vl_logic;
+        fwd_data        : out    vl_logic_vector(31 downto 0);
+        spm_rd_data     : in     vl_logic_vector(31 downto 0);
+        spm_addr        : out    vl_logic_vector(29 downto 0);
+        spm_as_n        : out    vl_logic;
+        spm_rw          : out    vl_logic;
+        spm_wr_data     : out    vl_logic_vector(31 downto 0);
+        bus_rd_data     : in     vl_logic_vector(31 downto 0);
+        bus_rdy_n       : in     vl_logic;
+        bus_grant_n     : in     vl_logic;
+        bus_req_n       : out    vl_logic;
+        bus_addr        : out    vl_logic_vector(29 downto 0);
+        bus_as_n        : out    vl_logic;
+        bus_rw          : out    vl_logic;
+        bus_wr_data     : out    vl_logic_vector(31 downto 0);
+        ex_pc           : in     vl_logic_vector(29 downto 0);
+        ex_en           : in     vl_logic;
+        ex_br_flag      : in     vl_logic;
+        ex_mem_op       : in     vl_logic_vector(1 downto 0);
+        ex_mem_wr_data  : in     vl_logic_vector(31 downto 0);
+        ex_ctrl_op      : in     vl_logic_vector(1 downto 0);
+        ex_dst_addr     : in     vl_logic_vector(4 downto 0);
+        ex_gpr_we_n     : in     vl_logic;
+        ex_exp_code     : in     vl_logic_vector(2 downto 0);
+        ex_out          : in     vl_logic_vector(31 downto 0);
+        mem_pc          : out    vl_logic_vector(29 downto 0);
+        mem_en          : out    vl_logic;
+        mem_br_flag     : out    vl_logic;
+        mem_ctrl_op     : out    vl_logic_vector(1 downto 0);
+        mem_dst_addr    : out    vl_logic_vector(4 downto 0);
+        mem_gpr_we_n    : out    vl_logic;
+        mem_exp_code    : out    vl_logic_vector(2 downto 0);
+        mem_out         : out    vl_logic_vector(31 downto 0)
+    );
+end mem_stage;

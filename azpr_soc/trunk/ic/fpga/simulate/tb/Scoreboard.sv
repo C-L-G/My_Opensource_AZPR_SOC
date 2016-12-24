@@ -35,8 +35,8 @@
 //File Include : testbench include
 
 
-`ifndef INC_GENERATOR_SV
-`define INC_GENERATOR_SV
+`ifndef INC_SCOREBOARD_SV
+`define INC_SCOREBOARD_SV
 //************************************************************************************************
 // 1.Class
 //************************************************************************************************
@@ -64,7 +64,7 @@ class Scoreboard;
     //1.4 function and task define
     //------------------------------------------------------------------------------------------------  
     extern function new(mailbox m2s_i,g2s_i);
-    extern task run();
+    extern task comp_run();
     extern task write_read_comp(input bit [07:00] wdata,input bit [07:00] rdata);
 
 endclass : Scoreboard
@@ -109,7 +109,7 @@ task Scoreboard::comp_run();
                 else
                     begin
                         comp_fail = 1;
-                        $display("mailbox %0dth data is different : the expect data = %h,the read data = %h.",g2s_recv,m2s_recv);
+                        $display("mailbox %0dth data is different : the expect data = %h,the read data = %h.",i,g2s_recv,m2s_recv);
                     end
             end
             if(~comp_fail)

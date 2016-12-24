@@ -82,11 +82,12 @@ module clock_reset(
     task run(int reset_hold = 4,int l_period = CLOCK_LOW_TIME,int h_period = CLOCK_HIGH_TIME,int count=0);
         system_clock = 0;
         for(int clk_i=0;(clk_i < count  || count == 0);clk_i++)
-            if(ck_en)
+            if(ck_en) begin
                 #l_period;
                     system_clock = ~system_clock;
                 #h_period;
                     system_clock = ~system_clock;
+			end
             else
                 system_clock = 1'b0;
     endtask

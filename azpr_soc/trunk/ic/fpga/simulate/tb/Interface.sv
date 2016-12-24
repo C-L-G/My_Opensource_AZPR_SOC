@@ -40,22 +40,25 @@
 //************************************************************************************************
 // 1.Interface
 //************************************************************************************************
-interface soc_if(
-    input   logic           sclk     
-);
-    logic   [00:00]         pad1    ;
-    logic   [15:00]         bus_addr;
-    logic                   bus_as_n;
+interface soc_if(input wire system_clock);
 
-    assign scl = sclk;
+
+	logic					a0;
+	logic					a1;
+	logic					a2;
+	logic					sdo;
+	logic					sdi;
+	logic					scl;
+	logic					wp;
+	
+	
+	logic					uart_tx;
+	logic					uart_rx;
+
+//    assign scl = system_clock;
     //------------------------------------------------------------------------------------------------
     //1.1 modport
     //------------------------------------------------------------------------------------------------
-    modport ee_pad(
-        output  [00:00]     pad1    ,
-        input   [05:00]     pad2    
-    ); 
-
     modport iic(
         output              a0      ,
         output              a1      ,

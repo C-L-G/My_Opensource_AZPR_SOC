@@ -1,0 +1,901 @@
+m255
+K3
+13
+cModel Technology
+Z0 dE:\projects\Github\azpr_soc\azpr_soc\trunk\ic\fpga\simulate\bin
+T_opt
+VQV=IlUb00cUc6^e<z?WPg3
+04 9 4 work Testbench fast 0
+=1-080027079327-585e1b19-6e-dac
+o-quiet -auto_acc_if_foreign -work work +acc
+n@_opt
+OE;O;10.1a;51
+valu
+ISU@Q^7T=0bf7[4<1z0OCD3
+VIFgM3?8MegPO8FF=N39D[1
+Z1 dE:\projects\Github\azpr_soc\azpr_soc\trunk\ic\fpga\simulate\bin
+Z2 w1482557627
+8../../../digital/rtl/cpu/alu.v
+F../../../digital/rtl/cpu/alu.v
+L0 37
+Z3 OE;L;10.1a;51
+r1
+31
+Z4 !s108 1482562325.474000
+Z5 !s107 ../../../digital/rtl/header/uart.h|../../../digital/rtl/header/timer.h|../../../digital/rtl/header/rom.h|../../../digital/rtl/header/spm.h|../../../digital/rtl/header/isa.h|../../../digital/rtl/header/cpu.h|../../../digital/rtl/header/bus.h|../../../digital/rtl/header/../sys_include.h|../../../digital/rtl/uart/uart.h|../../../digital/rtl/timer/timer.h|../../../digital/rtl/mem/rom.h|../../../digital/rtl/bus/bus.h|../../../digital/rtl/cpu/cpu.h|../../../digital/rtl/gpio/gpio.h|../../../digital/rtl/sys_include.h|../../../digital/rtl/header/gpio.h|../../../digital/rtl/header/stddef.h|../../../digital/rtl/header/global_config.h|../../../digital/rtl/header/nettype.h|../../../digital/rtl/uart/uart_rx.v|../../../digital/rtl/uart/uart_tx.v|../../../digital/rtl/uart/uart_ctrl.v|../../../digital/rtl/uart/uart.v|../../../digital/rtl/timer/timer.v|../../../digital/rtl/mem/rom.v|../../../digital/rtl/gpio/gpio.v|../../../digital/rtl/cpu/symmetric_mem_core.v|../../../digital/rtl/cpu/spm.v|../../../digital/rtl/cpu/mem_stage.v|../../../digital/rtl/cpu/mem_reg.v|../../../digital/rtl/cpu/mem_ctrl.v|../../../digital/rtl/cpu/if_stage.v|../../../digital/rtl/cpu/if_reg.v|../../../digital/rtl/cpu/id_stage.v|../../../digital/rtl/cpu/id_reg.v|../../../digital/rtl/cpu/gpr.v|../../../digital/rtl/cpu/ex_stage.v|../../../digital/rtl/cpu/ex_reg.v|../../../digital/rtl/cpu/decoder.v|../../../digital/rtl/cpu/ctrl.v|../../../digital/rtl/cpu/cpu.v|../../../digital/rtl/cpu/bus_if.v|../../../digital/rtl/cpu/alu.v|../../../digital/rtl/bus/bus_slave_mux.v|../../../digital/rtl/bus/bus_master_mux.v|../../../digital/rtl/bus/bus_arbiter.v|../../../digital/rtl/bus/bus_addr_dec.v|../../../digital/rtl/bus/bus.v|../../../digital/rtl/clk_gen.v|../../../digital/rtl/chip.v|../../../digital/rtl/chip_top.v|../tc/iic_1/testcase.sv|../tb/clock_reset.sv|../tb/Testbench.sv|../tb/Environment.sv|../tb/Scoreboard.sv|../tb/Generator.sv|../tb/Monitor.sv|../tb/Interface.sv|../tb/Driver.sv|
+Z6 !s90 -reportprogress|300|-timescale|1 ns / 1 ps|+incdir+../../../digital/rtl/header+../../../digital/rtl+../tb|-f|../flist/rtl_sim.f|
+Z7 o-timescale {1 ns / 1 ps} -L mtiAvm -L mtiOvm -L mtiUvm -L mtiUPF
+Z8 !s92 -timescale {1 ns / 1 ps} +incdir+../../../digital/rtl/header+../../../digital/rtl+../tb -L mtiAvm -L mtiOvm -L mtiUvm -L mtiUPF
+!s100 BR]F6=z3^z7b?=Rbm7^Ik1
+!i10b 1
+!s85 0
+vbus
+IkJfF__QbD5EP3aKUciIDH0
+V^1lokX0K[c4gKzK1T[CZ:2
+R1
+R2
+8../../../digital/rtl/bus/bus.v
+F../../../digital/rtl/bus/bus.v
+L0 35
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 hMYEl<Hj`>@`gCek0Iind2
+!i10b 1
+!s85 0
+vbus_addr_dec
+IQ`@[7IW?ZDVkPXI?L?1852
+Vd]7[PM0Nmmk_8b8JkA5MU3
+R1
+R2
+8../../../digital/rtl/bus/bus_addr_dec.v
+F../../../digital/rtl/bus/bus_addr_dec.v
+L0 35
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 `U0EGR9U97JXo[J09mmRD1
+!i10b 1
+!s85 0
+vbus_arbiter
+IOMdc=N1_kEY4_TWc<9zVz1
+VAT0KYDVPjF=80LnI2de>83
+R1
+R2
+8../../../digital/rtl/bus/bus_arbiter.v
+F../../../digital/rtl/bus/bus_arbiter.v
+L0 35
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 aF7@ko^Rdo[1H7=eck]ib2
+!i10b 1
+!s85 0
+vbus_if
+I2ImY5mP=YZjX^l8@f@GWl2
+VNFD7Y_O5VQ;fQme]<oS^Y2
+R1
+R2
+8../../../digital/rtl/cpu/bus_if.v
+F../../../digital/rtl/cpu/bus_if.v
+L0 39
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 9j3ciEaGhZ[[Z9RcbKQ<I3
+!i10b 1
+!s85 0
+vbus_master_mux
+Ik<Qza3M0L2^5iVmL5DG0@1
+Vec?:Ua_PDJ^d[g]@FM?[C3
+R1
+R2
+8../../../digital/rtl/bus/bus_master_mux.v
+F../../../digital/rtl/bus/bus_master_mux.v
+L0 35
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 b58_C7[1Dm<hPi?J=^h<B0
+!i10b 1
+!s85 0
+vbus_slave_mux
+Ic5NN8m7V0o9NL2QEAJn[I2
+VdOLI0<[L?EPF=JlO=95]n3
+R1
+R2
+8../../../digital/rtl/bus/bus_slave_mux.v
+F../../../digital/rtl/bus/bus_slave_mux.v
+L0 36
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 mSZcn]=RU?EzRC`=PBj<e3
+!i10b 1
+!s85 0
+vchip
+IE06B2SBmiKZiK<RFLfZ232
+V6_A>z`M86NgQI6Y00gSSm2
+R1
+R2
+8../../../digital/rtl/chip.v
+F../../../digital/rtl/chip.v
+L0 43
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 c_nmI2>mb9N@RD8b[Q5hY2
+!i10b 1
+!s85 0
+vchip_top
+IIX]JAbdfdHMQ?HYWMHDhl1
+VjlIX:o=DOV1?CMT3V4<KT2
+R1
+R2
+8../../../digital/rtl/chip_top.v
+F../../../digital/rtl/chip_top.v
+L0 36
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 N:mU^GjG5E;FV?CjV=[dQ3
+!i10b 1
+!s85 0
+vclk_gen
+IPhMBCm^iTaNEgEHNckCIL3
+VfL3E@MoHXmlH1gdmX^dgI3
+R1
+R2
+8../../../digital/rtl/clk_gen.v
+F../../../digital/rtl/clk_gen.v
+L0 35
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 HL@M`M8fBET`;31SzoZ[]3
+!i10b 1
+!s85 0
+vclock_reset
+Z9 DXx6 sv_std 3 std 0 22 F[19LRNL:5;XmIFh[XOPn1
+IG3UEKk>cT?zAj11CgAL:F3
+VnMG[9z4eOXS9D_^UiiP`m0
+S1
+R1
+w1482561533
+8../tb/clock_reset.sv
+F../tb/clock_reset.sv
+L0 36
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 [l77h^3WFb_Z;01PBH@e_1
+!s105 clock_reset_sv_unit
+!i10b 1
+!s85 0
+vcpu
+I3RAN=d]izd@kPM^z;9?_R1
+Ve:^:LZ_<7ZjPHYI`K6j:z0
+R1
+R2
+8../../../digital/rtl/cpu/cpu.v
+F../../../digital/rtl/cpu/cpu.v
+L0 39
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 WP0G:5j?fCG_J0WEccdFB2
+!i10b 1
+!s85 0
+vctrl
+I?BP>7cLOJQJ[kDRh[7^NF0
+V=?HADNd`aNfEB3X^8j>JC2
+R1
+R2
+8../../../digital/rtl/cpu/ctrl.v
+F../../../digital/rtl/cpu/ctrl.v
+L0 39
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 AZ3W4C2Rc>:HTG8QPXTjH2
+!i10b 1
+!s85 0
+vdecoder
+I4`aLzUMoG6>=K6i4Nb_b62
+V0k;a0`fJY`AJoN@lA9j=K3
+R1
+R2
+8../../../digital/rtl/cpu/decoder.v
+F../../../digital/rtl/cpu/decoder.v
+L0 39
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 z5^FzO8zE4jL5^5XA:kC;1
+!i10b 1
+!s85 0
+XDriver_sv_unit
+R9
+I<U`3nUXdTXDQX]MchAU;V1
+V<U`3nUXdTXDQX]MchAU;V1
+S1
+R1
+w1482561503
+8../tb/Driver.sv
+Z10 F../tb/Driver.sv
+Z11 F../../../digital/rtl/header/nettype.h
+Z12 F../../../digital/rtl/header/global_config.h
+Z13 F../../../digital/rtl/header/stddef.h
+L0 45
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+n@driver_sv_unit
+!s100 WZB7<[_IDSjAOz[j>Ndeg3
+!i10b 1
+!i103 1
+!s85 0
+XEnvironment_sv_unit
+R9
+I>EdDoJF9Od=8]SjAz`A2J0
+V>EdDoJF9Od=8]SjAz`A2J0
+S1
+R1
+Z14 w1482562197
+8../tb/Environment.sv
+Z15 F../tb/Environment.sv
+R11
+R12
+R13
+R10
+R11
+R12
+R13
+Z16 F../tb/Generator.sv
+R11
+R12
+R13
+Z17 F../tb/Scoreboard.sv
+R11
+R12
+R13
+Z18 F../tb/Monitor.sv
+R11
+R12
+R13
+L4 45
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+n@environment_sv_unit
+!s100 D4U3]jXG3ceUL=Hh2B2513
+!i10b 1
+!i103 1
+!s85 0
+vex_reg
+IWK;Poi1_zKYk30b;T_zb31
+VzU]@cL=5elD5mEMfkk7]12
+R1
+R2
+8../../../digital/rtl/cpu/ex_reg.v
+F../../../digital/rtl/cpu/ex_reg.v
+L0 38
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 JHA6ii<SFg[1^V`8[i1[Z0
+!i10b 1
+!s85 0
+vex_stage
+IdCNE;=fRH[K9LiBUR9`VA3
+V@4=X?6ICeiRLTg^PC@;5:3
+R1
+R2
+8../../../digital/rtl/cpu/ex_stage.v
+F../../../digital/rtl/cpu/ex_stage.v
+L0 38
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 lX:11eaLOl2@<Yi8c?;o41
+!i10b 1
+!s85 0
+XGenerator_sv_unit
+R9
+I7kd6E?NBC7>OKzZ?gSQ3i3
+V7kd6E?NBC7>OKzZ?gSQ3i3
+S1
+R1
+R2
+8../tb/Generator.sv
+R16
+R11
+R12
+R13
+L0 44
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+n@generator_sv_unit
+!s100 BjSHfn^>G[?@j[jM8BclF2
+!i10b 1
+!i103 1
+!s85 0
+vgpio
+I[4N5a<W_L=gFb;E`PKil12
+V<F_iKJM0_JgP;nBc^@jaM2
+R1
+R2
+8../../../digital/rtl/gpio/gpio.v
+F../../../digital/rtl/gpio/gpio.v
+L0 37
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 UoTdJ[ERCN?Pca[X^=_PF0
+!i10b 1
+!s85 0
+vgpr
+I:<zXN]Z_0Lzb^:oNA1CBi3
+V`@2T9Kn9h?33Ro=Z:kZnQ2
+R1
+R2
+8../../../digital/rtl/cpu/gpr.v
+F../../../digital/rtl/cpu/gpr.v
+L0 38
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 lc]KzRY7>z<FFfQO=I`7c1
+!i10b 1
+!s85 0
+vid_reg
+IkH?R_D?_5QhmQ7PZzdTHO0
+V<YJML2A1AdgHM8Yg6B8FM2
+R1
+R2
+8../../../digital/rtl/cpu/id_reg.v
+F../../../digital/rtl/cpu/id_reg.v
+L0 38
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 DYi3O=>WIS3Hb541j7@3m1
+!i10b 1
+!s85 0
+vid_stage
+I<mO6U6hdDN5jVEZBZ@9B63
+VJ<je47P_bMYOmQXk9Vjn31
+R1
+R2
+8../../../digital/rtl/cpu/id_stage.v
+F../../../digital/rtl/cpu/id_stage.v
+L0 38
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 <Ke]EZ_zAUHK`6HU?4bZQ0
+!i10b 1
+!s85 0
+vif_reg
+IRNENd4mJCa;mB^18;1SaU3
+V?YWcg3`<?f@P?QAOY3CJ22
+R1
+R2
+8../../../digital/rtl/cpu/if_reg.v
+F../../../digital/rtl/cpu/if_reg.v
+L0 39
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 3IUR^<2O:d6<E_aVd^l_c3
+!i10b 1
+!s85 0
+vif_stage
+Ig7E6PjGDEGe>UGT]<_6cI1
+Vj9zKYH`ah8;EKh6i8m_1@3
+R1
+R2
+8../../../digital/rtl/cpu/if_stage.v
+F../../../digital/rtl/cpu/if_stage.v
+L0 37
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 E>ZR=j^B3MN9CH]T_iR3S3
+!i10b 1
+!s85 0
+vmem_ctrl
+IVE`0?Che:C]VOlZ2ODGcg0
+VW>`gmWnLU33Hb@jI0ERUl2
+R1
+R2
+8../../../digital/rtl/cpu/mem_ctrl.v
+F../../../digital/rtl/cpu/mem_ctrl.v
+L0 40
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 mK1;E0e_IhnPbnEH5:he[1
+!i10b 1
+!s85 0
+vmem_reg
+IDC4^GbO@b_5;];?Iz]i>93
+V5AO]ll>fjc?_0U=KV_fF63
+R1
+R2
+8../../../digital/rtl/cpu/mem_reg.v
+F../../../digital/rtl/cpu/mem_reg.v
+L0 38
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 XlTVZ4laHdUD>I:8XD6d]3
+!i10b 1
+!s85 0
+vmem_stage
+IC@az0UG>RSfg31iLYdA5C2
+VD>XUXfD`Lk5HBDHG]8A=[3
+R1
+R2
+8../../../digital/rtl/cpu/mem_stage.v
+F../../../digital/rtl/cpu/mem_stage.v
+L0 38
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 6Z?IK]3H1QKROZQ]]54BE0
+!i10b 1
+!s85 0
+XMonitor_sv_unit
+R9
+IFg^Vfo>kVD4A=zDJ@^5oE0
+VFg^Vfo>kVD4A=zDJ@^5oE0
+S1
+R1
+w1482559920
+8../tb/Monitor.sv
+R18
+R11
+R12
+R13
+L0 44
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+n@monitor_sv_unit
+!s100 gQF61Dj?l2F3I4U7C^N6h1
+!i10b 1
+!i103 1
+!s85 0
+vrom
+ION?D;WT<gcUgI=YHJ9[811
+VT6d2GU@ljAlm3m3e]D[V:0
+R1
+R2
+8../../../digital/rtl/mem/rom.v
+F../../../digital/rtl/mem/rom.v
+L0 36
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 bzSnVX[UYlbbIkYMDia2X1
+!i10b 1
+!s85 0
+XScoreboard_sv_unit
+R9
+IjTF153XHjhASnNB_H0D5i1
+VjTF153XHjhASnNB_H0D5i1
+S1
+R1
+R14
+8../tb/Scoreboard.sv
+R17
+R11
+R12
+R13
+L0 44
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+n@scoreboard_sv_unit
+!s100 86SRm:bH:cl7g=D1NRNRJ1
+!i10b 1
+!i103 1
+!s85 0
+Ysoc_if
+R9
+I5OPD<=mh=ZRciKm;02Ezn1
+VMnnnc2COk6Ld^E41>_5Kh1
+S1
+R1
+w1482561171
+8../tb/Interface.sv
+F../tb/Interface.sv
+L0 43
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 1bHnAzM5gHGDb=6XC6N5T3
+!s105 Interface_sv_unit
+!i10b 1
+!s85 0
+vspm
+IN8@YG6I^h_GFkbTzgXH=12
+V:`Kh9XnV1oGoCa<d:9Q@11
+R1
+R2
+8../../../digital/rtl/cpu/spm.v
+F../../../digital/rtl/cpu/spm.v
+L0 38
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 ?SS?K@TUQnGQlcME02V3R3
+!i10b 1
+!s85 0
+vsymmetric_mem_core
+IeiLzoj79?3fgL;EcM8d]S1
+V06SOmmV::j[_Va=_L3;4D2
+R1
+R2
+8../../../digital/rtl/cpu/symmetric_mem_core.v
+F../../../digital/rtl/cpu/symmetric_mem_core.v
+L0 33
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 HjYcf_HN`AA6cFNBEY?k83
+!i10b 1
+!s85 0
+vTestbench
+R9
+I@`UEf4mBo0M5[4QXB]CdP1
+VGdUiEZgaMiVEi@bgHJeE13
+S1
+R1
+w1482562154
+8../tb/Testbench.sv
+F../tb/Testbench.sv
+L0 39
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+n@testbench
+!s100 5Q8MGjPJ`fVz6AWL?5cYB3
+!s105 Testbench_sv_unit
+!i10b 1
+!s85 0
+4testcase
+R9
+DXx4 work 16 testcase_sv_unit 0 22 F;0VKCi2ebGFIQeN`10SQ2
+VA=aIojomi4F3@:jkhkFf91
+r1
+31
+IlBhbWn3[:WH4>d33@^Y5E3
+S1
+R1
+Z19 w1482562320
+Z20 8../tc/iic_1/testcase.sv
+Z21 F../tc/iic_1/testcase.sv
+L0 38
+R3
+R4
+R5
+R6
+R7
+R8
+!s105 testcase_sv_unit
+!s85 0
+!i10b 1
+!s100 DCNeJ>L<EHZV3YW`3_RE_1
+Xtestcase_sv_unit
+R9
+VF;0VKCi2ebGFIQeN`10SQ2
+r1
+31
+IF;0VKCi2ebGFIQeN`10SQ2
+S1
+R1
+R19
+R20
+R21
+R11
+R12
+R13
+R15
+R11
+R12
+R13
+R10
+R11
+R12
+R13
+R16
+R11
+R12
+R13
+R17
+R11
+R12
+R13
+R18
+R11
+R12
+R13
+L8 45
+R3
+R4
+R5
+R6
+R7
+R8
+!s85 0
+!i10b 1
+!s100 5^O3_z;<hEDUWGdI7mk?b3
+!i103 1
+vtimer
+I5lH4mO^Y0mo=93Vknc5zn2
+V46?mf:Xkfdfc7^Y4[4l^;3
+R1
+R2
+8../../../digital/rtl/timer/timer.v
+F../../../digital/rtl/timer/timer.v
+L0 37
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 zLn1J97lRGl0DT`PUXLlC1
+!i10b 1
+!s85 0
+vuart
+IM`a4Sh7>oK:8Bc@B<`5AH1
+V;d:@]7DZQ67LY2YT[KXf@1
+R1
+R2
+8../../../digital/rtl/uart/uart.v
+F../../../digital/rtl/uart/uart.v
+L0 38
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 a<4`YQEgcWMbV1=LQ?fBm1
+!i10b 1
+!s85 0
+vuart_ctrl
+ICOL=7iFnZ45N81zUSJhj22
+V1T=iUmo73oRb7<mzPY6jz0
+R1
+R2
+8../../../digital/rtl/uart/uart_ctrl.v
+F../../../digital/rtl/uart/uart_ctrl.v
+L0 38
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 d03AcT>AZ;;H6kHjRgU7P0
+!i10b 1
+!s85 0
+vuart_rx
+Ib@7Kikch82e7k:]BW;WPE1
+V7ogFicc30AYIIenD0a6G40
+R1
+R2
+8../../../digital/rtl/uart/uart_rx.v
+F../../../digital/rtl/uart/uart_rx.v
+L0 37
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 kaZHRHNPoo;;oi5W3L:[=0
+!i10b 1
+!s85 0
+vuart_tx
+IZ[2fT0XLXRUX9j5]aBMHo0
+VHJR2XLK0ZOhl=a<o][5?:0
+R1
+R2
+8../../../digital/rtl/uart/uart_tx.v
+F../../../digital/rtl/uart/uart_tx.v
+L0 37
+R3
+r1
+31
+R4
+R5
+R6
+R7
+R8
+!s100 _a?<<bhWXfiEO0jLzl4@Q3
+!i10b 1
+!s85 0

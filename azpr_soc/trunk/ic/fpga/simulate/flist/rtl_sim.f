@@ -1,12 +1,14 @@
 ../tb/Driver.sv
-../tb/Environment.sv
 ../tb/Interface.sv
 ../tb/Monitor.sv
 ../tb/Generator.sv
 ../tb/Scoreboard.sv
+../tb/Environment.sv
 
 ../tb/Testbench.sv
 ../tb/clock_reset.sv
+
+../tc/iic_1/testcase.sv
 
 
 ../../../digital/rtl/chip_top.v
@@ -18,7 +20,7 @@
 ../../../digital/rtl/bus/bus.v
 ../../../digital/rtl/bus/bus_addr_dec.v
 ../../../digital/rtl/bus/bus_arbiter.v
-../../../digital/rtl/bus/bus_master.v
+../../../digital/rtl/bus/bus_master_mux.v
 ../../../digital/rtl/bus/bus_slave_mux.v
 
 ../../../digital/rtl/cpu/alu.v
@@ -43,8 +45,8 @@
 ../../../digital/rtl/mem/rom.v
 ../../../digital/rtl/timer/timer.v
 
-../../../digital/rtl/uart.v
-../../../digital/rtl/uart_ctrl.v
-../../../digital/rtl/uart_tx.v
-../../../digital/rtl/uart_rx.v
+../../../digital/rtl/uart/uart.v
+../../../digital/rtl/uart/uart_ctrl.v
+../../../digital/rtl/uart/uart_tx.v
+../../../digital/rtl/uart/uart_rx.v
 

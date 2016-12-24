@@ -65,7 +65,7 @@ class Monitor;
     //1.4 function and task define
     //------------------------------------------------------------------------------------------------  
     extern function new(virtual soc_if.iic iic_if_i,mailbox d2m_i,m2s_i);
-    extern task recv_data();
+//    extern task recv_data();
     
 
 endclass : Monitor
@@ -77,7 +77,7 @@ endclass : Monitor
 //------------------------------------------------------------------------------------------------
 //2.1 new function
 //------------------------------------------------------------------------------------------------
-function new(virtual soc_if.iic iic_if_i,mailbox d2m_i,m2s_i);
+function Monitor::new(virtual soc_if.iic iic_if_i,mailbox d2m_i,m2s_i);
     this.iic_if = iic_if_i;
     this.d2m    = d2m_i;
     this.m2s    = m2s_i;
@@ -87,9 +87,9 @@ endfunction
 //------------------------------------------------------------------------------------------------
 // 2.2 the send data generator
 //------------------------------------------------------------------------------------------------    
-task Monitor::recv_data();
+//task Monitor::recv_data();
 
-endtask
+//endtask
 
 
 `endif
