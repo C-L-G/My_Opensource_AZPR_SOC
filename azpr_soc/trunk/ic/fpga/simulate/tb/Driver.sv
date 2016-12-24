@@ -106,6 +106,7 @@ class Driver;
     extern task iic_tcmd_read_curr(input bit [07:00] cmd,input bit [07:00] curr_bit);
     extern task iic_tcmd_curr_read(input bit [07:00] cmd,input bit [15:00] len);
     extern task iic_tcmd_dummy_write(input bit [07:00] cmd,input bit [15:00] addr_start);
+    extern task comp_run();
 
 endclass : Driver
 
@@ -149,10 +150,6 @@ endfunction
 
 
 
-
-
-
-
 //------------------------------------------------------------------------------------------------
 //2.1 new function
 //------------------------------------------------------------------------------------------------
@@ -166,24 +163,24 @@ endtask
 
 
 task Driver::send_start_iic();
-    iic_if.sdo = 1;
+    iic_if.sda = 1;
     @(posedge iic_if.scl)
-        #`tSU_STA iic_if.sdo = 0;
+        #`tSU_STA iic_if.sda = 0;
 endtask
 
 task Driver::send_error_start_iic();
-    iic_if.sdo = 1;
+    iic_if.sda = 1;
     @(posedge iic_if.scl)
-        #`tSU_STA iic_if.sdo = 0;
+        #`tSU_STA iic_if.sda = 0;
     #200;
-        iic_if.sdo = 1;
+        iic_if.sda = 1;
 endtask
 
 task Driver::send_ack_iic(input bit ack_bit);
     @(negedge iic_if.scl)
-        #tHD_DAT iic_if.sdo = ack_bit;
+        #`tHD_DAT iic_if.sda = ack_bit;
     @(negedge iic_if.scl)
-        #tHD_DAT iic_if.sdo = 1'b1;
+        #`tHD_DAT iic_if.sda = 1'b1;
 endtask
 
 task Driver::iic_page_write(input bit write_pr_en,input bit [15:00] addr_start,input bit [15:00] len);
@@ -207,7 +204,7 @@ task Driver::recv_byte_iic(input logic mailbox_en,output logic [07:00] recv_data
     for(int i=7;i>=0;i--)
         begin
             @(posedge iic_if.scl)
-                recv_data[i] = iic_if.sdi;
+                recv_data[i] = iic_if.sda;
         end
     if(mailbox_en)
         begin

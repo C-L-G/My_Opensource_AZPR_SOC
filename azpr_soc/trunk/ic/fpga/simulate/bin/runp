@@ -1,28 +1,28 @@
-#!/usr/local/bin/perl
-#****************************************************************************************************   
+#!/usr/bin/perl -w
+#****************************************************************************************************	
 #-----------------Copyright (c) 2016 C-L-G.FPGA1988.Roger Wang. All rights reserved------------------
 #
-#                   --              It to be define                --
-#                   --                    ...                      --
-#                   --                    ...                      --
-#                   --                    ...                      --
+#		    --		    It to be define		   --
+#		    --			  ...			   --
+#		    --			  ...			   --
+#		    --			  ...			   --
 #**************************************************************************************************** 
 #File Information
 #**************************************************************************************************** 
-#File Name      : runn 
-#Project Name   : scripts
-#Description    : The simulation script for nc-verilog : environment and parameter.
+#File Name	: runn 
+#Project Name	: scripts
+#Description	: The simulation script for nc-verilog : environment and parameter.
 #Github Address : https://github.com/C-L-G/scripts/script_header.txt
-#License        : CPL
+#License	: CPL
 #**************************************************************************************************** 
 #Version Information
 #**************************************************************************************************** 
-#Create Date    : 01-07-2016 17:00(1th Fri,July,2016)
-#First Author   : Roger Wang
-#Modify Date    : 03-07-2016 14:20(1th Sun,July,2016)
-#Last Author    : Roger Wang
-#Version Number : 001   
-#Last Commit    : 03-07-2016 14:30(1th Sun,July,2016)
+#Create Date	: 01-07-2016 17:00(1th Fri,July,2016)
+#First Author	: Roger Wang
+#Modify Date	: 03-07-2016 14:20(1th Sun,July,2016)
+#Last Author	: Roger Wang
+#Version Number : 001	
+#Last Commit	: 03-07-2016 14:30(1th Sun,July,2016)
 #**************************************************************************************************** 
 #Revison History
 #**************************************************************************************************** 
@@ -34,8 +34,9 @@
 #1. The package use
 #****************************************************************************************************
 
-use Getopt::Long
-use Pod::Usage
+
+use Getopt::Long;
+use Pod::Usage;
 
 
 #****************************************************************************************************
@@ -46,16 +47,16 @@ use Pod::Usage
 #2.1 The argument initial
 #----------------------------------------------------------------------------------------------------
 
-$simargs 	= "";
-$verdiargs 	= "";
-$post 		= 5;
-$clkrate 	= 0;
+$simargs	= "";
+$verdiargs	= "";
+$post		= 5;
+$clkrate	= 0;
 
 GetOptions(
-	"tc=s" 	=> 	\$tcname,
-	"pt=i" 	=> 	\$post,
-	"emu"  	=> 	\$emu,
-	"dp"	=> 	\$dump,
+	"tc=s"	=>	\$tcname,
+	"pt=i"	=>	\$post,
+	"fpga"	=>i	\$fpga,
+	"dp"	=>	\$dump,
 	"cm"	=>	\$coverage,
 	"ntfy"	=>	\$notifier,
 	"help"	=>	\$help,
@@ -77,24 +78,24 @@ if(($tcname eq "") && ($help eq "")){
 pod2usage(1) if $help;
 
 #FPGA and ASIC
-if($emu){
-	$rtlpath 	= "$ENV{gt5230}/fpga/src/rtl";
-	$tcpath 	= "$ENV{gt5230}/fpga/tc";
-	$tbpath 	= "$ENV{gt5230}/fpga/tb";
-	$modelpath 	= "$ENV{gt5230}/fpga/model";
-	$flistpath 	= "$ENV{gt5230}/fpga/flist";
+if($fpga){
+	$rtlpath	= "$ENV{azpr_soc}/digital/rtl";
+	$tcpath		= "$ENV{azpr_soc}/fpga/simulate/tc";
+	$tbpath		= "$ENV{azpr_soc}/fpga/simulate/tb";
+	$modelpath	= "$ENV{azpr_soc}/fpga/simulate/model";
+	$flistpath	= "$ENV{azpr_soc}/fpga/simulate/flist";
 }
 else{
-	$rtlpath 	= "$ENV{gt5230}/digital/rtl";
-	$tcpath 	= "$ENV{gt5230}/digital/verif/tc";
-	$tbpath 	= "$ENV{gt5230}/digital/verif/tb";
-	$libpath 	= "$ENV{gt5230}/digital/verif/lib";
-	$vecpath 	= "$ENV{gt5230}/digital/hspice/stimulus";
-	$hsimpath 	= "$ENV{gt5230}/digital/verif/hsim/stimulus";
-	$modelpath 	= "$ENV{gt5230}/digital/verif/model";
-	$flistpath 	= "$ENV{gt5230}/digital/verif/flist";
+	$rtlpath	= "$ENV{azpr_soc}/digital/rtl";
+	$tcpath		= "$ENV{azpr_soc}/digital/verif/tc";
+	$tbpath		= "$ENV{azpr_soc}/digital/verif/tb";
+	$libpath	= "$ENV{azpr_soc}/digital/verif/lib";
+	$vecpath	= "$ENV{azpr_soc}/digital/hspice/stimulus";
+	$hsimpath	= "$ENV{azpr_soc}/digital/verif/hsim/stimulus";
+	$modelpath	= "$ENV{azpr_soc}/digital/verif/model";
+	$flistpath	= "$ENV{azpr_soc}/digital/verif/flist";
 }
-if($emu){
+if($fpga){
 	print "Emulation Simulation!\n";
 }
 else{
@@ -102,14 +103,13 @@ else{
 }
 
 
-if((!e "$tcpath/$tcname/") || !($tcname)){
+if((-e "$tcpath/$tcname/") || !($tcname)){
 	print "";
 	print "";
 	exit;
 }
 
 #change the work path to tcname. 
-#因为有上面的判断，所以这句话是不是多余的？
 chdir "$tbpath/$tcname" or die "cannot chdir to $tcname : $!";
 
 print "\n**********************Simulation Options************************\n";
@@ -125,9 +125,6 @@ print "## Test case name = $tcname\n";
 if($post eq 0){
 	$simargs = " ./gtl_simp.f";
 }
-#下面是进行post = 1 2 3的匹配，不能简单写成 == [123]，这样不能进行匹配，而是直接判断，匹配必须要用=~
-#也不能写成 =~ [123],因为这会匹配类似14、25、33、356这种数字，必须要用^和$这两个元字符/锚定符来进行限制
-#也可以写成 ($post == 1) || ($post == 2) || ($post == 3)
 elsif($post =~ /^[123]$/){
 	$simargs = " ./pst_simp.f";
 }
@@ -142,39 +139,39 @@ else{
 #The follow 3 speed is for IIC
 if($clkrate == 0){
 	print "## IIC 2.5V testcase;clk rate = 400KHz.\n";
-	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$simargs	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
 	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
 }
 elsif($clkrate == 1){
 	print "## IIC 2.5V testcase;clk rate = 400KHz.\n";
-	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$simargs	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
 	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
 }
 elsif($clkrate == 2){
 	print "## IIC 2.5V testcase;clk rate = 400KHz.\n";
-	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$simargs	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
 	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
 }
 #The follow 3 speed is for SPI
 elsif($clkrate == 3){
 	print "## SPI 2.5V testcase;clk rate = 5MHz.\n";
-	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$simargs	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
 	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
 }
 elsif($clkrate == 4){
 	print "## SPI 4.0V testcase;clk rate = 10MHz.\n";
-	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$simargs	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
 	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
 }
 elsif($clkrate == 5){
 	print "## SPI 5.5V testcase;clk rate = 20MHz.\n";
-	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$simargs	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
 	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
 }
 #Default
 else{
 	print "## SPI 5.5V testcase;clk rate = 20MHz.\n";
-	$simargs 	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
+	$simargs	= "$simargs" . " i2p5";	#. is the same as the verilog : {a,a}.
 	$verdiargs	= "$verdiargs" . "+define+IIC2p5v\n";
 }
 
@@ -186,7 +183,7 @@ else{
 #2.3.1 dump
 if($dump){
 	print "## Dump fsdb file.\n";
-	$simargs 	= "$simargs" . " fsdb";	#. is the same as the verilog : {a,a}.
+	$simargs	= "$simargs" . " fsdb";	#. is the same as the verilog : {a,a}.
 	$verdiargs	= "$verdiargs" . "+define+fsdb\n";
 }
 else{
@@ -195,7 +192,7 @@ else{
 #2.3.2 hsim
 if($hsim){
 	print "## Gen hsim file.\n";
-	$simargs 	= "$simargs" . " hsim";	#. is the same as the verilog : {a,a}.
+	$simargs	= "$simargs" . " hsim";	#. is the same as the verilog : {a,a}.
 	$verdiargs	= "$verdiargs" . "+define+hsim\n";
 }
 else{
@@ -204,7 +201,7 @@ else{
 #2.3.3 hspice
 if($hsp){
 	print "## Gen hspice file.\n";
-	$simargs 	= "$simargs" . " hsp";	#. is the same as the verilog : {a,a}.
+	$simargs	= "$simargs" . " hsp";	#. is the same as the verilog : {a,a}.
 	$verdiargs	= "$verdiargs" . "+define+hsp\n";
 }
 else{
@@ -213,7 +210,7 @@ else{
 #2.3.4 coverage
 if($hsp){
 	print "## Gen coverage file.\n";
-	$simargs 	= "$simargs" . " cm";	#. is the same as the verilog : {a,a}.
+	$simargs	= "$simargs" . " cm";	#. is the same as the verilog : {a,a}.
 #	$verdiargs	= "$verdiargs" . "+define+hsp\n";
 }
 else{

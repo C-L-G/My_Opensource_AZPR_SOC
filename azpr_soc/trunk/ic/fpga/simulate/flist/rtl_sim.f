@@ -1,4 +1,15 @@
-../../../digital/rtl/*/chip_top.v
+../tb/Driver.sv
+../tb/Environment.sv
+../tb/Interface.sv
+../tb/Monitor.sv
+../tb/Generator.sv
+../tb/Scoreboard.sv
+
+../tb/Testbench.sv
+../tb/clock_reset.sv
+
+
+../../../digital/rtl/chip_top.v
 ../../../digital/rtl/chip.v
 ../../../digital/rtl/clk_gen.v
 
