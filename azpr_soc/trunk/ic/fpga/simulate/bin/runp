@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #****************************************************************************************************	
-#-----------------Copyright (c) 2016 C-L-G.FPGA1988.Roger Wang. All rights reserved------------------
+#-----------------Copyright (c) 2016 C-L-G.FPGA1988.lichangbeiju. All rights reserved------------------
 #
 #		    --		    It to be define		   --
 #		    --			  ...			   --
@@ -9,32 +9,30 @@
 #**************************************************************************************************** 
 #File Information
 #**************************************************************************************************** 
-#File Name	: runn 
+#File Name	    : runn 
 #Project Name	: scripts
 #Description	: The simulation script for nc-verilog : environment and parameter.
 #Github Address : https://github.com/C-L-G/scripts/script_header.txt
-#License	: CPL
+#License	    : CPL
 #**************************************************************************************************** 
 #Version Information
 #**************************************************************************************************** 
-#Create Date	: 01-07-2016 17:00(1th Fri,July,2016)
-#First Author	: Roger Wang
-#Modify Date	: 03-07-2016 14:20(1th Sun,July,2016)
-#Last Author	: Roger Wang
-#Version Number : 001	
-#Last Commit	: 03-07-2016 14:30(1th Sun,July,2016)
+#Create Date	: 2016-07-01 17:00
+#Author	        : lichangbeiju
+#Modify Date	: 2016-12-26 14:20
+#Last Author	: lichangbeiju
 #**************************************************************************************************** 
-#Revison History
+#Change History(latest change first)
+#yyyy.mm.dd - Author - Your log of change
 #**************************************************************************************************** 
-#03.07.2016 - Roger Wang - Add the File information and the version info.
-#02.07.2016 - Roger Wang - The initial version.
+#2016.12.26 - lichangbeiju - Modify the script base on gt5232&gt5238.
+#2016.07.03 - lichangbeiju - Add the File information and the version info.
+#2016.07.02 - lichangbeiju - The initial version.
 #---------------------------------------------------------------------------------------------------- 
 
 #****************************************************************************************************
 #1. The package use
 #****************************************************************************************************
-
-
 use Getopt::Long;
 use Pod::Usage;
 
@@ -67,10 +65,8 @@ GetOptions(
 
 #new add for the no tc parameter
 if(($tcname eq "") && ($help eq "")){
-	print "";
-	print "";
-	print "";
-	print "";
+	print "There is no on valid operation be selected,the program will exit.";
+	print "You can print "runp -help" for the help.";
 	exit;		
 }
 
@@ -82,6 +78,7 @@ if($fpga){
 	$rtlpath	= "$ENV{azpr_soc}/digital/rtl";
 	$tcpath		= "$ENV{azpr_soc}/fpga/simulate/tc";
 	$tbpath		= "$ENV{azpr_soc}/fpga/simulate/tb";
+	$libpath	= "$ENV{azpr_soc}/fpga/simulate/lib";
 	$modelpath	= "$ENV{azpr_soc}/fpga/simulate/model";
 	$flistpath	= "$ENV{azpr_soc}/fpga/simulate/flist";
 }
@@ -96,20 +93,20 @@ else{
 	$flistpath	= "$ENV{azpr_soc}/digital/verif/flist";
 }
 if($fpga){
-	print "Emulation Simulation!\n";
+	print "FPGA Simulation Start!\n";
 }
 else{
-	print "ASIC Simulation!\n";
+	print "ASIC Simulation Start!\n";
 }
-
-
+#testcase exist check.
 if((-e "$tcpath/$tcname/") || !($tcname)){
-	print "";
-	print "";
+	print "\nError : Not exist the $tcpath/$tcname case,please check it again.\n";
+	print "\n";
 	exit;
 }
 
-#change the work path to tcname. 
+#if the tc exist then change the work path to tcname. 
+#use "$!" get some error infomation from the system command.
 chdir "$tbpath/$tcname" or die "cannot chdir to $tcname : $!";
 
 print "\n**********************Simulation Options************************\n";
@@ -208,7 +205,7 @@ else{
 	print "## No required to generate the hspice vector file.\n";
 }
 #2.3.4 coverage
-if($hsp){
+if($coverage){
 	print "## Gen coverage file.\n";
 	$simargs	= "$simargs" . " cm";	#. is the same as the verilog : {a,a}.
 #	$verdiargs	= "$verdiargs" . "+define+hsp\n";
@@ -217,8 +214,221 @@ else{
 	print "## No required to generate the coverage file.\n";
 }
 #2.3.5 post and ntfy
+if($post == 0){
+	print "## Simulation type : Gate sim.\n";
+	$simargs	= "$simargs" . " ptgt";	#. is the same as the verilog : {a,a}.
+    if($notifier){
+        $simargs = "$simargs" . " ntfy";
+    }
+}
+elsif($post == 1){
+	print "## Simulation type : Post min.\n";
+	$simargs	= "$simargs" . " ptmin";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+POSTMIN\n";
+}
+elsif($post == 2){
+	print "## Simulation type : Post typ.\n";
+	$simargs	= "$simargs" . " pttyp";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+POSTTYP\n";
+}
+#The follow 3 speed is for SPI
+elsif($post == 3){
+	print "## Simulation type : Post max.\n";
+	$simargs	= "$simargs" . " ptmax";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+POSTMAX\n";
+}
+#default
+else{
+	print "## Simulation type : RTL sim.\n";
+	$simargs	= "$simargs" . " simrtl";	#. is the same as the verilog : {a,a}.
+	$verdiargs	= "$verdiargs" . "+define+RTLSIM\n";
+}
+
+$logname = "${tcname}_pt${post}_cr$clkrate";
+
+$jn = 0;
+$runname = "run${logname}${jn}";
+while(-e "$tcpath/$runname"){
+    $jn++;
+    $runname = "run${logname}${jn}";
+}
+
+$simargs= "$runname" . "$simargs";
+
+#create the runname path and chdir to it.
+
+system("mkdir $tcpath/$runname");
+chdir "$tcpath/$runname/" or die "cannot chdir to $runname : $!";
+if((!-e "$tcpath/$tcname/") || !($tcname){
+    print "\nError : Not exist the $tcpath/$tcname case,please check it again!";
+    print "\n";
+    exit;
+}
+else{
+
+}
+#copy the file
+if(normalcase){
+    if(-e "../tcname/testcase.sv"){
+        system("cp ../$tcname/testcase.sv .");
+    }
+}
+else{
+    if(-e "../tcname/testcase.sv"){
+        system("cp ../$tcname/testcase.sv .");
+    }
+    if(-e "$tbpath/ee_map_diff.mem"){
+        system("cp $tbpath/ee_map_diff .");
+    }
+}
+
+#delete the log file
+system("rm -rf ../../log/${logname}.log");
+
+printf "\n"
+
+#create the simulation flist
+#
+print "\n*****************************Create the simulation file list***********************************\n";
+# < read from the file
+# > clear the file and write the content to the file
+# >> write the content to the file end
+# ~~~~~~~~~~~~~~~~~now in the tc/runname path~~~~~~~~~~~~~~~~~~~
+if($post == 0){
+    open SRCE,"< $flistpath/gtl_sim.f" or die "Open gtl_sim.f file failed : $!\n.";
+    open DEST0,"> $flistpath/gtl_simp.f" or die "Open gtl_simp.f file failed : $!\n.";
+    open DEST1,"> ./gtl_simp.f" or die "Open gtl_simp.f file failed : $!\n";
+    print "\n******Creating testcase $tcname gate simulation file list...***\n";
+}
+elsif($post == [123]){
+    open SRCE,"< $flistpath/pst_sim.f" or die "Open pst_sim.f file failed : $!\n.";
+    open DEST0,"> $flistpath/pst_simp.f" or die "Open pst_simp.f file failed : $!\n.";
+    open DEST1,"> ./pst_simp.f" or die "Open pst_simp.f file failed : $!\n";
+    print "\n******Creating testcase $tcname post simulation file list...***\n";
+}
+else{
+    open SRCE,"< $flistpath/rtl_sim.f" or die "Open rtl_sim.f file failed : $!\n.";
+    open DEST0,"> $flistpath/rtl_simp.f" or die "Open rtl_simp.f file failed : $!\n.";
+    open DEST1,"> ./rtl_simp.f" or die "Open rtl_simp.f file failed : $!\n";
+    print "\n******Creating testcase $tcname rtl simulation file list...***\n";
+}
 
 
+#update the DEST0
+print DEST0 "$verdiargs";
+#add the include arg of ncverilog
+print DEST0 "+incdir+${tcpath}/${tcname}\n";
+
+#
+#????
+while($line = <SRCE>){
+    $line0 = $line;
+    print DEST0 "$line0";
+    $tmp = $line0;
+    #/g = global \s = blank + = more than one s/ = replace
+    #the follow line is replace all of the blank
+    $tmp =~ s/\s+//g;
+    if($tmp =~ /$rtlpath/){{
+        $tmp1 = $line0;
+        if($fpga){
+            $tmp =~ s/$rtlpath/..\/..\/..\/..\/rtl/;
+        }    
+        else{
+            $tmp =~ s/$rtlpath/..\/..\/..\/rtl/;
+        }
+        $line1 = $tmp1;
+    }
+    elsif($tmp =~ /$libpath/){{
+        $tmp1 = $line0;
+        if($fpga){
+            $tmp =~ s/$libpath/..\/..\/..\/..\/lib/;
+        }    
+        else{
+            $tmp =~ s/$libpath/..\/..\/..\/lib/;
+        }
+        $line1 = $tmp1;
+    }
+    elsif($tmp =~ /$tbpath/){{
+        $tmp1 = $line0;
+        if($fpga){
+            $tmp =~ s/$tbpath/..\/..\/..\/..\/tb/;
+        }    
+        else{
+            $tmp =~ s/$tbpath/..\/..\/..\/tb/;
+        }
+        $line1 = $tmp1;
+    }
+    else{
+        $line1 = $line0;
+    } 
+    print DEST1 "$line1";
+}
+
+print DEST0 "$tcpath/$tcname/testcase.sv";
+print DEST1 "$tcpath/$tcname/testcase.sv";
+
+close SRCE;
+close DEST0;
+close DEST1;
+
+print "\n***************************Simulation start!************************\n";
+
+print "simargs = ${simargs}.\n"
+
+#invoke the simulate setup file
+system("rtlsim $simargs");
+
+
+
+#simulate done and move the file
+if(-e "tv.log"){
+    system("mv ./tv.log ../../log/${logname}.log");
+}
+else{
+    print "\n**** Error : no exist the tv.log file ****\n":
+}
+if($dump){
+    if(-e "test.fsdb"){
+        system("mv ./test.fsdb ../../wave/${logname}.log");
+    }
+    else{
+        print "\n**** Error : no exist the fsdb dump file ****\n":
+    }
+}
+if($hsim){
+    if(-e "hsim.vec"){
+        system("mv ./hsim.vec ${hsimpath}/${tcname}.vec");
+    }
+    else{
+        print "\n**** Error : no exist the hsim vector file ****\n":
+    }
+}
+if($hsp){
+    if(-e "hspice.vec"){
+        system("mv ./hspice.vec ${vecpath}/${tcname}.vec");
+    }
+    else{
+        print "\n**** Error : no exist the hspice vector file ****\n":
+    }
+}
+#coverage : delete the old cov file and mv the new tc_cm
+if($coverage){
+    if(-e "tc_cm"){
+        if(-e "../../coverage/cov_mark/design/${logname}"){
+            system("rm -rf ../../coverage/cov_mark/design/${logname}");
+        }
+        system("mv ./tc_cm ../../coverage/cov_mark/design/${logname}");
+    }
+    else{
+        print "\n**** Error : no exist the coverage file ****\n":
+    }
+}
+
+#delete the runname
+chdir "$tcpath" or die "Cannot chdir the tcpath : $!";
+system("rm -rf ./$runname");
+
+print "\n****************** End $tcname Simulation *********************\n";
 
 
 __END__
@@ -226,7 +436,7 @@ __END__
 =head1 NAME
 	script for simulation
 =head1 SYNOPSIS
-	runn -tc = iic_1 -pt = 3 -dp -cm -ntfy
+	runn[runp] -tc = iic_1 -pt = 3 -dp -cm -ntfy
 =head1 OPTION
 
 =over 8
@@ -237,6 +447,9 @@ __END__
 	generate hspice vector for sim.
 =item [-cr=i]
 	clock rate select.
+=item [-ntfy]
+    option : +no_notifier,default is disable
+
 =back
 
 =cut
