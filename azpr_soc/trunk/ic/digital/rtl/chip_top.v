@@ -34,22 +34,22 @@
 `include "gpio/gpio.h"
 
 module chip_top (
-    input wire                 clk_ref,       
-    input wire                 reset_sw       
+    input   wire                            clk_ref,       
+    input   wire                            reset_sw       
     /********** UART **********/
     `ifdef IMPLEMENT_UART 
-    , input wire               uart_rx        
-    , output wire              uart_tx        
+    ,input  wire                            uart_rx        
+    ,output wire                            uart_tx        
     `endif
     `ifdef IMPLEMENT_GPIO 
     `ifdef GPIO_IN_CH    
-    , input wire [`GPIO_IN_CH-1:0]   gpio_in  
+    ,input  wire    [`GPIO_IN_CH-1:0]       gpio_in  
     `endif
     `ifdef GPIO_OUT_CH   
-    , output wire [`GPIO_OUT_CH-1:0] gpio_out 
+    ,output wire    [`GPIO_OUT_CH-1:0]      gpio_out 
     `endif
     `ifdef GPIO_IO_CH    
-    , inout wire [`GPIO_IO_CH-1:0]   gpio_io  
+    ,inout  wire    [`GPIO_IO_CH-1:0]       gpio_io  
     `endif
     `endif
 );
@@ -69,9 +69,9 @@ module chip_top (
     //------------------------------------------------------------------------------------------------
     // 2.x the test logic
     //------------------------------------------------------------------------------------------------
-    wire                       clk;           
-    wire                       clk_n;          
-    wire                       chip_reset;    
+    wire                       clk          ;           
+    wire                       clk_n        ;          
+    wire                       chip_reset   ;    
 
     //************************************************************************************************
     // 3.Main code
