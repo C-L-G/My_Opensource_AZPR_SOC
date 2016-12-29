@@ -42,7 +42,7 @@ module bus_if (
     input  wire                stall,          //delay signal
     input  wire                flush,          //refresh signal
     output reg                 busy,           //bus busy signal
-    input  wire [`WordAddrBus] addr,           //cpu address
+    input  wire [`WordAddrBus] addr,           //cpu address = if_pc
     input  wire                as_n,           //cpu : address valid
     input  wire                rw,             //cpu : read/write
     input  wire [`WordDataBus] wr_data,        //cpu write data
