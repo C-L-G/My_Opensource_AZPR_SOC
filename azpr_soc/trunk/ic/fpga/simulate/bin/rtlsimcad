@@ -26,10 +26,12 @@
 #Version Number : 001   
 #Last Commit    : 03-07-2016 14:30(1th Sun,July,2016)
 #**************************************************************************************************** 
-#Revison History
+#Change History(latest change first)
+#yyyy.mm.dd - Author - Your log of change
 #**************************************************************************************************** 
-#03.07.2016 - Roger Wang - Add the File information and the version info.
-#02.07.2016 - Roger Wang - The initial version.
+#2016.12.26 - Roger Wang - Modify the script base on gt5232&gt5238.
+#2016.07.03 - Roger Wang - Add the File information and the version info.
+#2016.07.02 - Roger Wang - The initial version.
 #---------------------------------------------------------------------------------------------------- 
 
 #****************************************************************************************************
@@ -101,6 +103,9 @@ else
 endif
 
 echo $OSTYPE
+
+#set the finial sim args
+set simarg = "simarg +incdir+$azpr_soc/fpga/simulate/tb"
 
 $SIM +loadplil = /tool/tmp/novas/verdi/share/PLI/nc61/LINUX/nc_loadplil/debpli_boot \
 -l tv.log \

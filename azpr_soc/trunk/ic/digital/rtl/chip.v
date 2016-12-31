@@ -193,14 +193,14 @@ module chip (
    
     rom rom (
         /********** Clock & Reset **********/
-        .clockA             (clk                ),                   
-        //.reset              (reset      ),                 
+        .clk                (clk                ),                   
+        .reset              (reset              ),                 
         /********** Bus Interface **********/
-        //.cs_n               (s0_cs_n    ),                
-        //.as_n               (s_as_n     ),               
-        .addressA           (s_addr[`RomAddrLoc]),   
-        .output_dataA       (s0_rd_data         )            
-        //.rdy_n              (s0_rdy_n   )              
+        .cs_n               (s0_cs_n            ),                
+        .as_n               (s_as_n             ),               
+        .addr               (s_addr[`RomAddrLoc]),   
+        .rd_data            (s0_rd_data         ),            
+        .rdy_n              (s0_rdy_n           )              
     );
 
     assign s1_rd_data = `WORD_DATA_W'h0;
