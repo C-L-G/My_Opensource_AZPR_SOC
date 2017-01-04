@@ -41,23 +41,23 @@
 `include "gpio/gpio.h"
 
 module chip (
-    input  wire                      clk,         
-    input  wire                      clk_n,       
-    input  wire                      reset      
+    input   wire                        clk    ,         
+    input   wire                        clk_n  ,       
+    input   wire                        reset      
     /********** UART  **********/
     `ifdef IMPLEMENT_UART 
-    , input  wire                    uart_rx   
-    , output wire                    uart_tx  
+    ,input  wire                        uart_rx   
+    ,output wire                        uart_tx  
     `endif
     `ifdef IMPLEMENT_GPIO
     `ifdef GPIO_IN_CH   
-    , input wire [`GPIO_IN_CH-1:0]   gpio_in
+    ,input  wire    [`GPIO_IN_CH-1:0]   gpio_in
     `endif
     `ifdef GPIO_OUT_CH 
-    , output wire [`GPIO_OUT_CH-1:0] gpio_out     
+    ,output wire    [`GPIO_OUT_CH-1:0]  gpio_out     
     `endif
     `ifdef GPIO_IO_CH    
-    , inout wire [`GPIO_IO_CH-1:0]   gpio_io      
+    ,inout  wire    [`GPIO_IO_CH-1:0]   gpio_io      
     `endif
     `endif
 );
@@ -77,64 +77,64 @@ module chip (
     //------------------------------------------------------------------------------------------------
     // 2.x the test logic
     //------------------------------------------------------------------------------------------------
-    wire [`WordDataBus] m_rd_data;                
-    wire                m_rdy_n;                   
-    wire                m0_req_n;                  
-    wire [`WordAddrBus] m0_addr;                  
-    wire                m0_as_n;                   
-    wire                m0_rw;                   
-    wire [`WordDataBus] m0_wr_data;              
-    wire                m0_grant_n;                
-    wire                m1_req_n;                 
-    wire [`WordAddrBus] m1_addr;                 
-    wire                m1_as_n;                 
-    wire                m1_rw;                   
-    wire [`WordDataBus] m1_wr_data;              
-    wire                m1_grant_n;                
-    wire                m2_req_n;                 
-    wire [`WordAddrBus] m2_addr;                 
-    wire                m2_as_n;                 
-    wire                m2_rw;                   
-    wire [`WordDataBus] m2_wr_data;              
-    wire                m2_grant_n;                
-    wire                m3_req_n;                 
-    wire [`WordAddrBus] m3_addr;                 
-    wire                m3_as_n;                 
-    wire                m3_rw;                   
-    wire [`WordDataBus] m3_wr_data;              
-    wire                m3_grant_n;                
-    wire [`WordAddrBus] s_addr;                  
-    wire                s_as_n;                  
-    wire                s_rw;                    
-    wire [`WordDataBus] s_wr_data;               
-    wire [`WordDataBus] s0_rd_data;              
-    wire                s0_rdy_n;                
-    wire                s0_cs_n;                  
-    wire [`WordDataBus] s1_rd_data;              
-    wire                s1_rdy_n;                
-    wire                s1_cs_n;                  
-    wire [`WordDataBus] s2_rd_data;              
-    wire                s2_rdy_n;                
-    wire                s2_cs_n;                  
-    wire [`WordDataBus] s3_rd_data;              
-    wire                s3_rdy_n;                
-    wire                s3_cs_n;                  
-    wire [`WordDataBus] s4_rd_data;              
-    wire                s4_rdy_n;                
-    wire                s4_cs_n;                  
-    wire [`WordDataBus] s5_rd_data;              
-    wire                s5_rdy_n;                
-    wire                s5_cs_n;                  
-    wire [`WordDataBus] s6_rd_data;              
-    wire                s6_rdy_n;                
-    wire                s6_cs_n;                  
-    wire [`WordDataBus] s7_rd_data;              
-    wire                s7_rdy_n;                
-    wire                s7_cs_n;                  
-    wire                   irq_timer;            
-    wire                   irq_uart_rx;          
-    wire                   irq_uart_tx;          
-    wire [`CPU_IRQ_CH-1:0] cpu_irq;              
+    wire [`WordDataBus]     m_rd_data;                
+    wire                    m_rdy_n;                   
+    wire                    m0_req_n;                  
+    wire [`WordAddrBus]     m0_addr;                  
+    wire                    m0_as_n;                   
+    wire                    m0_rw;                   
+    wire [`WordDataBus]     m0_wr_data;              
+    wire                    m0_grant_n;                
+    wire                    m1_req_n;                 
+    wire [`WordAddrBus]     m1_addr;                 
+    wire                    m1_as_n;                 
+    wire                    m1_rw;                   
+    wire [`WordDataBus]     m1_wr_data;              
+    wire                    m1_grant_n;                
+    wire                    m2_req_n;                 
+    wire [`WordAddrBus]     m2_addr;                 
+    wire                    m2_as_n;                 
+    wire                    m2_rw;                   
+    wire [`WordDataBus]     m2_wr_data;              
+    wire                    m2_grant_n;                
+    wire                    m3_req_n;                 
+    wire [`WordAddrBus]     m3_addr;                 
+    wire                    m3_as_n;                 
+    wire                    m3_rw;                   
+    wire [`WordDataBus]     m3_wr_data;              
+    wire                    m3_grant_n;                
+    wire [`WordAddrBus]     s_addr;                  
+    wire                    s_as_n;                  
+    wire                    s_rw;                    
+    wire [`WordDataBus]     s_wr_data;               
+    wire [`WordDataBus]     s0_rd_data;              
+    wire                    s0_rdy_n;                
+    wire                    s0_cs_n;                  
+    wire [`WordDataBus]     s1_rd_data;              
+    wire                    s1_rdy_n;                
+    wire                    s1_cs_n;                  
+    wire [`WordDataBus]     s2_rd_data;              
+    wire                    s2_rdy_n;                
+    wire                    s2_cs_n;                  
+    wire [`WordDataBus]     s3_rd_data;              
+    wire                    s3_rdy_n;                
+    wire                    s3_cs_n;                  
+    wire [`WordDataBus]     s4_rd_data;              
+    wire                    s4_rdy_n;                
+    wire                    s4_cs_n;                  
+    wire [`WordDataBus]     s5_rd_data;              
+    wire                    s5_rdy_n;                
+    wire                    s5_cs_n;                  
+    wire [`WordDataBus]     s6_rd_data;              
+    wire                    s6_rdy_n;                
+    wire                    s6_cs_n;                  
+    wire [`WordDataBus]     s7_rd_data;              
+    wire                    s7_rdy_n;                
+    wire                    s7_cs_n;                  
+    wire                    irq_timer;            
+    wire                    irq_uart_rx;          
+    wire                    irq_uart_tx;          
+    wire [`CPU_IRQ_CH-1:0]  cpu_irq;              
 
     //************************************************************************************************
     // 3.Main code
@@ -155,28 +155,28 @@ module chip (
 
     /********** CPU **********/
     cpu cpu (
-        .clk             (clk),        
-        .clk_n            (clk_n),       
-        .reset           (reset),      
+        .clk                (clk),        
+        .clk_n              (clk_n),       
+        .reset              (reset),      
         // IF Stage
-        .if_bus_rd_data  (m_rd_data),  
-        .if_bus_rdy_n     (m_rdy_n),   
-        .if_bus_grant_n    (m0_grant_n),   
-        .if_bus_req_n     (m0_req_n),    
-        .if_bus_addr     (m0_addr),    
-        .if_bus_as_n      (m0_as_n),   
-        .if_bus_rw       (m0_rw),      
-        .if_bus_wr_data  (m0_wr_data), 
+        .if_bus_rd_data     (m_rd_data),  
+        .if_bus_rdy_n       (m_rdy_n),   
+        .if_bus_grant_n     (m0_grant_n),   
+        .if_bus_req_n       (m0_req_n),    
+        .if_bus_addr        (m0_addr),    
+        .if_bus_as_n        (m0_as_n),   
+        .if_bus_rw          (m0_rw),      
+        .if_bus_wr_data     (m0_wr_data), 
         // MEM Stage
-        .mem_bus_rd_data (m_rd_data),  
-        .mem_bus_rdy_n    (m_rdy_n),   
-        .mem_bus_grant_n   (m1_grant_n),   
-        .mem_bus_req_n    (m1_req_n),    
-        .mem_bus_addr    (m1_addr),    
-        .mem_bus_as_n     (m1_as_n),   
-        .mem_bus_rw      (m1_rw),      
-        .mem_bus_wr_data (m1_wr_data), 
-        .cpu_irq         (cpu_irq)     
+        .mem_bus_rd_data    (m_rd_data),  
+        .mem_bus_rdy_n      (m_rdy_n),   
+        .mem_bus_grant_n    (m1_grant_n),   
+        .mem_bus_req_n      (m1_req_n),    
+        .mem_bus_addr       (m1_addr),    
+        .mem_bus_as_n       (m1_as_n),   
+        .mem_bus_rw         (m1_rw),      
+        .mem_bus_wr_data    (m1_wr_data), 
+        .cpu_irq            (cpu_irq)     
     );
 
     assign m2_addr    = `WORD_ADDR_W'h0;
