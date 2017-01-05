@@ -23,7 +23,7 @@ FPGA基板的3D显示         : [AZPR_3D.zip]()
 源代码                  : [Sample_Program.zip]()  
 汇编程序                : [azprasm.zip]()   
 UrJTAG的设定文件        : [UrJTAG_Setting.zip]()  
-bit/mcs/svf文件         : [AZRP_EvBoard_Diag.zip]()  
+bit/mcs/svf文件         : [AZRP_EvBoard_Diag.zip]()  
 约束文件                : [AZPR_EvBoard.ucf]()  
 
 ### 1.1.2 书籍相关
