@@ -7,24 +7,24 @@
 
 ### 1.1.1 下载
 - 第一章  
-说明书				: [AZPR_datasheet_1.01.pdf]()  
-RTL					: [AZPR_RTL.zip]()  
+说明书                  : [AZPR_datasheet_1.01.pdf]()  
+RTL                    : [AZPR_RTL.zip]()  
 [模块化层次表]()    
 [文件层次表]()  
 
 - 第二章  
-FPGA基板的Eagle数据	: [AZPR_FPGA.zip]()  
-电源基板的Eagle数据  	: [AZPR_POW.zip]()  
-AZPR EvBoard元件库  	: [lib.zip]()  
+FPGA基板的Eagle数据      : [AZPR_FPGA.zip]()  
+电源基板的Eagle数据      : [AZPR_POW.zip]()  
+AZPR EvBoard元件库       : [lib.zip]()  
 [Eagle文件的使用方法]()  
-FPGA基板的3D显示    	: [AZPR_3D.zip]()
+FPGA基板的3D显示         : [AZPR_3D.zip]()
 
 - 第三章
-源代码           	: [Sample_Program.zip]()  
-汇编程序         	: [azprasm.zip]()   
-UrJTAG的设定文件 		: [UrJTAG_Setting.zip]()  
-bit/mcs/svf文件  	: [AZRP_EvBoard_Diag.zip]()  
-约束文件         	: [AZPR_EvBoard.ucf]()  
+源代码                  : [Sample_Program.zip]()  
+汇编程序                : [azprasm.zip]()   
+UrJTAG的设定文件        : [UrJTAG_Setting.zip]()  
+bit/mcs/svf文件         : [AZRP_EvBoard_Diag.zip]()  
+约束文件                : [AZPR_EvBoard.ucf]()  
 
 ### 1.1.2 书籍相关
 
