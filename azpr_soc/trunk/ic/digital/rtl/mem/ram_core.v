@@ -8,10 +8,10 @@
 //**************************************************************************************************** 
 //File Information
 //**************************************************************************************************** 
-//File Name      : rom.v 
+//File Name      : ram_core.v 
 //Project Name   : azpr_soc
-//Description    : the system rom.
-//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/digital/rtl/mem/rom.v
+//Description    : the system ram_core.
+//Github Address : github.com/C-L-G/azpr_soc/trunk/ic/digital/rtl/mem/ram_core.v
 //License        : CPL
 //**************************************************************************************************** 
 //Version Information
@@ -28,23 +28,26 @@
 //**************************************************************************************************** 
 //2016.12.28 - lichangbeiju - Add the coe file read logic : led.coe read.
 //2016.12.08 - lichangbeiju - Change the include.
-//2016.11.22 - lichangbeiju - Add basic rom write and read logic.
+//2016.11.22 - lichangbeiju - Add basic ram_core write and read logic.
 //*---------------------------------------------------------------------------------------------------
 //File Include : system header file
 `include "../sys_include.h"
 
 `include "rom.h" 
-module rom #(
+module ram_core #(
    parameter MEM_WIDTH      = 32,
    parameter MEM_ADDR_BITS  = 11
 )(
-    input  wire                clk,         //
-    input  wire                reset,       //
-    input  wire                cs_n,        //
-    input  wire                as_n,        //
-    input  wire [`RomAddrBus]  addr,        //
-    output wire [`WordDataBus] rd_data,     //
-    output reg                 rdy_n        //
+    input   wire                            clockA,
+    input   wire                            clockB,
+    input   wire                            write_enableA,
+    input   wire                            write_enableB,
+    input   wire    [MEM_ADDR_BITS-1:0]     addressA, 
+    input   wire    [MEM_ADDR_BITS-1:0]     addressB, 
+    input   wire    [MEM_WIDTH-1:0]         input_dataA, 
+    input   wire    [MEM_WIDTH-1:0]         input_dataB, 
+    output  reg     [MEM_WIDTH-1:0]         output_dataA,
+    output  reg     [MEM_WIDTH-1:0]         output_dataB
 );
     //************************************************************************************************
     // 1.Parameter and constant define
@@ -56,53 +59,51 @@ module rom #(
     //------------------------------------------------------------------------------------------------
     // 2.1 the output reg
     //------------------------------------------------------------------------------------------------  
-    //wire                            clockA          ;
-    //wire                            clockB          ;
-    //wire                            write_enableA   ;
-    //wire                            write_enableB   ;
-    //wire    [MEM_ADDR_BITS-1:0]     addressA        ; 
-    //wire    [MEM_ADDR_BITS-1:0]     addressB        ; 
-    //wire    [MEM_WIDTH-1:0]         input_dataA     ; 
-    //wire    [MEM_WIDTH-1:0]         input_dataB     ; 
-    //reg     [MEM_WIDTH-1:0]         output_dataA    ;
-    //reg     [MEM_WIDTH-1:0]         output_dataB    ;
+
     //------------------------------------------------------------------------------------------------
     // 2.2 the memory register
     //------------------------------------------------------------------------------------------------  
+    //(* RAM_STYLE="{AUTO | BLOCK |  BLOCK_POWER1 | BLOCK_POWER2}" *)
+    (* RAM_STYLE="BLOCK" *)
+    reg     [MEM_WIDTH-1:0]     sym_ram     [(2**MEM_ADDR_BITS)-1:0];
 
+    wire                        enableA         ;
+    wire                        enableB         ;
+
+    wire    [MEM_ADDR_BITS-1:0] begin_address   ;
+    wire    [MEM_ADDR_BITS-1:0] end_address     ;
     //************************************************************************************************
     // 3.Main code
     //************************************************************************************************
-    
+
     //------------------------------------------------------------------------------------------------
     // 3.1 the memory read and write logic
     //------------------------------------------------------------------------------------------------
-  
-     //  The forllowing code is only necessary if you wish to initialize the RAM 
+    assign enableA = `ENABLE;
+    assign enableB = `ENABLE;
+
+    assign begin_address    = 'd0;
+    assign end_address      = (2**MEM_ADDR_BITS)-1;
+
+   //  The forllowing code is only necessary if you wish to initialize the RAM 
    //  contents via an external file (use $readmemb for binary data)
-    always @(posedge clk or `RESET_EDGE reset) begin
-        if (reset == `RESET_ENABLE)
-            begin
-                rdy_n   <= `DISABLE_N;
-            end 
-        else begin
-            if ((cs_n == `ENABLE_N) && (as_n == `ENABLE_N))
-                begin
-                    rdy_n   <= `ENABLE_N;
-                end 
-            else
-                begin
-                    rdy_n   <= `DISABLE_N;
-                end
-        end
-    end
-        
-    ram_core ram_core(
-        .clockA             (clk                ),               
-        .addressA           (addr               ),   
-        .write_enableA      (1'b0               ),   
-        .output_dataA       (rd_data            )           
-    );
+   initial
+//        $readmemh("led.coe", sym_ram, begin_address, end_address);
+        $readmemh("led.mem", sym_ram);
+
+   always @(posedge clockA)
+      if (enableA) begin
+         if (write_enableA)
+            sym_ram[addressA] <= input_dataA;
+         output_dataA <= sym_ram[addressA];
+      end
+      
+   always @(posedge clockB)
+      if (enableB) begin
+         if (write_enableB)
+            sym_ram[addressB] <= input_dataB;
+         output_dataB <= sym_ram[addressB];
+      end
     
     
 endmodule    
